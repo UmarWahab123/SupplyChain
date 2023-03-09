@@ -1,0 +1,60 @@
+if($key == 'buying_price')
+            {
+                $getProductDefaultSupplier = SupplierProducts::where('product_id',@$request->prod_detail_id)->where('supplier_id',@$product_supp->supplier_id)->first();
+
+                // this is the price of after conversion for THB
+                $supplier_conv_rate_thb = @$getProductDefaultSupplier->supplier->getCurrency->conversion_rate;
+
+                if($product_detail->supplier_id == $product_supp->supplier_id)
+                {
+
+                    $product_supp->$key = $value;
+                    $product_supp->buying_price_in_thb = ($value / $supplier_conv_rate_thb);
+                    $product_supp->save();
+                    
+                    $importTax = $getProductDefaultSupplier->import_tax_actual != null  ? $getProductDefaultSupplier->import_tax_actual : @$product_detail->import_tax_book;
+
+                    // by function
+                    $price_calculation = $getProductDefaultSupplier->defaultSupplierProductPriceCalculation($request->prod_detail_id,$product_supp->supplier_id,$value,$getProductDefaultSupplier->freight,$getProductDefaultSupplier->landing,$getProductDefaultSupplier->extra_cost,$importTax,$getProductDefaultSupplier->extra_tax);
+
+                    $newValues = Product::find($request->prod_detail_id);
+                    $buying_p = $newValues->total_buy_unit_cost_price;
+                    $selling_p = $newValues->selling_price;
+                    $total_buying_price = $newValues->t_b_u_c_p_of_supplier;
+                    
+                    $buying_p = number_format((float)$buying_p, 2, '.', '');
+                    $selling_p = number_format((float)$selling_p, 2, '.', '');
+                    $t_b_u_c_p_of_supplier = number_format((float)@$total_buying_price, 2, '.', '');
+                    $reload = 1;
+                    
+                    // this below 3 line of code checking is this product mkt for hotel and resturant
+                    $product_info = new Product;
+                    $retail = $product_info->checkProductMktForResturant($request->prod_detail_id);
+                    $horeca = $product_info->checkProductMktForHotel($request->prod_detail_id);
+
+                    $getOrderProducts = OrderProduct::with('get_order')->where('product_id',$request->prod_detail_id)->get();
+                    foreach ($getOrderProducts as $ops) 
+                    {
+                        $getCustomerCat = $ops->get_order->customer->CustomerCategory->title;
+
+                        if($retail == true)
+                        {  
+                            $customer_type_id = 1;
+                            $updatePrice = $product_info->updateOrderProductPriceForMkt($ops,$request->prod_detail_id,$customer_type_id);
+                        }
+
+                        if($horeca == true)
+                        {
+                            $customer_type_id = 2;
+                            $updatePrice = $product_info->updateOrderProductPriceForMkt($ops,$request->prod_detail_id,$customer_type_id);
+                        }
+                    }
+
+                }
+                else
+                {
+                    $product_supp->$key = $value;
+                    $product_supp->buying_price_in_thb = ($value / $supplier_conv_rate_thb);
+                    $product_supp->save();
+                }
+            }

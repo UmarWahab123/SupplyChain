@@ -1,0 +1,27 @@
+@font-face {
+    font-family: 'TH Sarabun New';
+        src: url('public/site/assets/fonts/THSarabunNewBold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+      }
+
+@font-face {
+    font-family: 'BoonRegular';
+        src: url('public/site/assets/fonts/BoonRegular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+      }
+
+@font-face {
+    font-family: 'DizhitlBold';
+        src: url('public/site/assets/fonts/DizhitlBold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+      }
+
+@font-face {
+    font-family: 'DizhitlRegular';
+        src: url('public/site/assets/fonts/DizhitlRegular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+      }

@@ -1,0 +1,455 @@
+@media (max-width:767px)
+{
+    /*phone header*/
+    .phone-logo{
+        max-height: 19px !important;
+        width: auto !important;
+    }
+    .header__hide_phone {
+        display: none !important;
+    }
+    .mobile-username{
+        display: block !important;
+        font-size: 8px !important;
+    }
+    .mobile-username::before{
+        height: 46px !important;
+    }
+    .mobile-bell-icon{
+        height: 25px !important;
+        width: 25px !important;
+    }
+    .mobile-cross-btn{
+        height: 5px !important;
+        width: 5px !important;
+    }
+    .mobile-profileimg{
+        height: 26px !important;
+        width: 26px !important;
+    }
+    .remove-after::after{
+        display: none !important;
+    }
+    .badge-custom{
+        position: absolute !important;
+        top: 0px !important;
+        right: 9px !important;
+        padding: 2px 3px !important;
+        border-radius: 50% !important;
+        background-color: red !important;
+        color: white !important;
+    }
+    .phone-modal-image{
+        overflow: visible !important;
+        width: 40% !important;
+        height: 40% !important;
+    }
+    .search_result_mobile{
+        display: block !important;
+        top: 34px !important;
+        left: 21% !important;
+        width: 58% !important;
+        padding: 0px !important;
+        max-height: 380px !important;
+        overflow-y: scroll !important;
+    }
+    .desktop__sidebar {
+        display: none !important;
+    }
+    .hide-desktop_searches{
+        display: none !important;
+    }
+    .search-padding{
+        padding-top: 5px !important;
+        padding-left: 80px !important;
+        padding-right: 80px !important;
+    }
+    .input-box-shadow{
+        box-shadow: 3px 3px 3px rgb(0 0 0 / 30%) !important;
+    }
+    /*ends*/
+
+    /*Salees Dashboard*/
+    .reset__phone{
+        display: flex !important;
+        justify-content: end !important;
+    }
+    .apply_dates__phone{
+        margin-left: 0px !important;
+    }
+}
+@media(min-width: 768px) and (max-width: 1200px)
+{
+    /*phone header*/
+    .phone-logo{
+        max-height: 19px !important;
+        width: auto !important;
+    }
+    .header__hide_phone {
+        display: none !important;
+    }
+    .mobile-username{
+        display: block !important;
+        font-size: 8px !important;
+    }
+    .mobile-username::before{
+        height: 60px !important;
+    }
+    .mobile-bell-icon{
+        height: 25px !important;
+        width: 25px !important;
+    }
+    .mobile-cross-btn{
+        height: 5px !important;
+        width: 5px !important;
+    }
+    .mobile-profileimg{
+        height: 26px !important;
+        width: 26px !important;
+    }
+    .remove-after::after{
+        display: none !important;
+    }
+    .badge-custom{
+        position: absolute !important;
+        top: 0px !important;
+        right: 9px !important;
+        padding: 2px 3px !important;
+        border-radius: 50% !important;
+        background-color: red !important;
+        color: white !important;
+    }
+    .phone-modal-image{
+        overflow: visible !important;
+        width: 40% !important;
+        height: 40% !important;
+    }
+    .search_result_mobile{
+        display: block !important;
+        top: 34px !important;
+        left: 21% !important;
+        width: 58% !important;
+        padding: 0px !important;
+        max-height: 380px !important;
+        overflow-y: scroll !important;
+    }
+    .desktop__sidebar {
+        display: none !important;
+    }
+    .hide-desktop_searches{
+        display: none !important;
+    }
+    .search-padding{
+        padding-top: 5px !important;
+        padding-left: 30% !important;
+        padding-right: 30% !important;
+    }
+    .tablet-header_buttons{
+        width: 40% !important;
+    }
+    .tablet-header_select{
+        width: 175px !important;
+        margin-top: 2px !important;
+    }
+    .input-box-shadow{
+        box-shadow: 3px 3px 3px rgb(0 0 0 / 30%) !important;
+    }
+    /*ends*/
+
+    .phone__div {
+        display: flex;
+    }
+    .phone__div img {
+        height: 40px !important;
+        margin-bottom: 0 !important;
+    }
+    .phone__div p {
+        font-size: 12px;
+        font-weight: bold;
+    }
+    .breadcrumb {
+        font-size: 16px !important;
+    }
+    .vertical-icons,
+    .common-icons {
+        padding: 8px !important;
+        margin-right: 8px !important;
+    }
+    .vertical-icons>img,
+    .common-icons>img {
+        width: 14px !important;
+    }
+    .billing__div {
+        margin-top: 10px !important;
+    }
+    .iphone__input {
+        box-shadow: 3px 3px 3px rgb(0 0 0 / 30%) !important;
+        border: 1px solid rgba(0, 0, 0, 0.5) !important;
+        border-radius: 3px !important;
+    }
+    .iphone__print__btn {
+        padding: 8px !important;
+        font-size: 10px !important;
+        box-shadow: 3px 3px 3px rgb(0 0 0 / 30%) !important;
+    }
+    .iphone__print__icons {
+        margin-top: 8px !important;
+    }
+    div.dt-buttons {
+        text-align: unset !important;
+        display: inline;
+        font-size: 10px !important;
+    }
+    table.dataTable thead th {
+        padding: 2px !important;
+        font-size: 10px !important;
+    }
+    table.dataTable tbody td {
+        padding: 2px !important;
+        font-size: 10px !important;
+    }
+    table.dataTable tfoot th {
+        padding: 2px !important;
+        font-size: 10px !important;
+    }
+     ::-webkit-scrollbar {
+        height: 6px !important;
+    }
+    .table-responsive.bg-white,
+    .entriesbg {
+        background-color: transparent !important;
+        background: transparent !important;
+    }
+    .table-responsive.customborder {
+        border: none !important;
+    }
+    .table-responsive.custompadding {
+        padding: 0 !important;
+    }
+    div.dataTables_length {
+        width: 150px !important;
+        font-size: 10px !important;
+    }
+    div.dataTables_length>label>select {
+        width: 50px !important;
+        height: 20px !important;
+    }
+    div.dataTables_filter {
+        font-size: 10px !important;
+    }
+    div.dataTables_filter>label>input {
+        width: 100px !important;
+    }
+    div.dataTables_info {
+        font-size: 10px !important;
+        float: left !important;
+    }
+    div.col>.select2-container,
+    div.col>.select2-container--default,
+    div.col>.select2-container--below,
+    div.col>.select2-container--focus {
+        width: 160px !important;
+    }
+    div.dt-buttons>.dt-button-collection {
+        width: 320px !important;
+        left: 10px !important;
+        right: 5px !important;
+    }
+    /*dashboard-boxes-css*/
+    .phone-boxes {
+        display: flex;
+    }
+    .phone-boxes-size {
+        height: 50px !important;
+        margin-bottom: 8px !important;
+    }
+    .dashboard-boxes-font,
+    .dashboard-boxes-bracket-text-font {
+        font-size: 10px !important;
+    }
+    .phone-boxes-title-margin {
+        margin-top: 0px !important;
+    }
+    .dashboard-boxes-img {
+        width: 12px !important;
+        height: 9px !important;
+    }
+    div.dt-button-collection button.dt-button {
+        width: 49% !important;
+    }
+    /*ends*/
+    .phone_footer_table {
+        font-size: 8px !important;
+    }
+    .desktop__sidebar {
+        display: none !important;
+    }
+    .mob__sidebar {
+        position: absolute;
+        z-index: 100;
+        display: block !important;
+    }
+    .table_divider_div{
+        padding: 0.5% !important;
+    }
+    .sidebar__btn {
+        white-space: normal !important;
+    }
+    .phone__sidebar_li{
+        padding: 20px !important;
+    }
+    .phone__sidebar_li>li {
+        font-size: 10px;
+        padding: 0px;
+    }
+    .phone__sidebar_li>li a {
+        font-size: 10px;
+        padding: 0px;
+        min-height: 35px;
+        margin: 8px;
+        font-weight: normal;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .phone__sidebar_li>li a span {}
+    .select2-container {
+        box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.3);
+    }
+    .desktop__confirm_btn {
+        display: flex !important;
+        justify-content: flex-end !important;
+    }
+    .mob__sidebar {
+        display: none;
+    }
+    .mob__sidebar {
+        position: absolute;
+        z-index: 100;
+        display: block !important;
+    }
+    .sidebar__btn {
+        white-space: normal !important;
+    }
+    .phone__sidebar_li>li {
+        font-size: 10px;
+        padding: 0px;
+    }
+    .phone__sidebar_li>li a {
+        font-size: 10px;
+        padding: 0px;
+        min-height: 35px;
+        margin: 8px;
+        font-weight: normal;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .phone__sidebar_li>li a span {}
+    .dropdown-menu.show {
+        box-shadow: 3px 3px 3px rgb(0 0 0 / 30%) !important;
+    }
+    .phone_dropdown__item {
+        margin: 0px !important;
+        border-bottom: 1px solid #eee;
+    }
+    .dropdown-toggle::after {
+        display: inline-block;
+        margin-left: .5em;
+        margin-right: 0.5em;
+        vertical-align: .25em;
+        content: "";
+        border-top: .3em solid;
+        border-right: .3em solid transparent;
+        border-bottom: 0;
+        border-left: .3em solid transparent;
+    }
+    .dropdown.show .dropdown-toggle::after {
+        transform: rotate(180deg) !important;
+    }
+    .right-content {
+        padding-top: 25px !important;
+    }
+    .header__hide_phone {
+        /*display: none !important;*/
+    }
+    /* My CSS */
+    .logo-container2 {
+        margin-left: 12% !important;
+        width: 45%;
+    }
+    .image_icons {
+        /* max-width: 100%; */
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        width: 70px;
+        margin-left: 70%!important;
+        margin-top: -48%;
+    }
+    .prev-frwrd {
+        visibility: hidden;
+    }
+    .img-uploader {
+        /* visibility: hidden; */
+    }
+    table,
+    th,
+    td {
+        border: 1px solid #eee;
+    }
+    .font-size {
+        font-size: 9px;
+    }
+    .view-supplier-btn {
+        width: 100px !important;
+    }
+    .btn-sm-right {
+        /* float: right !important; */
+        margin-left: 80%;
+    }
+    .btn-sm-right-product {
+        /* float: right !important; */
+        margin-left: 90%;
+    }
+    .btn-small {
+        /* width: 120px; */
+        width: 80% !important;
+    }
+    .bg-btn {
+        background-color: transparent !important;
+        color: black !important;
+        border: none !important;
+    }
+    .btn-size {
+        width: 10% !important;
+    }
+    .toggle-btn1,
+    .btn-small {
+        width: 80% !important;
+    }
+    .font-size {
+        font-size: 9px;
+    }
+    .mobile-phone-ui {
+        display: block !important;
+    }
+    .desktop-ecom-table {
+        display: none;
+    }
+    .lg-logo {
+        display: none;
+    }
+    .mrgin-top {
+        margin-top: 8px !important;
+    }
+    .mrgn-left {
+        margin-left: 90%
+    }
+    .bx-shdw {
+        box-shadow: 3px 3px 3px rgb(0 0 0 / 30%) !important;
+    }
+    /* .cust-image {
+    margin-left: 180% !important;
+    } */
+}

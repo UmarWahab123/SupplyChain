@@ -1,0 +1,30 @@
+.display_in_block {
+    display: inline-block !important;
+}
+
+.cmpny_logo {
+    height: 40px !important;
+    width: 40px !important;
+}
+
+.cmpny_name {
+    font-size: 13px !important;
+    font-weight: bold !important;
+}
+
+.btn__size {
+    font-size: 8px !important;
+}
+
+.custom__padding_left {
+    padding-left: 15px !important;
+}
+
+.btn-colmns {
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.mrgn-btm {
+    margin-bottom: 6px !important;
+}

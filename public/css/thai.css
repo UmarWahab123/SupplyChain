@@ -1,0 +1,159 @@
+@font-face {
+    font-family: 'BoonBold';
+        src: url('/assets/fonts/boon-v1-1/bd0740f05048e39a47c1626262cc4117/848ecd4c386f06810e2f4f8f9b1ec4fb/BoonBold.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+      }
+
+@font-face {
+    font-family: 'BoonBoldOblique';
+        src: url('/assets/fonts/boon-v1-1/bd0740f05048e39a47c1626262cc4117/b3adfa74a43e45cb09d251cce8a93aaf/BoonBoldOblique.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+      }
+
+@font-face {
+    font-family: 'BoonLight';
+        src: url('/assets/fonts/boon-v1-1/bd0740f05048e39a47c1626262cc4117/489579fb604bb2cd457841d28e5a9e03/BoonLight.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+      }
+
+@font-face {
+    font-family: 'BoonLightOblique';
+        src: url('/assets/fonts/boon-v1-1/bd0740f05048e39a47c1626262cc4117/95413ff8d53913620936751c270d4c30/BoonLightOblique.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+      }
+
+@font-face {
+    font-family: 'BoonMedium';
+        src: url('/assets/fonts/boon-v1-1/bd0740f05048e39a47c1626262cc4117/25a1b971c041f5672b1b29f5818a3784/BoonMedium.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+      }
+
+@font-face {
+    font-family: 'BoonMediumOblique';
+        src: url('/assets/fonts/boon-v1-1/bd0740f05048e39a47c1626262cc4117/20791e8f3bc57b0ce31533d806ef621f/BoonMediumOblique.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+      }
+
+@font-face {
+    font-family: 'BoonRegular';
+        src: url('/assets/fonts/boon-v1-1/bd0740f05048e39a47c1626262cc4117/5187c3c55c39141818322220174edbe7/BoonRegular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+      }
+
+@font-face {
+    font-family: 'BoonRegularOblique';
+        src: url('/assets/fonts/boon-v1-1/bd0740f05048e39a47c1626262cc4117/8e8b2a4831935d90d3d5a61e9501193b/BoonRegularOblique.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+      }
+
+@font-face {
+    font-family: 'BoonSemiBold';
+        src: url('/assets/fonts/boon-v1-1/bd0740f05048e39a47c1626262cc4117/f88c4e3ae23d001284f121d776c133d5/BoonSemiBold.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+      }
+
+@font-face {
+    font-family: 'BoonSemiBoldOblique';
+        src: url('/assets/fonts/boon-v1-1/bd0740f05048e39a47c1626262cc4117/9617e2ff24a5e04b5b54114c601d6d68/BoonSemiBoldOblique.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+      }
+
+ /* The following rules are deprecated. */ 
+
+@font-face {
+    font-family: 'Boon';
+        src: url('/assets/fonts/boon-v1-1/bd0740f05048e39a47c1626262cc4117/848ecd4c386f06810e2f4f8f9b1ec4fb/BoonBold.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+      }
+
+
+
+@font-face {
+    font-family: 'Boon';
+        src: url('/assets/fonts/boon-v1-1/bd0740f05048e39a47c1626262cc4117/b3adfa74a43e45cb09d251cce8a93aaf/BoonBoldOblique.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+      }
+
+
+
+@font-face {
+    font-family: 'Boon';
+        src: url('/assets/fonts/boon-v1-1/bd0740f05048e39a47c1626262cc4117/489579fb604bb2cd457841d28e5a9e03/BoonLight.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+      }
+
+
+
+@font-face {
+    font-family: 'Boon';
+        src: url('/assets/fonts/boon-v1-1/bd0740f05048e39a47c1626262cc4117/95413ff8d53913620936751c270d4c30/BoonLightOblique.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+      }
+
+
+
+@font-face {
+    font-family: 'Boon';
+        src: url('/assets/fonts/boon-v1-1/bd0740f05048e39a47c1626262cc4117/25a1b971c041f5672b1b29f5818a3784/BoonMedium.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+      }
+
+
+
+@font-face {
+    font-family: 'Boon';
+        src: url('/assets/fonts/boon-v1-1/bd0740f05048e39a47c1626262cc4117/20791e8f3bc57b0ce31533d806ef621f/BoonMediumOblique.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+      }
+
+
+
+@font-face {
+    font-family: 'Boon';
+        src: url('/assets/fonts/boon-v1-1/bd0740f05048e39a47c1626262cc4117/5187c3c55c39141818322220174edbe7/BoonRegular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+      }
+
+
+
+@font-face {
+    font-family: 'Boon';
+        src: url('/assets/fonts/boon-v1-1/bd0740f05048e39a47c1626262cc4117/8e8b2a4831935d90d3d5a61e9501193b/BoonRegularOblique.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+      }
+
+
+
+@font-face {
+    font-family: 'Boon';
+        src: url('/assets/fonts/boon-v1-1/bd0740f05048e39a47c1626262cc4117/f88c4e3ae23d001284f121d776c133d5/BoonSemiBold.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+      }
+
+
+
+@font-face {
+    font-family: 'Boon';
+        src: url('/assets/fonts/boon-v1-1/bd0740f05048e39a47c1626262cc4117/9617e2ff24a5e04b5b54114c601d6d68/BoonSemiBoldOblique.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+      }

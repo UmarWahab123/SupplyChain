@@ -1,0 +1,53 @@
+.cust-image {
+    margin-left: 270% !important;
+    margin-top: -10% !important;
+}
+
+.cust-detail-pg {
+    margin-top: -20% !important;
+}
+
+.cust-detail-text {
+    font-size: 1.5rem !important;
+    font-weight: bold;
+    margin-top: 1% !important;
+}
+
+.cust-detail-file {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 3% !important;
+}
+
+.cust-fixed-prices-div {
+    margin-top: 3% !important;
+}
+
+.cust-fixed-prices-tbl {
+    background-color: white !important;
+}
+
+.empty-td {
+    display: none !important;
+}
+
+.save-close-btn {
+    font-size: 10px !important;
+    margin-bottom: -3% !important;
+}
+
+.order-div-mrgin {
+    margin-top: 3% !important;
+}
+
+div.order-div-mrgin {
+    order: 2;
+}
+
+div.notes-div-mrgin {
+    order: 1;
+}
+
+div.order-doc-div-mrgin {
+    order: 3;
+}

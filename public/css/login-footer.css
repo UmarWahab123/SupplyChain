@@ -1,0 +1,33 @@
+    @media (max-width:767px) {
+        .footer-main-div {
+            display: grid !important;
+            margin-left: -20% !important;
+        }
+        .item1 {
+            margin-left: 25% !important;
+        }
+        .item4 {
+            grid-column: 1 !important;
+        }
+        .mrgin-left-item4 {
+            margin-left: -10% !important;
+        }
+        .mrgn-left {
+            margin-left: 10% !important;
+        }
+        .item.footer-logo {
+            width: 6% !important;
+        }
+        .item2.footer-logo2 {
+            width: 6% !important;
+        }
+        .item3.footer-logo3 {
+            width: 6% !important;
+        }
+        .item4.footer-logo4 {
+            width: 6% !important;
+        }
+        .suply-whole-sale-manag {
+            width: 100%;
+        }
+    }

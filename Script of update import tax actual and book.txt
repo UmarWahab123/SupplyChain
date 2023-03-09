@@ -1,0 +1,48 @@
+elseif($key == 'import_tax_book')
+            {	
+				$total_buying_price = null;
+                if($product_detail->supplier_id !== null)
+                {
+                    $getProductDefaultSupplier = SupplierProducts::where('product_id',@$product_detail->id)->where('supplier_id',@$product_detail->supplier_id)->first();
+                    if($getProductDefaultSupplier !== null)
+                    {
+                        $importTax = $getProductDefaultSupplier->import_tax_actual != null ? $getProductDefaultSupplier->import_tax_actual : $value;
+                        
+                        $total_buying_price = ($getProductDefaultSupplier->freight)+($getProductDefaultSupplier->landing)+($getProductDefaultSupplier->buying_price);
+
+                        $newTotalBuyingPrice = (($importTax)/100) * $total_buying_price;
+
+                        $total_buying_price = $total_buying_price + $newTotalBuyingPrice;
+
+                        $product_detail->total_buy_unit_cost_price = $total_buying_price;              //this is buy unit cost price
+                        $total_selling_price = $total_buying_price * $product_detail->unit_conversion_rate;  //this is selling price
+                        $product_detail->selling_price = $total_selling_price;
+                    }  
+                }
+                $product_detail->$key = $value;
+                $reload = 1;
+            }
+            elseif($key == 'import_tax_actual')
+            {   
+                $total_buying_price = null;
+                if($product_detail->supplier_id !== null)
+                {
+                    $getProductDefaultSupplier = SupplierProducts::where('product_id',@$product_detail->id)->where('supplier_id',@$product_detail->supplier_id)->first();
+                    if($getProductDefaultSupplier !== null)
+                    {
+                        $importTax = $value;
+                        
+                        $total_buying_price = ($getProductDefaultSupplier->freight)+($getProductDefaultSupplier->landing)+($getProductDefaultSupplier->buying_price);
+
+                        $newTotalBuyingPrice = (($importTax)/100) * $total_buying_price;
+
+                        $total_buying_price = $total_buying_price + $newTotalBuyingPrice;
+
+                        $product_detail->total_buy_unit_cost_price = $total_buying_price;              //this is buy unit cost price
+                        $total_selling_price = $total_buying_price * $product_detail->unit_conversion_rate;  //this is selling price
+                        $product_detail->selling_price = $total_selling_price;
+                    }  
+                }
+                $product_detail->$key = $value;
+                $reload = 1;
+            }

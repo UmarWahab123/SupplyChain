@@ -1,0 +1,61 @@
+public function tempRowsAdd(Request $request)
+    {
+        $recentAdded = Product::find($request->prod_id);
+
+        $categoryMargins = CustomerTypeCategoryMargin::where('category_id', $recentAdded->category_id)->orderBy('id', 'ASC')->get();
+        $checkProdMargin = CustomerTypeProductMargin::where('product_id',$request->prod_id)->count();
+        if($checkProdMargin == 0)
+        {
+            foreach ($categoryMargins as $value) 
+            {
+                $productMargin = new CustomerTypeProductMargin;
+                $productMargin->product_id       = $recentAdded->id;
+                $productMargin->customer_type_id = $value->customer_type_id;
+                $productMargin->default_margin   = $value->default_margin;
+                $productMargin->default_value    = $value->default_value;
+                $productMargin->save();
+            }
+        }
+        elseif($checkProdMargin == 1)
+        {
+            $del = CustomerTypeProductMargin::where('product_id',$request->prod_id)->delete();
+            foreach ($categoryMargins as $value) 
+            {
+                $productMargin = new CustomerTypeProductMargin;
+                $productMargin->product_id       = $recentAdded->id;
+                $productMargin->customer_type_id = $value->customer_type_id;
+                $productMargin->default_margin   = $value->default_margin;
+                $productMargin->default_value    = $value->default_value;
+                $productMargin->save();
+            }
+        }
+
+        $customerCats = CustomerCategory::orderBy('id', 'ASC')->get();
+        $checkProdFixed = ProductFixedPrice::where('product_id',$request->prod_id)->count();
+        if($checkProdFixed == 0)
+        {
+            foreach ($customerCats as $c_cat) 
+            {
+                $productFixedPrices = new ProductFixedPrice;
+                $productFixedPrices->product_id       = $recentAdded->id;
+                $productFixedPrices->customer_type_id = $c_cat->id;
+                $productFixedPrices->fixed_price      = 0;
+                $productFixedPrices->expiration_date  = NULL;
+                $productFixedPrices->save();
+            }
+        }
+        elseif($checkProdFixed == 1)
+        {
+            $del = ProductFixedPrice::where('product_id',$request->prod_id)->delete();
+            foreach ($customerCats as $c_cat) 
+            {
+                $productFixedPrices = new ProductFixedPrice;
+                $productFixedPrices->product_id       = $recentAdded->id;
+                $productFixedPrices->customer_type_id = $c_cat->id;
+                $productFixedPrices->fixed_price      = 0;
+                $productFixedPrices->expiration_date  = NULL;
+                $productFixedPrices->save();
+            }
+        }
+        return response()->json(['success' => true]);
+    }

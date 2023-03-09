@@ -1,0 +1,17 @@
+@media screen and (max-width:767px) {
+    .dashboard-logos {
+        width: 8% !important;
+    }
+    .dashboard-alignment {
+        display: flex !important;
+        justify-content: space-around !important;
+    }
+    .reset-date-btn {
+        display: flex !important;
+        justify-content: flex-end !important;
+    }
+    .empty {
+        display: none !important;
+        margin: 0px !important;
+    }
+}
