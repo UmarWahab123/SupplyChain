@@ -656,7 +656,7 @@ class HomeController extends Controller
                 if ($item->PurchaseOrder->status == 22) {
                     return $item->trasnfer_expiration_date != null ? $item->trasnfer_expiration_date : 'N.A';
                 } else {
-                    $html_string = '<input type="date"  name="trasnfer_expiration_date" data-id="' . $item->id . '" class="fieldFocus" data-fieldvalue="' . $item->trasnfer_expiration_date . '" value="' . $item->trasnfer_expiration_date . '" readonly disabled style="width:100%">';
+                    $html_string = '<input type="text"  name="trasnfer_expiration_date" data-id="' . $item->id . '" class="fieldFocus trasnfer_expiration_date" data-fieldvalue="' . $item->trasnfer_expiration_date . '" value="' . $item->trasnfer_expiration_date . '" readonly="readonly" disabled style="width:100%" id="trasnfer_expiration_date">';
                     return $html_string;
                 }
             })

@@ -270,6 +270,10 @@ $('.sorting_filter_table').on('click',function(){
       { data: 'trasnfer_expiration_date', name: 'trasnfer_expiration_date' },
     ],
       drawCallback: function(){
+        $('#trasnfer_expiration_date').datepicker({
+          format: "dd/mm/yyyy",
+          autoHide: true,
+        });
         $('#loader_modal').modal('hide');
       },
   });
@@ -277,7 +281,9 @@ $('.sorting_filter_table').on('click',function(){
   $(document).on("dblclick",".fieldFocus",function(){
     $(this).removeAttr('disabled');
     $(this).addClass('active');
-    $(this).removeAttr('readonly');
+    if(!$(this).hasClass('trasnfer_expiration_date')){
+      $(this).removeAttr('readonly');
+    }
     $(this).focus();
   });
 
