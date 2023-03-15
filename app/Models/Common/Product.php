@@ -47,7 +47,7 @@ class Product extends Model
 
     public function supplier_products()
     {
-        return $this->hasMany('App\Models\Common\SupplierProducts', 'product_id', 'id')->whereNotNull('supplier_id');
+        return $this->hasMany('App\Models\Common\SupplierProducts', 'product_id', 'id')->whereNotNull('supplier_id')->where('is_deleted',0);
     }
 
     public function warehouse_products()
@@ -76,7 +76,7 @@ class Product extends Model
 
     public function default_supplier_products()
     {
-        return $this->belongsTo('App\Models\Common\SupplierProducts', 'supplier_id', 'supplier_id');
+        return $this->belongsTo('App\Models\Common\SupplierProducts', 'supplier_id', 'supplier_id')->where('is_deleted',0);
     }
 
     public function productType()
