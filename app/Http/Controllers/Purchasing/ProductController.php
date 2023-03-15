@@ -6607,7 +6607,7 @@ class ProductController extends Controller
         $import_tax_actual_in_tbh = 0;
         $imported = false;
         if ($last_or_def_supp_id != 0) {
-            $default_or_last_supplier = SupplierProducts::with('supplier')->where('product_id', $id)->where('supplier_id', $last_or_def_supp_id)->first();
+            $default_or_last_supplier = SupplierProducts::with('supplier')->where('product_id', $id)->where('supplier_id', $last_or_def_supp_id)->where('is_deleted',0)->first();
             $supplier_name = Supplier::select('company')->where('id', $last_or_def_supp_id)->first();
             $supplier_company = @$supplier_name->company;
 
