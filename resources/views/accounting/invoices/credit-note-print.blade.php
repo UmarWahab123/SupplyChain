@@ -365,7 +365,14 @@ body {
 
     font-style: normal;font-size: 16px;line-height: 1;">{{@$order->customer->primary_sale_person->name}}</span></span></td>
     <td width="45pt"><span style="position: relative;"><span style="position: absolute;top: 9px;">Phone No. : </td>
-    <td width="20pt" style="position: relative;"><span style="position: absolute;left: -20pt;top: 10px;">{{@$order->customer->primary_sale_person->phone_number !== null ? @$order->customer->primary_sale_person->phone_number : '--'}}</span></td>
+    <td width="20pt" style="position: relative;"><span style="position: absolute;left: -20pt;top: 10px;">
+      @if(@$order->customer->primary_sale_person->phone_number)
+        {{@$order->customer->primary_sale_person->phone_number}}
+      @else
+        --
+        <span style="position: absolute;left: -20pt;top: 10px;visibility: hidden;">1234567899</span>
+      @endif
+    </span></td>
 
     <td width="60.4pt" align="right" style="line-height: 0.6;padding-top: 10px;"><span>ภาษีมูลค่าเพิ่ม</span><br>Vat</td>
     <td width="61.2pt" align="center" valign="middle" style="padding-top: 7px;">THB {{@$vat_total != 0 ? @number_format(floor($vat_total*100)/100,2,'.',',') : 0}}</td>

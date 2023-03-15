@@ -5071,8 +5071,7 @@ function saveProdSuppData(id,field_name,field_value,old_value){
       },
       success: function(data)
       {
-        $("#loader_modal").modal('hide');
-        $('.table-product-history').DataTable().ajax.reload();
+        // $('.table-product-history').DataTable().ajax.reload();
 
         if(data.success == true)
         {
@@ -5088,7 +5087,7 @@ function saveProdSuppData(id,field_name,field_value,old_value){
           {
             window.location.reload();
           }
-
+          $("#loader_modal").modal('hide');
         }
       },
       error: function(request, status, error){
