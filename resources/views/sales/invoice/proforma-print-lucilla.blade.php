@@ -139,7 +139,7 @@
             <div class="d-inline">
                 <span style="padding-left: 60px;">{{@$order->customer->company}}
                 </span>
-                <span style="float: right;" align="right">{{@$customerAddress->title}}</span>
+                <span style="" align="right">{{@$customerAddress->title}}</span>
 
             </div>
 <!--            @if(@$customerAddress->title !== 'Default Address' && @$customerAddress->show_title != 0)
@@ -162,7 +162,7 @@
             <div style="height: 80px;">
                 <div class="d-inline">
                     <span style="padding-left: 10px;">{{@$order->customer->reference_name}}</span>
-                    <span style="float: right;" align="right">{{@$customerShippingAddress->title}}</span>
+                    <span style="white-space: nowrap;" align="right">{{@$customerShippingAddress->title}}</span>
                 </div>
                 <br>
            <!-- @if(@$customerShippingAddress->title !== 'Default Address' && @$customerShippingAddress->show_title != 0)
@@ -318,7 +318,7 @@
           </span>
         </td>
         <td valign="top" align="right" style="border: 1px solid white;position: relative;" width="131px">
-          <span style="position: absolute;padding-left: 20px;">
+          <span style="position: absolute;padding-left: 20px;display: block;">
           {{number_format(floor($item_level_discount*100)/100, 2, '.', ',')}}<br>
           {{number_format($non_vat_total_after_discount, 2, '.',',')}}<br>
           {{number_format($vat_items_total_after_discount, 2, '.',',')}}<br>
