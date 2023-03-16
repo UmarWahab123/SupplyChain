@@ -304,16 +304,8 @@ body {
                         @php
                             $diff = 0;
                             $diff = $tran->order->total_amount - ($tran->order->vat_total_paid + $tran->order->non_vat_total_paid);
-                            // if ($order->get_order_transactions != null)
-                            // {
-                                //     foreach ($order->get_order_transactions as $value)
-                                //     {
-                                    // $diff += $value->total_amount - ($value->vat_total_paid + $value->non_vat_total_paid);
-                            //     }
-                            //     // $diff = number_format(preg_replace('/(\.\d\d).*/', '$1', number_format(@$diff, 4, '.', '')), 2, '.', ',');
-                            // }
                         @endphp
-                        {{ $diff }}
+                        {{ $diff > 2 ? $diff : 0 }}
                     </td>
 
                     <td align="">
