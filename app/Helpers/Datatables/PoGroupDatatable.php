@@ -121,7 +121,7 @@ class PoGroupDatatable {
                     $po_group_details = $item->po_group_detail;
                     foreach ($po_group_details as $po_group) {
                         if ($i < 3) {
-                            $string .= $po_group->purchase_order->PoSupplier->reference_name . '<br>';
+                            $string .= @$po_group->purchase_order->PoSupplier->reference_name . '<br>';
                         }
                         $i++;
                     }
@@ -135,7 +135,7 @@ class PoGroupDatatable {
                 }
                 elseif($item->po_group_detail_count == 1)
                 {
-                    return $item->po_group_detail[0]->purchase_order->PoSupplier->reference_name;
+                    return @$item->po_group_detail[0]->purchase_order->PoSupplier->reference_name;
                 } else {
                     return '--';
                 }
@@ -299,7 +299,7 @@ class PoGroupDatatable {
                     $i = 0;
                     foreach ($po_group_detail as $detail) {
                         if ($i < 3) {
-                            $string .= $detail->purchase_order->PoSupplier->reference_name . '<br>';
+                            $string .= @$detail->purchase_order->PoSupplier->reference_name . '<br>';
                         }
                         $i++;
                     }
