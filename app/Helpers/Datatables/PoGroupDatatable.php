@@ -171,7 +171,7 @@ class PoGroupDatatable {
                     $po_group_details = $item->po_group_detail;
                     foreach ($po_group_details as $po_group) {
                         if ($i < 3) {
-                            $string .= $po_group->purchase_order->ref_id . '<br>';
+                            $string .= @$po_group->purchase_order->ref_id . '<br>';
                         }
                         $i++;
                     }
@@ -342,7 +342,7 @@ class PoGroupDatatable {
                         $string = '';
                         foreach ($po_group_detail as $detail) {
                             if ($i < 3) {
-                                $string .= $detail->purchase_order->ref_id . '<br>';
+                                $string .= @$detail->purchase_order->ref_id . '<br>';
                             }
                             $i++;
                         }
@@ -358,7 +358,7 @@ class PoGroupDatatable {
                     {
                         $po = [];
                         foreach ($po_group_detail as $p_g_d) {
-                            if(!in_array($p_g_d->purchase_order->ref_id, $po, true)){
+                            if(!in_array(@$p_g_d->purchase_order->ref_id, $po, true)){
                             array_push($po, $p_g_d->purchase_order);
                             }
                         }
