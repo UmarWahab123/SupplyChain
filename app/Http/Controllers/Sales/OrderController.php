@@ -2252,7 +2252,8 @@ class OrderController extends Controller
 
     public function doActionInvoice(Request $request)
     {
-        return QuotationsCommonHelper::doActionInvoice($request);
+        $res = QuotationsCommonHelper::doActionInvoice($request);
+        return $res;
     }
 
     public function completedQuotations()

@@ -128,6 +128,7 @@ class QuotationsCommonHelper
 	        if($draft_quotation != null && $draft_quotation->draft_quotation_products->count() == 0)
 	        {
 	        	$errorMsg =  'Please add some products in the invoice';
+	        	DB::rollBack();
 	        	return response()->json(['success' => false, 'errorMsg' => $errorMsg]);
 	        }
 	        else
@@ -141,6 +142,7 @@ class QuotationsCommonHelper
 		            	if($value->quantity == 0 || $value->quantity == null)
 		            	{
 		                	$errorMsg =  'Quantity cannot be 0 or Null, please enter quantity of the added items';
+		                	DB::rollBack();
 		                	return response()->json(['success' => false, 'errorMsg' => $errorMsg]);
 		              	}
 		            }
@@ -204,6 +206,7 @@ class QuotationsCommonHelper
 						$order->delivery_request_date = $draft_quotation->delivery_request_date;
 						$order->billing_address_id    = $draft_quotation->billing_address_id;
 						$order->shipping_address_id   = $draft_quotation->shipping_address_id;
+
 						$order->user_id               = $request->user_id != null ? $request->user_id : Auth::user()->id;
 						$order->converted_to_invoice_on = Carbon::now();
 						$order->manual_ref_no         = $draft_quotation->manual_ref_no;
@@ -212,6 +215,7 @@ class QuotationsCommonHelper
 						$order->primary_status        = 1;
 						$order->status                = 6;
 						$order->save();
+
 						$checkUserReport = User::find($order->user_id);
 						if($checkUserReport)
 						{
@@ -417,7 +421,7 @@ class QuotationsCommonHelper
         	}
       	}
       } catch (\Exception $e) {
-    		
+    		return response()->json(['success' => false, 'msg' => $e]);
     	}
     }
 
