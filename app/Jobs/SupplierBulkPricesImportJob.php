@@ -26,6 +26,8 @@ class SupplierBulkPricesImportJob implements ShouldQueue
     public  $error_msgs;
     protected $rows;
     protected $user_id;
+    protected $timeout = 1500;
+    protected $tries = 1;
     /**
      * Create a new job instance.
      *
