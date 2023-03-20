@@ -61,7 +61,7 @@ class SupplierBulkPricesImportJob implements ShouldQueue
                 $remove = array_shift($row1);
 
                 $increment = 3;
-                foreach ($row1 as $row) 
+                foreach ($row1 as $key => $row) 
                 {
                     if(array_key_exists("system_code", $row))
                     {
@@ -77,7 +77,7 @@ class SupplierBulkPricesImportJob implements ShouldQueue
                             if($product)
                             {
                                 $supplier = Supplier::where('reference_name', $row['supplier'])->count();
-                                $supplier_product = SupplierProducts::where('product_id', $product->id)->where('supplier_id', $this->supplier_id)->first();
+                                $supplier_product = SupplierProducts::with('supplier.getCurrency')->where('product_id', $product->id)->where('supplier_id', $this->supplier_id)->first();
                                 // this is the price of after conversion for THB
                                 if($supplier_product != null && $supplier != 0) 
                                 {
@@ -92,7 +92,7 @@ class SupplierBulkPricesImportJob implements ShouldQueue
                                         // this condition will only execute if this is the default supplier of product
                                         if($product->supplier_id == $this->supplier_id)
                                         {
-                                            $price_calculation = $supplier_product->defaultSupplierProductPriceCalculation($product->id, $product->supplier_id, $row['purchasing_price_euro'], $supplier_product->freight, $supplier_product->landing, $supplier_product->extra_cost, $importTax, $supplier_product->extra_tax);
+                                            $price_calculation = $supplier_product->defaultSupplierProductPriceCalculation($product->id, $product->supplier_id, $row['purchasing_price_euro'], $supplier_product->freight, $supplier_product->landing, $supplier_product->extra_cost, $importTax, $supplier_product->extra_tax, $product, $supplier_product);
                                         }
                                     }
                                     else
@@ -111,6 +111,7 @@ class SupplierBulkPricesImportJob implements ShouldQueue
 
                                     if (is_numeric($row['purchasing_price_euro'])) 
                                     {
+                                        \Log::info('product '.$key);
                                         $product_history              = new ProductHistory;
                                         $product_history->user_id     = $user_id;
                                         $product_history->product_id  = $product->id;

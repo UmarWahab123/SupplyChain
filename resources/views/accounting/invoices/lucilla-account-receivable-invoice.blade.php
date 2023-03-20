@@ -231,14 +231,14 @@ $arr = explode("\r\n", @$all_orders[0]->user->getCompany->bank_detail);
           $non_vat_total = floatval(preg_replace('/[^\d.]/', '', $vat_totalll)) - @$order->non_vat_total_paid;
           $order_total = @$order->order_products->sum('total_price')+@$order->order_products->sum('vat_amount_total');
 
-          if($order->in_ref_id <= 23011593){
+          <!-- if($order->in_ref_id <= 23011593){
                 $nums = @$order->getorderTotal($order->id);
                 $vat_total = $nums['vat_items_total_after_discount'] + $nums['vat_total'];
 
                 $non_vat_total = $nums['non_vat_total_after_discount'];
 
                 $order_total = $vat_total + $non_vat_total;
-              }
+              } -->
 
           
 

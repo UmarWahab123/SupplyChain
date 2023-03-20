@@ -51,12 +51,12 @@ class SupplierProducts extends Model
         return $getProductDefaultSupplier->gross_weight;
     }
 
-    public function defaultSupplierProductPriceCalculation($product_id,$supplier_id,$buying_price,$freight,$landing,$extra_cost,$importTax,$extra_tax)
+    public function defaultSupplierProductPriceCalculation($product_id,$supplier_id,$buying_price,$freight,$landing,$extra_cost,$importTax,$extra_tax, $product = null, $supplier_product = null)
     {
 
-        $product = Product::find($product_id);
+        $product = $product != null ? $product : Product::find($product_id);
 
-        $supp_product = SupplierProducts::where('supplier_id',$supplier_id)->where('product_id',$product_id)->first();
+        $supp_product = $supplier_product != null ? $supplier_product : SupplierProducts::with('supplier.getCurrency')->where('supplier_id',$supplier_id)->where('product_id',$product_id)->first();
 
         if ($supp_product->currency_conversion_rate != null) {
             $supplier_conv_rate_thb = 1/$supp_product->currency_conversion_rate;
