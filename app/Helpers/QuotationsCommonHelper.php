@@ -192,7 +192,7 @@ class QuotationsCommonHelper
 						$order->status_prefix         = $quot_status_prefix;
 						$order->ref_prefix            = $ref_prefix;
 						$order->ref_id                = $system_gen_no;
-						$order->ref_id_unique         = $system_gen_no;
+						$order->ref_id_unique         = @$config->server == 'lucilla' ? $system_gen_no : null;
 						$order->customer_id           = $draft_quotation->customer_id;
 						$order->total_amount          = $var;
 						$order->target_ship_date      = $request->target_ship_date;
