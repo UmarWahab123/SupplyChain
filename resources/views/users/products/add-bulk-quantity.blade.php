@@ -345,7 +345,12 @@ $(function(e){
                       if(type==1)
                       {
                         console.log('Type 1 allowed');
-                        window.location = 'storage/app/Stock-Adjustment-'+user_id+'-'+data.file_name+'.xlsx';
+
+                        // window.location = 'storage/app/Stock-Adjustment-'+user_id+'-'+data.file_name+'.xlsx';
+                        var file = 'Stock-Adjustment-'+user_id+'-'+data.file_name+'.xlsx';
+
+
+                        window.location = "{{ url('get-download-xslx') }}"+'/'+file;
                       }
                       $('#filteredProductsbtn').prop('disabled',false);
                       console.log('Export Done');
