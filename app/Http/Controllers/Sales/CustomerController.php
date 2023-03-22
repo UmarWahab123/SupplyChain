@@ -3496,6 +3496,11 @@ class CustomerController extends Controller
                 $customer_history_record->old_value = $customer->reference_number;
                 $customer_history_record->new_value = $request->reference_number;
                 $customer_history_record->save();
+            }   else if ($key == 'discount') {
+                $customer_history_record->column_name = 'discount';
+                $customer_history_record->old_value = $customer->discount;
+                $customer_history_record->new_value = $request->discount;
+                $customer_history_record->save();
             }
         }
 
