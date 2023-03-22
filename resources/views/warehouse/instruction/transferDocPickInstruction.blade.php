@@ -270,7 +270,7 @@ $('.sorting_filter_table').on('click',function(){
       { data: 'trasnfer_expiration_date', name: 'trasnfer_expiration_date' },
     ],
       drawCallback: function(){
-        $('#trasnfer_expiration_date').datepicker({
+        $('.trasnfer_expiration_date').datepicker({
           format: "dd/mm/yyyy",
           autoHide: true,
         });
@@ -322,6 +322,46 @@ $('.sorting_filter_table').on('click',function(){
             // $('#loader_modal').modal('hide');
         }
     });
+  });
+
+  $(document).on("change",".trasnfer_expiration_date",function(e) {
+    if (e.keyCode === 27 && $(this).hasClass('active')) {
+      var fieldvalue = $(this).data('fieldvalue');
+      var thisPointer = $(this);
+      thisPointer.val(fieldvalue);
+      thisPointer.attr('disabled',true);
+      thisPointer.removeClass('active');
+      // thisPointer.attr('readonly',true);
+    }
+    if($(this).val() != '')
+    {
+      var fieldvalue = $(this).data('fieldvalue');
+      $(this).removeClass('active');
+      $(this).attr('disabled','true');
+      // $(this).attr('readonly','true');
+      if($(this).val().length < 1 || $(this).val() == fieldvalue)
+      {
+        return false;
+      }
+      else
+      {
+        var order_product_id= $(this).data('id');
+        var thisPointer = $(this);
+        saveSupData(thisPointer,thisPointer.attr('name'), thisPointer.val(),order_product_id);
+        thisPointer.data('fieldvalue',thisPointer.val());
+      }
+    }
+  });
+
+  $(document).on("dblclick",".trasnfer_expiration_date",function(){
+    $(this).removeAttr('disabled');
+    $(this).addClass('active');
+    $('.trasnfer_expiration_date').datepicker({
+      format: "dd/mm/yyyy",
+      autoHide: true,
+    })
+    // $(this).removeAttr('readonly');
+    $(this).focus();
   });
 
   $(document).on('keypress keyup focusout',".fieldFocus",function(e) {
