@@ -656,7 +656,7 @@ class HomeController extends Controller
                 if ($item->PurchaseOrder->status == 22) {
                     return $item->trasnfer_expiration_date != null ? $item->trasnfer_expiration_date : 'N.A';
                 } else {
-                    $html_string = '<input type="text"  name="trasnfer_expiration_date" data-id="' . $item->id . '" class="fieldFocus trasnfer_expiration_date" data-fieldvalue="' . $item->trasnfer_expiration_date . '" value="' . $item->trasnfer_expiration_date . '" readonly="readonly" disabled style="width:100%" id="trasnfer_expiration_date">';
+                    $html_string = '<input type="text"  name="trasnfer_expiration_date" data-id="' . $item->id . '" class="trasnfer_expiration_date" data-fieldvalue="' . $item->trasnfer_expiration_date . '" value="' . $item->trasnfer_expiration_date . '" readonly="readonly" disabled style="width:100%" id="trasnfer_expiration_date">';
                     return $html_string;
                 }
             })
@@ -1669,8 +1669,15 @@ class HomeController extends Controller
                       }
                 }
 
-                $order_product->$key = $value;
-                $order_product->save();
+                if ($key == 'trasnfer_expiration_date') {
+                    $value = str_replace("/", "-", $request->trasnfer_expiration_date);
+                    $value = date('Y-m-d', strtotime($value));
+                    $order_product->$key = $value;
+                    $order_product->save();
+                } else {
+                    $order_product->$key = $value;
+                    $order_product->save();
+                }
             }
             else
             {
@@ -1678,30 +1685,39 @@ class HomeController extends Controller
                     $decimal_places = ($order_product->product->units != null ? $order_product->product->units->decimal_places : 4);
                     $value = round($value,$decimal_places);
                 }
-                $order_product->$key = $value;
-                $order_product->expiration_date = $value;
-                $order_product->save();
+                if ($key == 'trasnfer_expiration_date') {
+                    $value = str_replace("/", "-", $request->trasnfer_expiration_date);
+                    $value = date('Y-m-d', strtotime($value));
+                    $order_product->$key = $value;
+                    $order_product->save();
+                } else {
+                    $order_product->$key = $value;
+                    $order_product->expiration_date = $value;
+                    $order_product->save();
+                }
             }
 
+            if ($key != 'trasnfer_expiration_date') {
             //checking values of reserve stock
-            foreach ($order_product->get_td_reserved as $res)
-            {
-                $stock_out = StockManagementOut::find($res->stock_id);
-                if($stock_out)
+                foreach ($order_product->get_td_reserved as $res)
                 {
-                    if ($res->old_qty_shipped != null && $res->qty_shipped > $res->old_qty_shipped) {
-                        $difference = $res->qty_shipped - $res->old_qty_shipped;
-                        $stock_out->available_stock -= $difference;
+                    $stock_out = StockManagementOut::find($res->stock_id);
+                    if($stock_out)
+                    {
+                        if ($res->old_qty_shipped != null && $res->qty_shipped > $res->old_qty_shipped) {
+                            $difference = $res->qty_shipped - $res->old_qty_shipped;
+                            $stock_out->available_stock -= $difference;
+                        }
+                        else if ($res->old_qty_shipped != null && $res->qty_shipped < $res->old_qty_shipped){
+                            $difference = $res->old_qty_shipped - $res->qty_shipped;
+                            $stock_out->available_stock += $difference;
+                        }
+                        else if($res->old_qty_shipped == null && $res->qty_shipped != null){
+                            $difference = $res->reserved_quantity - $res->qty_shipped;
+                            $stock_out->available_stock += $difference;
+                        }
+                        $stock_out->save();
                     }
-                    else if ($res->old_qty_shipped != null && $res->qty_shipped < $res->old_qty_shipped){
-                        $difference = $res->old_qty_shipped - $res->qty_shipped;
-                        $stock_out->available_stock += $difference;
-                    }
-                    else if($res->old_qty_shipped == null && $res->qty_shipped != null){
-                        $difference = $res->reserved_quantity - $res->qty_shipped;
-                        $stock_out->available_stock += $difference;
-                    }
-                    $stock_out->save();
                 }
             }
         }
