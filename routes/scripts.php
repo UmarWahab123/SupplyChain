@@ -1,5 +1,4 @@
 <?php
-
 use App\CustomerSecondaryUser;
 use App\ExportStatus;
 use App\Jobs\ScriptHandlerJob;
