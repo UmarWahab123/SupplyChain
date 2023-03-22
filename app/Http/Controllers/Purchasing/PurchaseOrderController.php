@@ -4881,12 +4881,13 @@ class PurchaseOrderController extends Controller
 
     public function getPurchaseOrderProdDetail(Request $request, $id)
     {
-        $details = PurchaseOrderDetail::with('customer','product.supplier_products','getOrder','PurchaseOrder.PoSupplier.getCurrency','product.units','getWarehouse','pod_histories','order_product.product.sellingUnits','order_product.get_order_product_notes','pod_notes','product.productType')->where('purchase_order_details.po_id',$id)->select('purchase_order_details.*');
+        $details = PurchaseOrderDetail::with('customer','product.supplier_products','getOrder','PurchaseOrder.PoSupplier.getCurrency','product.units','getWarehouse','pod_histories','order_product.product.sellingUnits','order_product.get_order_product_notes','pod_notes','product.productType','getProductStock')->where('purchase_order_details.po_id',$id)->select('purchase_order_details.*');
         $details = PurchaseOrderDetail::PurchaseOrderDetailSorting($request, $details);
+        // dd($details->first()->getProductStock->where('warehouse_id', 1)->first()->id);
 
         $dt = Datatables::of($details);
 
-        $add_columns = ['weight', 'unit_gross_weight', 'discount', 'remarks', 'supplier_packaging', 'order_no', 'amount_with_vat', 'amount', 'last_updated_price_on', 'unit_price_with_vat', 'unit_price', 'billed_unit_per_package', 'purchasing_vat', 'desired_qty', 'gross_weight', 'customer_pcs', 'customer_qty', 'quantity', 'warehouse', 'buying_unit', 'type', 'leading_time', 'brand', 'product_description', 'customer', 'item_ref', 'supplier_id', 'action'];
+        $add_columns = ['weight', 'unit_gross_weight', 'discount', 'remarks', 'supplier_packaging', 'order_no', 'amount_with_vat', 'amount', 'last_updated_price_on', 'unit_price_with_vat', 'unit_price', 'billed_unit_per_package', 'purchasing_vat', 'desired_qty', 'gross_weight', 'customer_pcs', 'customer_qty', 'quantity', 'warehouse', 'buying_unit', 'type', 'leading_time', 'brand', 'product_description', 'customer', 'item_ref', 'supplier_id', 'action','current_stock_qty'];
 
         foreach ($add_columns as $column) {
             $dt->addColumn($column, function($item) use ($column) {

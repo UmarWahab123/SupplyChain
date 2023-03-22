@@ -1094,7 +1094,7 @@ use Carbon\Carbon;
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
       <div class="row justify-content-end" style="width: 100%;">
-      <a href="#demo" class="btn btn-primary d-none" data-toggle="collapse" id="upload_doc_btn" style="margin-top: 7px;">Upload Document</a>
+      <a href="#demo" class="btn btn-primary" data-toggle="collapse" id="upload_doc_btn" style="margin-top: 7px;">Upload Document</a>
   <div id="demo" class="collapse col-lg-10 offset-1">
     <form id="addDocumentForm" class="addDocumentForm" method="POST" enctype="multipart/form-data">
         <div class="modal-body">

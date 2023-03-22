@@ -1048,40 +1048,25 @@ use Carbon\Carbon;
       </div>
       <div class="row justify-content-end" style="width: 100%;">
       <a href="#demo" class="btn btn-primary" data-toggle="collapse" id="upload_doc_btn" style="margin-top: 7px;">Upload Document</a>
-  <div id="demo" class="collapse col-lg-10 offset-1">
-    <form id="addDocumentForm" class="addDocumentForm" method="POST" enctype="multipart/form-data">
-        <div class="modal-body">
-          <input type="hidden" name="order_id" id="sid" value="{{$order->id}}">
-          <div class="row">
-                <div class="form-group col-lg-9">
-                  <label class="pull-left font-weight-bold">Files <span class="text-danger">*</span></label>
-                  <input class="font-weight-bold form-control-lg form-control" name="order_docs[]" type="file" multiple="" accept=".xlsx,.xls,.doc, .docx,.ppt, .pptx,.txt,.pdf" required="">
-                </div>
-                <div class="col-lg-3">
-          <button type="submit" class="btn btn-primary save-doc-btn" style="margin-top: 2rem;" id="addDocBtn">Upload</button>
+        <div id="demo" class="collapse col-lg-10 offset-1">
+          <form id="addDocumentForm" class="addDocumentForm" method="POST" enctype="multipart/form-data">
+              <div class="modal-body">
+                <input type="hidden" name="order_id" id="sid" value="{{$order->id}}">
+                <div class="row">
+                      <div class="form-group col-lg-9">
+                        <label class="pull-left font-weight-bold">Files <span class="text-danger">*</span></label>
+                        <input class="font-weight-bold form-control-lg form-control" name="order_docs[]" type="file" multiple="" accept=".xlsx,.xls,.doc, .docx,.ppt, .pptx,.txt,.pdf" required="">
+                      </div>
+                      <div class="col-lg-3">
+                <button type="submit" class="btn btn-primary save-doc-btn" style="margin-top: 2rem;" id="addDocBtn">Upload</button>
 
+                      </div>
                 </div>
-          </div>
+              </div>
+            </form>
         </div>
-       <!--  <div class="modal-footer">
-          <button type="submit" class="btn btn-primary save-doc-btn" id="addDocBtn">Upload</button>
-        </div> -->
-      </form>
-  </div>
       </div>
 
-      <!-- <form id="addDocumentForm" class="addDocumentForm" method="POST" enctype="multipart/form-data">
-        <div class="modal-body">
-          <input type="hidden" name="order_id" value="{{$order->id}}">
-          <div class="form-group">
-            <label class="pull-left font-weight-bold">Files <span class="text-danger">*</span></label>
-            <input class="font-weight-bold form-control-lg form-control" name="order_docs[]" type="file" multiple="" accept=".xlsx,.xls,.doc, .docx,.ppt, .pptx,.txt,.pdf" required="">
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-primary save-doc-btn" id="addDocBtn">Upload</button>
-        </div>
-      </form> -->
        <div class="fetched-files">
             <div class="d-flex justify-content-center">
                 <img class="img-spinner" src="{{ url('public/uploads/gif/waiting.gif') }}" style="margin-top: 10px;">
@@ -1467,7 +1452,7 @@ use Carbon\Carbon;
       // $('#search_by_refno').hide();
     }
       // $('#comments_section').addClass('d-none');
-      $('#upload_doc_btn').addClass('d-none');
+      // $('#upload_doc_btn').addClass('d-none');
       // $('.edit-address').addClass('d-none');
     });
   </script>
