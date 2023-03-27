@@ -6458,4 +6458,25 @@ class OrderController extends Controller
     {
         return QuotationsCommonHelper::makeDraftInvoice($request);
     }
+
+    public function mergeDraftInvoices(Request $request){
+        //check to confirm to have only one customer
+        $orders = Order::whereIn('id', $request->order_ids)->get();
+
+        // Check that all orders have the same customer id and delivery data
+        $customerId = $orders->first()->customer_id;
+        $deliveryDate = $orders->first()->delivery_request_date;
+        $warehouseId = $orders->first()->from_warehouse_id;
+        // dd($deliveryDate);
+        foreach ($orders as $order) {
+            if ($order->customer_id != $customerId) {
+                return response()->json(['success' => false, 'msg' => 'Selected orders cannot be merged because they have different customers.']);
+            }
+            if ($order->delivery_request_date != $deliveryDate) {
+                return response()->json(['success' => false, 'msg' => 'Selected orders cannot be merged because they have different delivery dates.']);
+            }
+        }
+
+        return response()->json(['success' => true]);
+    }
 }

@@ -2034,6 +2034,7 @@ Route::group(['namespace' => 'Sales', 'prefix' => 'sales', 'middleware' => 'sale
 
 
     Route::get('cancel-orders', 'OrderController@cancelOrders')->name('cancel-orders');
+    Route::get('merge-draft-invoices', 'OrderController@mergeDraftInvoices')->name('merge-draft-invoices');
     Route::get('cancel-invoice-orders', 'OrderController@cancelInvoiceOrders')->name('cancel-invoice-orders');
     Route::get('revert-invoice-orders', 'OrderController@revertInvoiceOrders')->name('revert-invoice-orders');
     Route::get('get-cancelled-orders', 'OrderController@getCancelledOrders')->name('get-cancelled-orders');

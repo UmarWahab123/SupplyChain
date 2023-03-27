@@ -192,6 +192,8 @@
           </span>
         </a>
         @endif
+
+        <button class="btn btn-primary merge-draft-invoices">Merge</button>
   </div>
   @endif
   <div class="col-12 pr-0 mt-5">
@@ -1127,6 +1129,55 @@ $('#header_customer_search').keyup(function(event){
  //      $('.selected-item').addClass('d-none');
  //    }
  // });
+
+ $('.merge-draft-invoices').on('click',function(){
+    var selected_quots = [];
+    $("input.check1:checked").each(function() {
+      selected_quots.push($(this).val());
+    });
+    alert(selected_quots);
+    swal({
+      title: "Alert!",
+      text: "Are you sure you want to merge selected orders?",
+      type: "info",
+      showCancelButton: true,
+      confirmButtonClass: "btn-danger",
+      confirmButtonText: "Yes!",
+      cancelButtonText: "No!",
+      closeOnConfirm: true,
+      closeOnCancel: false
+      },
+      function(isConfirm) {
+      if (isConfirm){
+        $.ajax({
+          method:"get",
+          dataType:"json",
+          data: {order_ids : selected_quots},
+          url:"{{ route('merge-draft-invoices') }}",
+          beforeSend:function(){
+            $('#loader_modal').modal({
+              backdrop: 'static',
+              keyboard: false
+            });
+            $('#loader_modal').modal('show');
+          },
+          success:function(result){
+            $('#loader_modal').modal('hide');
+            if(result.success == true)
+            {
+            }
+            if(result.success == false)
+            {
+              toastr.error('Error!', result.msg ,{"positionClass": "toast-bottom-right"});
+            }
+          }
+        });
+      }
+      else{
+          swal("Cancelled", "", "error");
+      }
+      });
+ });
 </script>
 
 @stop
