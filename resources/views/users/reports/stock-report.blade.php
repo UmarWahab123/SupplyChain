@@ -273,7 +273,9 @@ use Carbon\Carbon;
           <i class=" fa fa-check "></i>
 
           <b>Export file is ready to download.
-          <a download href="{{'storage/app/Stock-Movement-Report.xlsx'}}"><u>Click Here</u></a>
+          <!-- <a download href="{{'storage/app/Stock-Movement-Report.xlsx'}}"><u>Click Here</u></a> -->
+            <a class="exp_download" href="{{ url('get-download-xslx','Stock-Movement-Report.xlsx')}}" target="_blank" id=""><u>Click Here</u></a>
+
           </b>
         </div>
         <div class="alert alert-primary export-alert-another-user d-none"  role="alert">
