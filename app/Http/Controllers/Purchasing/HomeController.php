@@ -825,7 +825,7 @@ class HomeController extends Controller
       //               }
       //               },'productType','productType2'
       //           ]);
-        $products = Product::select('products.id', 'products.short_desc', 'products.brand', 'products.refrence_code', 'products.min_stock', 'products.selling_unit', 'products.type_id', 'products.type_id_2', 'products.type_id_3', 'products.supplier_id', 'products.unit_conversion_rate', 'products.total_buy_unit_cost_price');
+        $products = Product::select('products.id', 'products.short_desc', 'products.brand', 'products.refrence_code', 'products.min_stock', 'products.selling_unit', 'products.type_id', 'products.type_id_2', 'products.type_id_3', 'products.supplier_id', 'products.unit_conversion_rate', 'products.total_buy_unit_cost_price')->where('status', 1);
         if($product_id != null){
             $products = $products->where('id', $product_id);
         }
