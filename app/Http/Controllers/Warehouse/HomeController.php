@@ -46,6 +46,7 @@ use App\Models\Common\StockManagementIn;
 use App\Models\Common\StockManagementOut;
 use App\Models\Common\StockOutHistory;
 use App\Models\Common\Supplier;
+use App\Models\Common\TableHideColumn;
 use App\Models\Common\UserDetail;
 use App\Models\Common\Warehouse;
 use App\Models\Common\WarehouseProduct;
@@ -263,7 +264,10 @@ class HomeController extends Controller
 
         $page_status_td = Status::select('title')->whereIn('id', [21, 22])->pluck('title')->toArray();
         $page_status_td_dropdown = Status::select('id', 'title')->whereIn('id', [21, 22])->get();
-        return $this->render('warehouse.home.dashboard', compact('upcomming', 'all', 'completed', 'delivery', 'importing', 'waitingTransferDoc', 'completeTransferDoc', 'referenceNameWithId', 'sales_persons', 'page_status', 'page_status_dropdown', 'page_status_td', 'page_status_td_dropdown'));
+        $display_my_quotation = ColumnDisplayPreference::select('display_order')->where('type', 'pick_instruction_dashboard')->where('user_id', Auth::user()->id)->first();
+        $display_my_transfer = ColumnDisplayPreference::select('display_order')->where('type', 'pick_instruction_dashboard_transfer')->where('user_id', Auth::user()->id)->first();
+        // dd($display_my_quotation->display_order);
+        return $this->render('warehouse.home.dashboard', compact('upcomming', 'all', 'completed', 'delivery', 'importing', 'waitingTransferDoc', 'completeTransferDoc', 'referenceNameWithId', 'sales_persons', 'page_status', 'page_status_dropdown', 'page_status_td', 'page_status_td_dropdown','display_my_quotation', 'display_my_transfer'));
     }
 
     public function getDraftInvoices(Request $request)
@@ -287,7 +291,7 @@ class HomeController extends Controller
             }
         }
 
-        $query->with('customer', 'customer.primary_sale_person', 'statuses', 'order_warehouse_note', 'order_customer_note', 'order_products_not_null', 'order_products_not_null.warehouse_products_existing');
+        $query->with('customer', 'customer.primary_sale_person', 'statuses', 'order_warehouse_note', 'order_customer_note', 'order_products_not_null', 'order_products_not_null.warehouse_products_existing', 'draft_invoice_pick_instruction_printed');
 
         if ($request->from_date != null) {
             $date = str_replace("/", "-", $request->from_date);
@@ -327,7 +331,7 @@ class HomeController extends Controller
         Order::doSort($request, $query, $check);
 
         $dt = Datatables::of($query);
-        $add_columns = ['total_amount1', 'comment_to_customer', 'comment_to_warehouse', 'invoice_date1', 'ref_id1', 'status1', 'delivery_request_date1', 'customer_name', 'customer_ref_no1', 'user_id1', 'customer_reference_name1'];
+        $add_columns = ['total_amount1', 'comment_to_customer', 'comment_to_warehouse', 'invoice_date1', 'ref_id1', 'status1', 'delivery_request_date1', 'customer_name', 'customer_ref_no1', 'user_id1', 'customer_reference_name1', 'printed'];
         foreach ($add_columns as $column) {
             $dt->addColumn($column, function($item) use($column) {
                 return PickInstructionDatatable::returnAddColumn($column, $item);
@@ -481,7 +485,7 @@ class HomeController extends Controller
                 }
             });
 
-            $dt->rawColumns(['ref_id1', 'customer_reference_name1', 'number_of_products1', 'status1', 'user_id1', 'customer_ref_no1','comment_to_warehouse']);
+            $dt->rawColumns(['ref_id1', 'customer_reference_name1', 'number_of_products1', 'status1', 'user_id1', 'customer_ref_no1','comment_to_warehouse', 'printed']);
             return $dt->make(true);
     }
 

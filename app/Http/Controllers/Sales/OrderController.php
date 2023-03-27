@@ -2345,7 +2345,7 @@ class OrderController extends Controller
                 'orders.payment_due_date',
                 'orders.dont_show',
                 'orders.target_ship_date'
-            )->groupBy('op.order_id')->with(['customer', 'customer.primary_sale_person', 'customer.primary_sale_person.get_warehouse', 'customer.CustomerCategory', 'statuses', 'order_products', 'user', 'customer.getpayment_term', 'get_order_transactions.get_payment_ref', 'order_customer_note', 'order_warehouse_note',
+            )->groupBy('op.order_id')->with(['customer', 'customer.primary_sale_person', 'customer.primary_sale_person.get_warehouse', 'customer.CustomerCategory', 'statuses', 'order_products', 'user', 'customer.getpayment_term', 'get_order_transactions.get_payment_ref', 'order_customer_note', 'order_warehouse_note','draft_invoice_pick_instruction_printed','invoice_proforma_printed',
             'customer.getbilling' => function ($q){
                 $q->where('is_default', 1);
             }])->whereNotIn('orders.status', [34])->whereIn('orders.customer_id', $all_customer_ids);
@@ -2387,8 +2387,7 @@ class OrderController extends Controller
                 'orders.payment_due_date',
                 'orders.dont_show',
                 'orders.target_ship_date'
-            )->groupBy('op.order_id')->with(['customer:reference_name,first_name,last_name,primary_sale_id,category_id,credit_term,id,reference_number,company', 'customer.primary_sale_person:id,name', 'statuses:id,title', 'order_products:id', 'user:id,name', 'get_order_transactions:order_id,id,payment_reference_no', 'get_order_transactions.get_payment_ref:id,payment_reference_no', 'order_customer_note:order_id,note', 'order_warehouse_note:order_id,note',
-            'customer.getbilling' => function ($q){
+            )->groupBy('op.order_id')->with(['customer:reference_name,first_name,last_name,primary_sale_id,category_id,credit_term,id,reference_number,company', 'customer.primary_sale_person:id,name', 'statuses:id,title', 'order_products:id', 'user:id,name', 'get_order_transactions:order_id,id,payment_reference_no', 'get_order_transactions.get_payment_ref:id,payment_reference_no', 'order_customer_note:order_id,note', 'order_warehouse_note:order_id,note','draft_invoice_pick_instruction_printed','invoice_proforma_printed', 'customer.getbilling' => function ($q){
                 $q->where('is_default', 1);
             }])->whereNotIn('orders.status', [34]);
 
@@ -2431,7 +2430,7 @@ class OrderController extends Controller
                 'orders.payment_due_date',
                 'orders.dont_show',
                 'orders.target_ship_date'
-            )->groupBy('op.order_id')->with(['customer', 'customer.primary_sale_person', 'customer.primary_sale_person.get_warehouse', 'customer.CustomerCategory', 'statuses', 'order_products', 'user', 'customer.getpayment_term', 'order_notes', 'get_order_transactions', 'get_order_transactions.get_payment_ref',
+            )->groupBy('op.order_id')->with(['customer', 'customer.primary_sale_person', 'customer.primary_sale_person.get_warehouse', 'customer.CustomerCategory', 'statuses', 'order_products', 'user', 'customer.getpayment_term', 'order_notes', 'get_order_transactions', 'get_order_transactions.get_payment_ref','draft_invoice_pick_instruction_printed','invoice_proforma_printed',
             'customer.getbilling' => function ($q){
                 $q->where('is_default', 1);
             }
@@ -2583,7 +2582,7 @@ class OrderController extends Controller
         }
         // dd($query->get());
         $dt =  Datatables::of($query);
-        $add_columns = ['action', 'sub_total_amount', 'total_amount', 'discount', 'due_date', 'invoice_date', 'sub_total_2', 'reference_id_vat_2', 'vat_1', 'sub_total_1', 'reference_id_vat', 'ref_id', 'received_date', 'payment_reference_no', 'sales_person', 'number_of_products', 'status', 'memo', 'comment_to_warehouse', 'remark', 'delivery_date', 'target_ship_date', 'customer_company', 'customer_ref_no', 'customer', 'inv_no', 'checkbox', 'tax_id', 'reference_address'];
+        $add_columns = ['action', 'sub_total_amount', 'total_amount', 'discount', 'due_date', 'invoice_date', 'sub_total_2', 'reference_id_vat_2', 'vat_1', 'sub_total_1', 'reference_id_vat', 'ref_id', 'received_date', 'payment_reference_no', 'sales_person', 'number_of_products', 'status', 'memo', 'comment_to_warehouse', 'remark', 'delivery_date', 'target_ship_date', 'customer_company', 'customer_ref_no', 'customer', 'inv_no', 'checkbox', 'tax_id', 'reference_address', 'printed'];
 
         foreach ($add_columns as $column) {
             $dt->addColumn($column, function ($item) use ($column) {
@@ -2599,7 +2598,7 @@ class OrderController extends Controller
             });
         }
 
-        $dt->rawColumns(['action', 'inv_no', 'ref_id', 'sales_person', 'customer', 'number_of_products', 'status', 'customer_ref_no', 'checkbox', 'total_amount', 'reference_id_vat', 'comment_to_warehouse', 'customer_company', 'remark', 'due_date', 'sub_total_price']);
+        $dt->rawColumns(['action', 'inv_no', 'ref_id', 'sales_person', 'customer', 'number_of_products', 'status', 'customer_ref_no', 'checkbox', 'total_amount', 'reference_id_vat', 'comment_to_warehouse', 'customer_company', 'remark', 'due_date', 'sub_total_price', 'printed']);
         $dt->with(['post' => 'Loading...', 'sub_total' => 'Loading...']);
         return $dt->make(true);
     }
