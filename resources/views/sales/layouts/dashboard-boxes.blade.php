@@ -1,3 +1,7 @@
+@php
+  $config = \App\Models\Common\Configuration::first(); 
+  $role_id = @auth()->user()->role_id;
+@endphp
 @if(Auth::user()->role_id == 1 || Auth::user()->role_id == 11)
 <div class="col-lg col-md-6 pb-md-3 phone-boxes-size">
 <a class="my-orders" href="{{url('sales/')}}" data-id='6' style="cursor: pointer;" title="My Quotations">
@@ -7,9 +11,11 @@
   </div>
   <div class="d-flex align-items-center justify-content-center w-100 dashboard-boxes-font">
     <h6 class="mb-0 headings-color admin-quotation-count font-weight-bold pr-2 dashboard-boxes-font">{{@$quotation}}</h6>
+    @if((@$config->server == 'lucilla' && $role_id == 1 ) || @$config->server != 'lucilla' )
       (<img src="{{asset('public/site/assets/sales/img/img1.jpg')}}" class="img-fluid pr-2 dashboard-boxes-img">
       <h6 class="mb-0 headings-color total_amount_of_quotation_admin dashboard-boxes-font">
       {{number_format(@$total_amount_of_quotation,2,'.',',')}}</h6>)
+    @endif
   </div>
 
 </div>
@@ -25,8 +31,10 @@
   </div>
   <div class="d-flex align-items-center justify-content-center w-100 dashboard-boxes-font">
     <h6 class="mb-0 headings-color total_number_of_draft_invoices_admin pr-2 font-weight-bold dashboard-boxes-font">{{number_format(@$total_number_of_draft_invoices,0,'.',',')}}</h6>
+    @if((@$config->server == 'lucilla' && $role_id == 1 ) || @$config->server != 'lucilla' )
     (<img src="{{asset('public/site/assets/sales/img/img1.jpg')}}" class="img-fluid pr-2 dashboard-boxes-img">
       <h6 class="mb-0 headings-color admin_total_sales_draft_admin dashboard-boxes-font"> {{number_format(@$admin_total_sales_draft,2,'.',',')}}</h6>)
+    @endif
       @php  $month = date('M');
             $day = date('d');
 
@@ -49,8 +57,11 @@
   </div>
   <div class="d-flex align-items-center justify-content-center w-100 dashboard-boxes-font">
     <h6 class="mb-0 headings-color total_number_of_invoices_admin pr-2 font-weight-bold dashboard-boxes-font">{{number_format(@$total_number_of_invoices,0,'.',',')}}</h6>
+
+    @if((@$config->server == 'lucilla' && $role_id == 1 ) || @$config->server != 'lucilla' )
     (<img src="{{asset('public/site/assets/sales/img/img1.jpg')}}" class="img-fluid pr-2 dashboard-boxes-img">
       <h6 class="mb-0 headings-color admin_total_sales dashboard-boxes-font"> {{number_format(@$admin_total_sales,2,'.',',')}}</h6>)
+      @endif
   </div>
 </div>
 </a>
@@ -64,8 +75,10 @@
   </div>
   <div class="d-flex align-items-center justify-content-center w-100">
       <h6 class="mb-0 headings-color total_gross_profit_count font-weight-bold pr-2 dashboard-boxes-font">{{number_format(@$total_gross_profit_count,0,'.',',')}}</h6>
-    <span class="span-color font-weight-bold dashboard-boxes-font">(</span><img src="{{asset('public/site/assets/sales/img/img1.jpg')}}" class="img-fluid pr-2 dashboard-boxes-img">
-      <h6 class="mb-0 headings-color total_gross_profit dashboard-boxes-font"> {{number_format(@$total_gross_profit,2,'.',',')}}</h6><span class="span-color font-weight-bold dashboard-boxes-font">)</span>
+    @if((@$config->server == 'lucilla' && $role_id == 1 ) || @$config->server != 'lucilla' )
+      <span class="span-color font-weight-bold dashboard-boxes-font">(</span><img src="{{asset('public/site/assets/sales/img/img1.jpg')}}" class="img-fluid pr-2 dashboard-boxes-img">
+        <h6 class="mb-0 headings-color total_gross_profit dashboard-boxes-font"> {{number_format(@$total_gross_profit,2,'.',',')}}</h6><span class="span-color font-weight-bold dashboard-boxes-font">)</span>
+    @endif
       <!-- <span class="span-color">Total Outstanding <br> <span>({{@$month}} 1 - {{@$month}} {{@$day}})</span></span> -->
   </div>
 </div>
@@ -80,15 +93,17 @@
   </div>
   <div class="d-flex align-items-center justify-content-center w-100">
     <h6 class="mb-0 headings-color total_amount_of_overdue_invoices_count font-weight-bold pr-2 dashboard-boxes-font">{{number_format(@$total_amount_of_overdue_invoices_count,0,'.',',')}}</h6>
+    @if((@$config->server == 'lucilla' && $role_id == 1 ) || @$config->server != 'lucilla' )
     <span class="span-color font-weight-bold dashboard-boxes-font">(</span><img src="{{asset('public/site/assets/sales/img/img1.jpg')}}" class="img-fluid pr-2 dashboard-boxes-img">
       <h6 class="mb-0 headings-color total_amount_overdue dashboard-boxes-font"> {{number_format(@$total_amount_overdue,2,'.',',')}}</h6><span class="span-color font-weight-bold dashboard-boxes-font">)</span>
+    @endif
   </div>
 </div>
 </a>
 </div>
 <!-- admin ends -->
 @else
-@if(Auth::user()->role_id == 3)
+@if(Auth::user()->role_id == 3 && @$config->server != 'lucilla')
 <div class="col-lg col-md-6 pb-md-3 phone-boxes-size">
 <div class="bg-white box1 pt-4 pb-4 h-100 dashboard-boxes-shadow phone-boxes">
   <div class="d-flex align-items-center justify-content-center w-100 mt-3 phone-boxes-title-margin">
@@ -100,10 +115,12 @@
       <span class="span-color pl-2 dashboard-boxes-bracket-text-font">({{@$month}} 1 - {{@$month}} {{@$day}})</span>
   </div>
   <div class="d-flex align-items-center justify-content-center w-100">
+    @if((@$config->server == 'lucilla' && $role_id == 1 ) || @$config->server != 'lucilla' )
     <span class="span-color font-weight-bold dashboard-boxes-bracket-text-font">(</span>
     <img src="{{asset('public/site/assets/sales/img/img1.jpg')}}" class="img-fluid pr-2 dashboard-boxes-img">
     <h6 class="mb-0 headings-color company_total_sales dashboard-boxes-bracket-text-font"> {{number_format(@$company_total_sales,2,'.',',')}}</h6>
     <span class="span-color font-weight-bold dashboard-boxes-bracket-text-font">)</span>
+    @endif
   </div>
 </div>
 </div>
@@ -125,11 +142,13 @@
     <span class="span-color pl-2 dashboard-boxes-bracket-text-font">({{@$month}} 1 - {{@$month}} {{@$day}})</span>
   </div>
   <div class="d-flex align-items-center justify-content-center w-100">
+    @if((@$config->server == 'lucilla' && $role_id == 1 ) || @$config->server != 'lucilla' )
     <span class="span-color font-weight-bold dashboard-boxes-font">(</span>
     <img src="{{asset('public/site/assets/sales/img/img1.jpg')}}" class="img-fluid pr-2 dashboard-boxes-img">
     <h6 class="mb-0 headings-color admin_total_sales dashboard-boxes-bracket-text-font"> {{number_format(@$admin_total_sales,2,'.',',')}}</h6>
     <!-- <h6 class="mb-0 headings-color dashboard-boxes-bracket-text-font salesInvoice">{{@$salesInvoice}}</h6> -->
     <span class="span-color font-weight-bold dashboard-boxes-bracket-text-font">)</span>
+    @endif
   </div>
 
   <div class="d-flex align-items-center justify-content-center w-100">
@@ -150,10 +169,12 @@
     <span class="span-color font-weight-bold dashboard-boxes-bracket-text-font">Total Draft Invoices:</span>
   </div>
   <div class="d-flex align-items-center justify-content-center w-100">
+    @if((@$config->server == 'lucilla' && $role_id == 1 ) || @$config->server != 'lucilla' )
     <span class="font-weight-bold span-color dashboard-boxes-bracket-text-font">(</span>
     <img src="{{asset('public/site/assets/sales/img/img1.jpg')}}" class="img-fluid pr-2 dashboard-boxes-img">
       <h6 class="mb-0 headings-color admin_total_sales_draft_admin dashboard-boxes-bracket-text-font"> {{number_format(@$admin_total_sales_draft,2,'.',',')}}</h6>
       <span class="span-color font-weight-bold dashboard-boxes-bracket-text-font">)</span>
+    @endif
       @php  $month = date('M');
             $day = date('d');
 
@@ -220,9 +241,9 @@
       @if(Auth::user()->role_id == 3)
       <h6 class="mb-0 headings-color dashboard-boxes-bracket-text-font salesQuotations">{{@$salesQuotations}}</h6>
       @elseif(Auth::user()->role_id == 1 || Auth::user()->role_id == 7 || Auth::user()->role_id == 11)
-      <h6 class="mb-0 headings-color dashboard-boxes-bracket-text-font admin-quotation-count">{{@$quotation}}</h6>gt4
-      @elsegt4
-      <h6 class="mb-0 headings-color dashboard-boxes-bracket-text-font salesCoordinateQuotagt4tions">{{@$salesCoordinateQuotations}}</h6>
+      <h6 class="mb-0 headings-color dashboard-boxes-bracket-text-font admin-quotation-count">{{@$quotation}}</h6>
+      @else
+      <h6 class="mb-0 headings-color dashboard-boxes-bracket-text-font salesCoordinateQuotations">{{@$salesCoordinateQuotations}}</h6>
       @endif
       <span class="span-color font-weight-bold dashboard-boxes-bracket-text-font">)</span>
   </div>

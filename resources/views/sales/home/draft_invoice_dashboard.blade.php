@@ -325,6 +325,8 @@
                 <img src="{{url('public/svg/down.svg')}}" alt="down" style="width:10px; height:10px; cursor: pointer;">
               </span>
             </th>
+            <th>Printed
+            </th>
           </tr>
         </thead>
         {{-- <tfoot>
@@ -618,6 +620,7 @@ $('.sorting_filter_table').on('click',function(){
           { data: 'comment_to_warehouse', name: 'comment_to_warehouse' },
           { data: 'memo', name: 'memo' },
           { data: 'status', name: 'status' },
+          { data: 'printed', name: 'printed' },
         ],
          initComplete: function () {
           // Enable THEAD scroll bars

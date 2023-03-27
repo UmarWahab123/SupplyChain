@@ -22,7 +22,7 @@ use App\Models\Sales\Customer;
 class PurchaseOrderDetail extends Model
 {
 
-    protected $fillable = ['po_id','customer_id','order_product_id','order_id','product_id','quantity','pod_import_tax_book','pod_unit_price','pod_gross_weight','pod_total_gross_weight','pod_total_unit_price','pod_import_tax_book_price','warehouse_id','temperature_c','good_type','billed_unit_per_package','supplier_packaging','discount','billed_desc','is_billed','created_by','trasnfer_num_of_pieces','trasnfer_pcs_Domestic Vehicleped','trasnfer_qty_shipped','trasnfer_expiration_date','desired_qty','pkg_billed_est','currency_conversion_rate','custom_line_number','custom_invoice_number','last_updated_price_on','supplier_invoice_number','pod_vat_actual','pod_vat_actual_price','pod_unit_price_with_vat','pod_total_unit_price_with_vat','pod_vat_actual_total_price','unit_price_with_vat_in_thb','total_unit_price_with_vat_in_thb','pod_vat_actual_price_in_thb','pod_vat_actual_total_price_in_thb','quantity_received'];
+    public $fillable = ['po_id','customer_id','order_product_id','order_id','product_id','quantity','pod_import_tax_book','pod_unit_price','pod_gross_weight','pod_total_gross_weight','pod_total_unit_price','pod_import_tax_book_price','warehouse_id','temperature_c','good_type','billed_unit_per_package','supplier_packaging','discount','billed_desc','is_billed','created_by','trasnfer_num_of_pieces','trasnfer_pcs_Domestic Vehicleped','trasnfer_qty_shipped','trasnfer_expiration_date','desired_qty','pkg_billed_est','currency_conversion_rate','custom_line_number','custom_invoice_number','last_updated_price_on','supplier_invoice_number','pod_vat_actual','pod_vat_actual_price','pod_unit_price_with_vat','pod_total_unit_price_with_vat','pod_vat_actual_total_price','unit_price_with_vat_in_thb','total_unit_price_with_vat_in_thb','pod_vat_actual_price_in_thb','pod_vat_actual_total_price_in_thb','quantity_received'];
 
     public function PurchaseOrder()
     {
@@ -61,6 +61,11 @@ class PurchaseOrderDetail extends Model
 
     public function getWarehouse(){
         return $this->belongsTo('App\Models\Common\Warehouse', 'warehouse_id', 'id');
+    }
+
+    public function getProductStock()
+    {
+      return $this->hasMany('App\Models\Common\WarehouseProduct', 'product_id', 'product_id');
     }
 
     public function order_products_notes()
@@ -1217,6 +1222,9 @@ class PurchaseOrderDetail extends Model
                     $html_string = 'N.A';
                 }
                 return $html_string;
+                break;
+            case 'current_stock_qty':
+                return $item->getProductStock != null ? @$item->getProductStock->where('warehouse_id', $item->warehouse_id)->first()->current_quantity : '--';
                 break;
 
 

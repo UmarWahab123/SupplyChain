@@ -37,7 +37,7 @@
       </ol>
   </div>
 </div>
-
+@if((@$config->server == 'lucilla' && @auth()->user()->role_id ) || @$config->server != 'lucilla' )
 <div class="row mb-3">
   <div class="col-lg col-md-4 pb-md-3 ">
     <div class="bg-white box1 pt-4 pb-4">
@@ -87,6 +87,7 @@
     </div>
   </div>
 </div>
+@endif
 <!-- Right Content Start Here -->
 @if(Auth::user()->role_id != 9)
 <div class="row d-flex align-items-center left-right-padding mb-2 form-row">

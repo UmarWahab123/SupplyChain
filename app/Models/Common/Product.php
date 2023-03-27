@@ -255,7 +255,9 @@ class Product extends Model
         if ($ProductFixedPrice != null && $ProductFixedPrice->fixed_price > 0) {
             $unit_price = $ProductFixedPrice->fixed_price;
             $price_date = $product->last_price_updated_date;
-            return array($unit_price, "Fixed Price", $price_date, null, null);
+            $discount   = @$order->customer->discount;
+            $price_after_discount = $discount != 0 && $discount != null ? round($unit_price * ( (100 - $discount) / 100 ) , 2) : null; 
+            return array($unit_price, "Fixed Price", $price_date, $discount, $price_after_discount);
         }
 
         $CustomerTypeProductMargin = CustomerTypeProductMargin::where('product_id', $product->id)->where('customer_type_id', $order->customer->category_id)->first();
@@ -264,7 +266,9 @@ class Product extends Model
             $marginValue = (($margin / 100) * $product->selling_price);
             $unit_price  = $marginValue + ($product->selling_price);
             $price_date = $product->last_price_updated_date;
-            return array($unit_price, "Reference Price", $price_date, null, null);
+            $discount   = @$order->customer->discount;
+            $price_after_discount = $discount != 0 && $discount != null ? round($unit_price * ( (100 - $discount) / 100 ) , 2) : null; 
+            return array($unit_price, "Reference Price", $price_date, $discount, $price_after_discount);
         }
     }
 
