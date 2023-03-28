@@ -6464,10 +6464,11 @@ class OrderController extends Controller
         $orders = Order::whereIn('id', $request->order_ids)->get();
 
         // Check that all orders have the same customer id and delivery data
+        $order = $orders->first();
         $customerId = $orders->first()->customer_id;
         $deliveryDate = $orders->first()->delivery_request_date;
         $warehouseId = $orders->first()->from_warehouse_id;
-        // dd($deliveryDate);
+
         foreach ($orders as $order) {
             if ($order->customer_id != $customerId) {
                 return response()->json(['success' => false, 'msg' => 'Selected orders cannot be merged because they have different customers.']);
@@ -6475,6 +6476,88 @@ class OrderController extends Controller
             if ($order->delivery_request_date != $deliveryDate) {
                 return response()->json(['success' => false, 'msg' => 'Selected orders cannot be merged because they have different delivery dates.']);
             }
+            if ($order->from_warehouse_id != $warehouseId) {
+                return response()->json(['success' => false, 'msg' => 'Selected orders cannot be merged because they have different warehouses.']);
+            }
+        }
+
+        //generate new draft invoice number
+        $quot_status     = Status::where('id',1)->first();
+        $draf_status     = Status::where('id',2)->first();
+        $counter_formula = $quot_status->counter_formula;
+        $counter_formula = explode('-',$counter_formula);
+        $counter_length  = strlen($counter_formula[1]) != null ? strlen($counter_formula[1]) : 4;
+        $date = Carbon::now();
+        $date = $date->format($counter_formula[0]); //we expect the inner varaible to be ym so it will produce 2005 for date 2020/05/anyday
+        $company_prefix          = @Auth::user()->getCompany->prefix;
+        $draft_customer_category = $order->customer->CustomerCategory;
+        $config = Configuration::first();
+        if($config->server != 'lucilla' && $draft_quotation->customer->category_id == 6)
+        {
+            $p_cat = CustomerCategory::where('id',4)->first();
+            $ref_prefix = $p_cat->short_code;
+        }
+        else
+        {
+            $ref_prefix              = $draft_customer_category->short_code;
+        }
+        $quot_status_prefix      = $quot_status->prefix.$company_prefix;
+        $draft_status_prefix     = $draf_status->prefix.$company_prefix;
+        $c_p_ref = Order::whereIn('status_prefix',[$quot_status_prefix,$draft_status_prefix])->where('ref_id','LIKE',"$date%")->where('ref_prefix',$ref_prefix)->orderby('id','DESC')->first();
+        $str = @$c_p_ref->ref_id;
+        $onlyIncrementGet = substr($str, 4);
+        if($str == NULL)
+        {
+            $onlyIncrementGet = 0;
+        }
+        $system_gen_no = str_pad(@$onlyIncrementGet + 1,$counter_length,0, STR_PAD_LEFT);
+        $system_gen_no = $date . $system_gen_no;
+
+        $new_order = new Order;
+        $new_order->manual_ref_no = $order->manual_ref_no;
+        $new_order->user_id = $order->user_id;
+        $new_order->status_prefix         = $order->status_prefix;
+        $new_order->ref_prefix            = $order->ref_prefix;
+        $new_order->ref_id = $system_gen_no;
+        $new_order->from_warehouse_id = $order->from_warehouse_id;
+        $new_order->customer_id = $order->customer_id;
+        $new_order->total_amount = // to be calculated
+        $new_order->delivery_request_date = $order->delivery_request_date;
+        $new_order->credit_note_date = $order->credit_note_date;
+        $new_order->payment_due_date = $order->payment_due_date;
+        $new_order->payment_terms_id = $order->payment_terms_id;
+        $new_order->target_ship_date = $order->target_ship_date;
+        $new_order->memo = $order->memo;
+        $new_order->discount = $order->discount;
+        $new_order->shipping = $order->shipping;
+        $new_order->billing_address_id = $order->billing_address_id;
+        $new_order->shipping_address_id = $order->shipping_address_id;
+        $new_order->created_by = @auth()->user()->id;
+        $new_order->is_vat = $order->is_vat;
+        $new_order->is_manual = $order->is_manual;
+        $new_order->primary_status = $order->primary_status;
+        $new_order->status = //to be calculated dynamically;
+        $new_order->is_processing = $order->is_processing;
+        $new_order->converted_to_invoice_on = Carbon::now();
+        $new_order->delivery_note = $order->delivery_note;
+        $new_order->order_note_type = $order->order_note_type;
+        $new_order->dont_show = $order->dont_show;
+        $new_order->save();
+
+        foreach ($orders as $order) {
+            $order->order_products->update(['order_id' => $new_order->id]);
+            $order->previous_primary_status = $order->primary_status;
+            $order->previous_status = $order->status;
+            $order->primary_status = 17;
+            $order->status = 18;
+            $order->save();
+
+            $status_history = new OrderStatusHistory;
+            $status_history->user_id = @Auth::user()->id;
+            $status_history->order_id = $order->id;
+            $status_history->status = 'Draft Invoice';
+            $status_history->new_status = 'Cancelled (Merge into new draft invoice '.@$new_order->status_prefix.@$new_order->ref_prefix.'-'.@$new_order->ref_id.')';
+            $status_history->save();
         }
 
         return response()->json(['success' => true]);
