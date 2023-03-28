@@ -1165,6 +1165,8 @@ $('#header_customer_search').keyup(function(event){
             $('#loader_modal').modal('hide');
             if(result.success == true)
             {
+              alert(result.url);
+              toastr.success('Success', result.msg ,{"positionClass": "toast-bottom-right"});
             }
             if(result.success == false)
             {
