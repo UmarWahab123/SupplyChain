@@ -845,7 +845,10 @@ class HomeController extends Controller
                     }
                 },
                 'productType',
-                'productType2'
+                'productType2',
+                'def_or_last_supplier' => function($sup){
+                    $sup->select('id', 'reference_name');
+                }
             ]);
 
       // dd($products->get());
@@ -978,6 +981,11 @@ class HomeController extends Controller
         $column_name = 'min_stock';
       }
 
+      if ($request->column_name == 'supplier')
+      {
+        $products->leftjoin('suppliers as sup', 'sup.id', '=', 'products.supplier_id')->orderBy('sup.reference_name', $sort_order);
+      }
+
       if ($request->column_name == 'type')
       {
         $products->leftjoin('types as pt', 'pt.id', '=', 'products.type_id')->orderBy('pt.title', $sort_order);
@@ -1030,7 +1038,7 @@ class HomeController extends Controller
       }
 
       $dt =  Datatables::of($products);
-      $add_columns = ['history', 'cogs', 'stock_balance', 'stock_out', 'out_transfer_document', 'out_manual_adjustment', 'out_order', 'stock_in', 'in_orderUpdate', 'in_transferDocument', 'in_manualAdjusment', 'in_purchase', 'start_count', 'selling_unit', 'min_stock', 'product_type_2','product_type_3', 'product_type', 'brand'];
+      $add_columns = ['history', 'cogs', 'stock_balance', 'stock_out', 'out_transfer_document', 'out_manual_adjustment', 'out_order', 'stock_in', 'in_orderUpdate', 'in_transferDocument', 'in_manualAdjusment', 'in_purchase', 'start_count', 'selling_unit', 'min_stock', 'product_type_2','product_type_3', 'product_type', 'brand', 'supplier'];
 
       foreach ($add_columns as $column) {
         $dt->addColumn($column, function ($item) use ($column, $from_date, $to_date, $warehouse_id) {
@@ -1046,7 +1054,7 @@ class HomeController extends Controller
         });
       }
 
-        $dt->rawColumns(['refrence_code','history','in_purchase','in_manualAdjusment','in_transferDocument','in_orderUpdate', 'out_order','out_manual_adjustment','out_transfer_document','product_type','product_type_2']);
+        $dt->rawColumns(['refrence_code','history','in_purchase','in_manualAdjusment','in_transferDocument','in_orderUpdate', 'out_order','out_manual_adjustment','out_transfer_document','product_type','product_type_2', 'supplier']);
         $dt->with(['title' => $unit_title,'total_unit' => number_format(floatval($total_unit),2,'.',','),'stock_items' => $stock_items, 'stock_min_current' => $stock_min_current]);
         return $dt->make(true);
     }

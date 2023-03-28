@@ -147,7 +147,10 @@ class StockMovementReportExportJob implements ShouldQueue
                         }
                     },
                     'productType',
-                    'productType2'
+                    'productType2',
+                    'def_or_last_supplier' => function($sup){
+                      $sup->select('id', 'reference_name');
+                    }
           ]);
 
           if($warehouse_id != null)
@@ -280,6 +283,11 @@ class StockMovementReportExportJob implements ShouldQueue
       if ($request['column_name'] == 'min_stock')
       {
         $column_name = 'min_stock';
+      }
+
+      if ($request['column_name'] == 'supplier')
+      {
+        $products->leftjoin('suppliers as sup', 'sup.id', '=', 'products.supplier_id')->orderBy('sup.reference_name', $sort_order);
       }
 
       if ($request['column_name'] == 'type')
