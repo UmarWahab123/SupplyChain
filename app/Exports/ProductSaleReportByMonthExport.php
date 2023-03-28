@@ -35,19 +35,19 @@ class ProductSaleReportByMonthExport implements ShouldAutoSize, FromQuery, WithH
     	$i = 4;
 
     	if (!in_array('0', $not_visible_arr)) {
-		  array_push($data_array, $item->refrence_code);
+		  array_push($data_array, @$item->product->refrence_code);
 		}
 
 		if (!in_array('1', $not_visible_arr)) {
-		  array_push($data_array, ($item->brand != null) ? $item->brand : '--');
+		  array_push($data_array, ($item->product != null) ? $item->product->brand : '--');
 		}
 
 		if (!in_array('2', $not_visible_arr)) {
-		  array_push($data_array, ($item->short_desc != null) ? $item->short_desc : '--');
+		  array_push($data_array, ($item->product != null) ? $item->product->short_desc : '--');
 		}
 
 		if (!in_array('3', $not_visible_arr)) {
-		  array_push($data_array, ($item->title != null) ? $item->title : '--');
+		  array_push($data_array, (@$item->product->sellingUnits != null) ? @$item->product->sellingUnits->title : '--');
 		}
 
 		foreach($months as $month)
