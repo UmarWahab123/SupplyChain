@@ -133,7 +133,7 @@ class StockMovementReportExportJob implements ShouldQueue
             }
             $products = $products->join('warehouse_products', 'products.id', '=', 'warehouse_products.product_id')
                 ->groupBy('products.id')
-                ->havingRaw('SUM(warehouse_products.current_quantity) < products.min_stock')
+                // ->havingRaw('SUM(warehouse_products.current_quantity) < products.min_stock')
                 ->with([
                     'sellingUnits' => function($u) {
                         $u->select('id', 'title', 'decimal_places');
