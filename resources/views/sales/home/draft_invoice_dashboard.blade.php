@@ -1135,7 +1135,6 @@ $('#header_customer_search').keyup(function(event){
     $("input.check1:checked").each(function() {
       selected_quots.push($(this).val());
     });
-    alert(selected_quots);
     swal({
       title: "Alert!",
       text: "Are you sure you want to merge selected orders?",
@@ -1162,11 +1161,10 @@ $('#header_customer_search').keyup(function(event){
             $('#loader_modal').modal('show');
           },
           success:function(result){
-            $('#loader_modal').modal('hide');
             if(result.success == true)
             {
-              alert(result.url);
               toastr.success('Success', result.msg ,{"positionClass": "toast-bottom-right"});
+              window.location.href = result.url;
             }
             if(result.success == false)
             {
