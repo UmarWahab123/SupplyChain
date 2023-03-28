@@ -93,13 +93,19 @@ class stockMovementReportExport implements ShouldAutoSize, WithEvents, FromQuery
 
         if(!in_array('3', $column_visiblity))
         {
+            $data = $item->def_or_last_supplier != null ? @$item->def_or_last_supplier->reference_name : '--';
+            array_push($data_array, $data);
+        }
+
+        if(!in_array('4', $column_visiblity))
+        {
             $data = $item->productType != null ? $item->productType->title : '--';
             array_push($data_array, $data);
         }
 
         if (in_array('product_type_2', $product_detail_section))
         {
-            if(!in_array('4', $column_visiblity))
+            if(!in_array('5', $column_visiblity))
             {
                 $data = $item->productType2 != null ? $item->productType2->title : '--';
                 array_push($data_array, $data);
@@ -108,26 +114,26 @@ class stockMovementReportExport implements ShouldAutoSize, WithEvents, FromQuery
 
         if (in_array('product_type_3', $product_detail_section))
         {
-            if(!in_array('5', $column_visiblity))
+            if(!in_array('6', $column_visiblity))
             {
                 $data = $item->productType3 != null ? $item->productType3->title : '--';
                 array_push($data_array, $data);
             }
         }
 
-        if(!in_array('6', $column_visiblity))
+        if(!in_array('7', $column_visiblity))
         {
             $data = round($item->min_stock,2);
             array_push($data_array, $data);
         }
 
-        if(!in_array('7', $column_visiblity))
+        if(!in_array('8', $column_visiblity))
         {
             $data = $item->selling_unit != null ? $item->sellingUnits->title : '--';
             array_push($data_array, $data);
         }
 
-        if(!in_array('8', $column_visiblity))
+        if(!in_array('9', $column_visiblity))
         {
             // $Start_count_out = $item->stock_out();
             //     if($warehouse_id != null && $warehouse_id != ''){
@@ -146,34 +152,34 @@ class stockMovementReportExport implements ShouldAutoSize, WithEvents, FromQuery
             array_push($data_array, $data);
         }
 
-        if(!in_array('9', $column_visiblity))
+        if(!in_array('10', $column_visiblity))
         {
             $data = round($item->stock_out->where('po_group_id','!=',Null)->sum('quantity_in'),2);
             array_push($data_array, $data);
         }
 
-        if(!in_array('10', $column_visiblity))
+        if(!in_array('11', $column_visiblity))
         {
             $data = $item->stock_out->where('title','!=',Null)->where('title','!=','TD')->where('quantity_out',NULL)->sum('quantity_in');
             $data = round($data,2);
             array_push($data_array, $data);
         }
 
-        if(!in_array('11', $column_visiblity))
+        if(!in_array('12', $column_visiblity))
         {
             $data = $item->stock_out->where('title','!=',Null)->where('title','TD')->where('quantity_out',NULL)->sum('quantity_in');
             $data = round($data,2);
             array_push($data_array, $data);
         }
 
-        if(!in_array('12', $column_visiblity))
+        if(!in_array('13', $column_visiblity))
         {
             $data = $item->stock_out->where('order_id','!=',Null)->where('quantity_out',NULL)->sum('quantity_in');
             $data = round($data,2);
             array_push($data_array, $data);
         }
 
-        if(!in_array('13', $column_visiblity))
+        if(!in_array('14', $column_visiblity))
         {
             $INS = $item->stock_out->sum('quantity_in');
             $decimal_places = $item->sellingUnits != null ? $item->sellingUnits->decimal_places : 3;
@@ -181,28 +187,28 @@ class stockMovementReportExport implements ShouldAutoSize, WithEvents, FromQuery
             array_push($data_array, $data);
         }
 
-        if(!in_array('14', $column_visiblity))
+        if(!in_array('15', $column_visiblity))
         {
             $data = $item->stock_out->where('order_id','!=',Null)->where('quantity_in',NULL)->sum('quantity_out');
             $data = round($data,2);
             array_push($data_array, $data);
         }
 
-        if(!in_array('15', $column_visiblity))
+        if(!in_array('16', $column_visiblity))
         {
             $data = $item->stock_out->where('title','!=',Null)->where('title','!=','TD')->where('quantity_in',NULL)->sum('quantity_out');
             $data = round($data,2);
             array_push($data_array, $data);
         }
 
-        if(!in_array('16', $column_visiblity))
+        if(!in_array('17', $column_visiblity))
         {
             $data = $item->stock_out->where('title','!=',Null)->where('title','TD')->where('quantity_in',NULL)->sum('quantity_out');
             $data = round($data,2);
             array_push($data_array, $data);
         }
 
-        if(!in_array('17', $column_visiblity))
+        if(!in_array('18', $column_visiblity))
         {
             $OUTs = $item->stock_out->sum('quantity_out');
             $decimal_places = $item->sellingUnits != null ? $item->sellingUnits->decimal_places : 3;
@@ -210,7 +216,7 @@ class stockMovementReportExport implements ShouldAutoSize, WithEvents, FromQuery
             array_push($data_array, $data);
         }
 
-        if(!in_array('18', $column_visiblity))
+        if(!in_array('19', $column_visiblity))
         {
             // $Start_count_out = $item->stock_out();
             // if($warehouse_id != null && $warehouse_id != ''){
@@ -230,7 +236,7 @@ class stockMovementReportExport implements ShouldAutoSize, WithEvents, FromQuery
             array_push($data_array, $data);
         }
 
-        if($role_id == 1 || $role_id == 2 || $role_id == 7 || $role_id == 11 && !in_array('19', $column_visiblity))
+        if($role_id == 1 || $role_id == 2 || $role_id == 7 || $role_id == 11 && !in_array('20', $column_visiblity))
         {
             $unit_conversion_rate = ($item->unit_conversion_rate != null) ? $item->unit_conversion_rate : 1;
             $cogs = $item->total_buy_unit_cost_price * $unit_conversion_rate;
@@ -262,15 +268,19 @@ class stockMovementReportExport implements ShouldAutoSize, WithEvents, FromQuery
         {
             array_push($heading_array, $global_terminologies['brand']);
         }
-
         if(!in_array('3', $column_visiblity))
+        {
+            array_push($heading_array, 'Supplier');
+        }
+
+        if(!in_array('4', $column_visiblity))
         {
             array_push($heading_array, $global_terminologies['type']);
         }
 
         if (in_array('product_type_2', $product_detail_section))
         {
-            if(!in_array('4', $column_visiblity))
+            if(!in_array('5', $column_visiblity))
             {
                 if(!array_key_exists('product_type_2', $global_terminologies))
                 {
@@ -285,7 +295,7 @@ class stockMovementReportExport implements ShouldAutoSize, WithEvents, FromQuery
 
         if (in_array('product_type_3', $product_detail_section))
         {
-            if(!in_array('5', $column_visiblity))
+            if(!in_array('6', $column_visiblity))
             {
                 if(!array_key_exists('product_type_3', $global_terminologies))
                 {
@@ -298,72 +308,72 @@ class stockMovementReportExport implements ShouldAutoSize, WithEvents, FromQuery
             }
         }
 
-        if(!in_array('6', $column_visiblity))
+        if(!in_array('7', $column_visiblity))
         {
             array_push($heading_array, 'Minimum Stock');
         }
 
-        if(!in_array('7', $column_visiblity))
+        if(!in_array('8', $column_visiblity))
         {
             array_push($heading_array, 'Unit');
         }
 
-        if(!in_array('8', $column_visiblity))
+        if(!in_array('9', $column_visiblity))
         {
             array_push($heading_array, 'Start Count');
         }
 
-        if(!in_array('9', $column_visiblity))
+        if(!in_array('10', $column_visiblity))
         {
             array_push($heading_array, 'In(From Purchase)');
         }
 
-        if(!in_array('10', $column_visiblity))
+        if(!in_array('11', $column_visiblity))
         {
             array_push($heading_array, 'In(Manual Adjustment)');
         }
 
-        if(!in_array('11', $column_visiblity))
+        if(!in_array('12', $column_visiblity))
         {
             array_push($heading_array, 'In(Transfer Document)');
         }
 
-        if(!in_array('12', $column_visiblity))
+        if(!in_array('13', $column_visiblity))
         {
             array_push($heading_array, 'In(Order Update)');
         }
 
-        if(!in_array('13', $column_visiblity))
+        if(!in_array('14', $column_visiblity))
         {
             array_push($heading_array, 'IN(Total)');
         }
 
-        if(!in_array('14', $column_visiblity))
+        if(!in_array('15', $column_visiblity))
         {
             array_push($heading_array, 'Out(Order)');
         }
 
-        if(!in_array('15', $column_visiblity))
+        if(!in_array('16', $column_visiblity))
         {
             array_push($heading_array, 'Out(Manual Adjustment)');
         }
 
-        if(!in_array('16', $column_visiblity))
+        if(!in_array('17', $column_visiblity))
         {
             array_push($heading_array, 'Out(Transfer Document)');
         }
 
-        if(!in_array('17', $column_visiblity))
+        if(!in_array('18', $column_visiblity))
         {
             array_push($heading_array, 'OUT(Total)');
         }
 
-        if(!in_array('18', $column_visiblity))
+        if(!in_array('19', $column_visiblity))
         {
             array_push($heading_array, 'Balance');
         }
 
-        if($role_id == 1 || $role_id == 2 || $role_id == 7 || $role_id == 11 && !in_array('19', $column_visiblity))
+        if($role_id == 1 || $role_id == 2 || $role_id == 7 || $role_id == 11 && !in_array('20', $column_visiblity))
         {
             array_push($heading_array, 'COGS');
         }

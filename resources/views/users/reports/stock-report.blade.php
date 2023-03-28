@@ -316,6 +316,14 @@ use Carbon\Carbon;
                 <img src="{{url('public/svg/down.svg')}}" alt="down" style="width:10px; height:10px; cursor: pointer;">
               </span>
             </th>
+            <th>Supplier
+              <span class="arrow_up sorting_filter_table" data-order="ASC" data-column_name="supplier">
+                <img src="{{url('public/svg/up.svg')}}" alt="up" style="width:10px; height:10px; cursor: pointer;">
+              </span>
+              <span class="arrow_down sorting_filter_table" data-order="DESC" data-column_name="supplier">
+                <img src="{{url('public/svg/down.svg')}}" alt="down" style="width:10px; height:10px; cursor: pointer;">
+              </span>
+            </th>
             <th>{{$global_terminologies['type']}}
               <span class="arrow_up sorting_filter_table" data-order="ASC" data-column_name="type">
                 <img src="{{url('public/svg/up.svg')}}" alt="up" style="width:10px; height:10px; cursor: pointer;">
@@ -629,6 +637,7 @@ $('.sorting_filter_table').on('click',function(){
         { data: 'refrence_code', name: 'refrence_code' },
         { data: 'short_desc', name: 'short_desc' },
         { data: 'brand', name: 'brand' },
+        { data: 'supplier', name: 'supplier' },
         { data: 'product_type', name: 'product_type' },
         { data: 'product_type_2', name: 'product_type_2' @if (!in_array('product_type_2', $product_detail_section)) ,searchable: false, orderable: false, visible: false @endif},
         { data: 'product_type_3', name: 'product_type_3' @if (!in_array('product_type_3', $product_detail_section)) ,searchable: false, orderable: false, visible: false @endif},

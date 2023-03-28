@@ -2659,6 +2659,9 @@ class Product extends Model
             case 'brand':
                 return @$item->brand != null ? $item->brand : '--';
                 break;
+            case 'supplier':
+                return @$item->def_or_last_supplier != null ? @$item->def_or_last_supplier->reference_name : '--';
+                break;
         }
     }
 
