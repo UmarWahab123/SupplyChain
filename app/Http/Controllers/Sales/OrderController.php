@@ -2,95 +2,96 @@
 
 namespace App\Http\Controllers\Sales;
 
-use PDF;
-use Auth;
-use File;
-use Excel;
-use App\User;
-use DateTime;
-use App\Version;
-use App\RoleMenu;
-use App\Variable;
 use App\CustomEmail;
-use App\ExportStatus;
-use App\PrintHistory;
-use Dompdf\Exception;
-use App\InvoiceSetting;
-use App\QuotationConfig;
-use App\Helpers\MyHelper;
-use App\ImportFileHistory;
-use App\Models\Common\Bank;
-use App\Models\Common\Unit;
-use App\GlobalAccessForRole;
-use App\Models\Common\State;
-use Illuminate\Http\Request;
-use App\Models\Common\Status;
 use App\CustomerSecondaryUser;
-use App\Models\Common\Company;
-use App\Models\Common\Country;
-use App\Models\Common\Product;
-use App\Models\Sales\Customer;
-use Illuminate\Support\Carbon;
+use App\DraftQuatationProductHistory;
+use App\ExportStatus;
+use App\Exports\CompleteQuotationExport;
+use App\Exports\DraftQuotationExport;
+use App\Exports\invoicetableExport;
+use App\GlobalAccessForRole;
+use App\Helpers\Datatables\CancelOrdersDatatable;
+use App\Helpers\DraftQuotationHelper;
+use App\Helpers\MyHelper;
+use App\Helpers\QuantityReservedHistory;
+use App\Helpers\QuotationHelper;
+use App\Helpers\QuotationsCommonHelper;
+use App\Helpers\UpdateOrderQuotationDataHelper;
+use App\Helpers\UpdateQuotationDataHelper;
+use App\Http\Controllers\Controller;
+use App\ImportFileHistory;
+use App\Imports\AddProductToOrder;
+use App\Imports\AddProductToTempQuotation;
+use App\Imports\BulkImportForOrder;
+use App\Imports\DraftQuotationImport;
+use App\InvoiceSetting;
 use App\Jobs\CancelledOrderJob;
 use App\Jobs\InvoiceSaleExpJob;
-use App\Models\Common\Supplier;
-use App\Helpers\QuotationHelper;
-use App\Models\Common\Warehouse;
-use Yajra\Datatables\Datatables;
-use App\Models\Common\UserDetail;
-use App\Imports\AddProductToOrder;
+use App\Models\Common\Bank;
+use App\Models\Common\ColumnDisplayPreference;
+use App\Models\Common\Company;
 use App\Models\Common\CompanyBank;
+use App\Models\Common\Configuration;
+use App\Models\Common\Country;
+use App\Models\Common\CustomerCategory;
+use App\Models\Common\CustomerTypeCategoryMargin;
+use App\Models\Common\CustomerTypeProductMargin;
+use App\Models\Common\OrderHistory;
+use App\Models\Common\Order\CustomerBillingDetail;
+use App\Models\Common\Order\DraftQuotation;
+use App\Models\Common\Order\DraftQuotationAttachment;
+use App\Models\Common\Order\DraftQuotationNote;
+use App\Models\Common\Order\DraftQuotationProduct;
+use App\Models\Common\Order\DraftQuotationProductNote;
 use App\Models\Common\Order\Order;
+use App\Models\Common\Order\OrderAttachment;
+use App\Models\Common\Order\OrderNote;
+use App\Models\Common\Order\OrderProduct;
+use App\Models\Common\Order\OrderProductNote;
+use App\Models\Common\Order\OrderStatusHistory;
 use App\Models\Common\PaymentTerm;
 use App\Models\Common\PaymentType;
-use App\Models\Common\ProductType;
-use App\NotificationConfiguration;
-use Illuminate\Support\Facades\DB;
-use App\Exports\invoicetableExport;
-use App\Imports\BulkImportForOrder;
-use App\Models\Common\OrderHistory;
-use App\Http\Controllers\Controller;
-use App\Models\Common\Configuration;
-use Illuminate\Support\Facades\Mail;
-use App\DraftQuatationProductHistory;
-use App\Exports\DraftQuotationExport;
-use App\Helpers\DraftQuotationHelper;
-use App\Imports\DraftQuotationImport;
-use App\Models\Common\Order\OrderNote;
+use App\Models\Common\PoGroupProductDetail;
+use App\Models\Common\Product;
 use App\Models\Common\ProductCategory;
-use App\Models\Common\StockOutHistory;
-use App\Models\Common\TableHideColumn;
-use App\Helpers\QuotationsCommonHelper;
-use App\Models\Common\CustomerCategory;
-use App\Models\Common\SupplierProducts;
-use App\Models\Common\WarehouseProduct;
-use App\Exports\CompleteQuotationExport;
-use App\Helpers\QuantityReservedHistory;
-use App\Models\Common\StockManagementIn;
-use Illuminate\Support\Facades\Redirect;
-use App\Models\Common\Order\OrderProduct;
-use App\Models\Common\StockManagementOut;
-use App\Helpers\UpdateQuotationDataHelper;
-use App\Imports\AddProductToTempQuotation;
-use App\Models\Common\Order\DraftQuotation;
-use App\Models\Common\Order\OrderAttachment;
-use App\Models\Common\Order\OrderProductNote;
-use App\Models\Common\ColumnDisplayPreference;
-use App\Helpers\UpdateOrderQuotationDataHelper;
-use App\Models\Common\Order\DraftQuotationNote;
-use App\Models\Common\Order\OrderStatusHistory;
-use App\Models\Common\CustomerTypeProductMargin;
 use App\Models\Common\ProductCustomerFixedPrice;
-use App\Helpers\Datatables\CancelOrdersDatatable;
-use App\Models\Common\CustomerTypeCategoryMargin;
-use App\Models\Common\Order\CustomerBillingDetail;
-use App\Models\Common\Order\DraftQuotationProduct;
-use App\Models\Common\PurchaseOrders\PurchaseOrder;
-use App\Models\Common\Order\DraftQuotationAttachment;
-use App\Models\Common\Order\DraftQuotationProductNote;
+use App\Models\Common\ProductType;
 use App\Models\Common\PurchaseOrders\DraftPurchaseOrder;
-use App\Notifications\DraftInvoiceQtyChangeNotification;
+use App\Models\Common\PurchaseOrders\PurchaseOrder;
 use App\Models\Common\PurchaseOrders\PurchaseOrderDetail;
+use App\Models\Common\State;
+use App\Models\Common\Status;
+use App\Models\Common\StockManagementIn;
+use App\Models\Common\StockManagementOut;
+use App\Models\Common\StockOutHistory;
+use App\Models\Common\Supplier;
+use App\Models\Common\SupplierProducts;
+use App\Models\Common\TableHideColumn;
+use App\Models\Common\Unit;
+use App\Models\Common\UserDetail;
+use App\Models\Common\Warehouse;
+use App\Models\Common\WarehouseProduct;
+use App\Models\Sales\Customer;
+use App\NotificationConfiguration;
+use App\Notifications\DraftInvoiceQtyChangeNotification;
+use App\PrintHistory;
+use App\QuotationConfig;
+use App\RoleMenu;
+use App\User;
+use App\Variable;
+use App\Version;
+use Auth;
+use DateTime;
+use Dompdf\Exception;
+use Excel;
+use File;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Redirect;
+use PDF;
+use Yajra\Datatables\Datatables;
 
 class OrderController extends Controller
 {
@@ -6457,5 +6458,144 @@ class OrderController extends Controller
     public function makeDraftInvoice(Request $request)
     {
         return QuotationsCommonHelper::makeDraftInvoice($request);
+    }
+
+    public function mergeDraftInvoices(Request $request){
+        \DB::beginTransaction();
+        try {
+            //check to confirm to have only one customer
+            $orders = Order::whereIn('id', $request->order_ids)->get();
+
+            // Check that all orders have the same customer id and delivery data
+            $order = $orders->first();
+            $customerId = $orders->first()->customer_id;
+            $deliveryDate = $orders->first()->delivery_request_date;
+            $warehouseId = $orders->first()->from_warehouse_id;
+
+            foreach ($orders as $order) {
+                if ($order->customer_id != $customerId) {
+                    return response()->json(['success' => false, 'msg' => 'Selected orders cannot be merged because they have different customers.']);
+                }
+                if ($order->delivery_request_date != $deliveryDate) {
+                    return response()->json(['success' => false, 'msg' => 'Selected orders cannot be merged because they have different delivery dates.']);
+                }
+                if ($order->from_warehouse_id != $warehouseId) {
+                    return response()->json(['success' => false, 'msg' => 'Selected orders cannot be merged because they have different warehouses.']);
+                }
+            }
+
+            //generate new draft invoice number
+            $quot_status     = Status::where('id',1)->first();
+            $draf_status     = Status::where('id',2)->first();
+            $counter_formula = $quot_status->counter_formula;
+            $counter_formula = explode('-',$counter_formula);
+            $counter_length  = strlen($counter_formula[1]) != null ? strlen($counter_formula[1]) : 4;
+            $date = Carbon::now();
+            $date = $date->format($counter_formula[0]); //we expect the inner varaible to be ym so it will produce 2005 for date 2020/05/anyday
+            $company_prefix          = @Auth::user()->getCompany->prefix;
+            $draft_customer_category = $order->customer->CustomerCategory;
+            $config = Configuration::first();
+            if($config->server != 'lucilla' && $draft_quotation->customer->category_id == 6)
+            {
+                $p_cat = CustomerCategory::where('id',4)->first();
+                $ref_prefix = $p_cat->short_code;
+            }
+            else
+            {
+                $ref_prefix              = $draft_customer_category->short_code;
+            }
+            $quot_status_prefix      = $quot_status->prefix.$company_prefix;
+            $draft_status_prefix     = $draf_status->prefix.$company_prefix;
+            $c_p_ref = Order::whereIn('status_prefix',[$quot_status_prefix,$draft_status_prefix])->where('ref_id','LIKE',"$date%")->where('ref_prefix',$ref_prefix)->orderby('id','DESC')->first();
+            $str = @$c_p_ref->ref_id;
+            $onlyIncrementGet = substr($str, 4);
+            if($str == NULL)
+            {
+                $onlyIncrementGet = 0;
+            }
+            $system_gen_no = str_pad(@$onlyIncrementGet + 1,$counter_length,0, STR_PAD_LEFT);
+            $system_gen_no = $date . $system_gen_no;
+
+            $new_order = new Order;
+            $new_order->manual_ref_no = $order->manual_ref_no;
+            $new_order->user_id = $order->user_id;
+            $new_order->status_prefix         = $order->status_prefix;
+            $new_order->ref_prefix            = $order->ref_prefix;
+            $new_order->ref_id = $system_gen_no;
+            $new_order->from_warehouse_id = $order->from_warehouse_id;
+            $new_order->customer_id = $order->customer_id;
+            $new_order->total_amount = // to be calculated
+            $new_order->delivery_request_date = $order->delivery_request_date;
+            $new_order->credit_note_date = $order->credit_note_date;
+            $new_order->payment_due_date = $order->payment_due_date;
+            $new_order->payment_terms_id = $order->payment_terms_id;
+            $new_order->target_ship_date = $order->target_ship_date;
+            $new_order->memo = $order->memo;
+            $new_order->discount = $order->discount;
+            $new_order->shipping = $order->shipping;
+            $new_order->billing_address_id = $order->billing_address_id;
+            $new_order->shipping_address_id = $order->shipping_address_id;
+            $new_order->created_by = @auth()->user()->id;
+            $new_order->is_vat = $order->is_vat;
+            $new_order->is_manual = $order->is_manual;
+            $new_order->primary_status = $order->primary_status;
+            $new_order->status = //to be calculated dynamically;
+            $new_order->is_processing = $order->is_processing;
+            $new_order->converted_to_invoice_on = Carbon::now();
+            $new_order->delivery_note = $order->delivery_note;
+            $new_order->order_note_type = $order->order_note_type;
+            $new_order->dont_show = $order->dont_show;
+            $new_order->save();
+
+            foreach ($orders as $order) {
+                // $order->order_products()->update(['order_id' => $new_order->id]);
+                OrderProduct::where('order_id', $order->id)->update(['order_id' => $new_order->id]);
+                $order->previous_primary_status = $order->primary_status;
+                $order->previous_status = $order->status;
+                $order->primary_status = 17;
+                $order->status = 18;
+                $order->save();
+
+                $status_history = new OrderStatusHistory;
+                $status_history->user_id = @Auth::user()->id;
+                $status_history->order_id = $order->id;
+                $status_history->status = 'Draft Invoice';
+                $status_history->new_status = 'Cancelled (Merge into new draft invoice '.@$new_order->status_prefix.@$new_order->ref_prefix.'-'.@$new_order->ref_id.')';
+                $status_history->save();
+
+                $order_his = new OrderHistory;
+                $order_his->user_id     =   @auth()->user()->id;
+                $order_his->column_name =   'Merged Draft invoice';
+                $order_his->old_value   =   @$order->status_prefix.@$order->ref_prefix.'-'.@$order->ref_id;
+                $order_his->new_value   =   'Merged Into '.@$new_order->status_prefix.@$new_order->ref_prefix.'-'.@$new_order->ref_id;
+                $order_his->order_id    =   @$new_order->id;
+                $order_his->save();
+            }
+
+            $status_history = new OrderStatusHistory;
+            $status_history->user_id = @Auth::user()->id;
+            $status_history->order_id = $new_order->id;
+            $status_history->status = 'Draft Invoice created by merging';
+            $status_history->new_status = 'Draft Invoice';
+            $status_history->save();
+
+            //to find the total of new draft invoice
+            $amount = OrderProduct::where('order_id', $new_order->id)->sum('total_price_with_vat');
+            //to find the min status of new draft invoice
+            $status = OrderProduct::where('order_id', $new_order->id)->orderBy('status', 'ASC')->first();
+            $new_order->total_amount = round($amount, 2);
+            $new_order->status       = @$status->status;
+            $new_order->save();
+
+            //find purchase orders and po groups created against the merged draft invoices and update order id into the new order it
+            PurchaseOrderDetail::whereIn('order_id', $request->order_ids)->update(['order_id' => $new_order->id]);
+            PoGroupProductDetail::whereIn('order_id', $request->order_ids)->update(['order_id' => $new_order->id]);
+            \DB::commit();
+            $url = route('get-completed-draft-invoices', ['id' => $new_order->id]);
+            return response()->json(['success' => true, 'msg' => 'Merged successfully', 'url' => $url]);
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            return response()->json(['success' => false, 'msg' => $e->getMessage()]);
+        }
     }
 }

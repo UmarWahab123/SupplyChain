@@ -127,13 +127,13 @@ class StockMovementReportExportJob implements ShouldQueue
           //   },'productType','productType2'
           // ]);
 
-          $products = Product::select('products.id', 'products.short_desc', 'products.brand', 'products.refrence_code', 'products.min_stock', 'products.selling_unit', 'products.type_id', 'products.type_id_2', 'products.type_id_3', 'products.supplier_id', 'products.unit_conversion_rate', 'products.total_buy_unit_cost_price');
+          $products = Product::select('products.id', 'products.short_desc', 'products.brand', 'products.refrence_code', 'products.min_stock', 'products.selling_unit', 'products.type_id', 'products.type_id_2', 'products.type_id_3', 'products.supplier_id', 'products.unit_conversion_rate', 'products.total_buy_unit_cost_price')->where('status', 1);
             if($product_id != null){
                 $products = $products->where('id', $product_id);
             }
             $products = $products->join('warehouse_products', 'products.id', '=', 'warehouse_products.product_id')
                 ->groupBy('products.id')
-                ->havingRaw('SUM(warehouse_products.current_quantity) < products.min_stock')
+                // ->havingRaw('SUM(warehouse_products.current_quantity) < products.min_stock')
                 ->with([
                     'sellingUnits' => function($u) {
                         $u->select('id', 'title', 'decimal_places');
@@ -147,7 +147,10 @@ class StockMovementReportExportJob implements ShouldQueue
                         }
                     },
                     'productType',
-                    'productType2'
+                    'productType2',
+                    'def_or_last_supplier' => function($sup){
+                      $sup->select('id', 'reference_name');
+                    }
           ]);
 
           if($warehouse_id != null)
@@ -280,6 +283,11 @@ class StockMovementReportExportJob implements ShouldQueue
       if ($request['column_name'] == 'min_stock')
       {
         $column_name = 'min_stock';
+      }
+
+      if ($request['column_name'] == 'supplier')
+      {
+        $products->leftjoin('suppliers as sup', 'sup.id', '=', 'products.supplier_id')->orderBy('sup.reference_name', $sort_order);
       }
 
       if ($request['column_name'] == 'type')
