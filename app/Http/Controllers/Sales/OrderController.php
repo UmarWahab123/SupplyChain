@@ -6495,7 +6495,7 @@ class OrderController extends Controller
             $company_prefix          = @Auth::user()->getCompany->prefix;
             $draft_customer_category = $order->customer->CustomerCategory;
             $config = Configuration::first();
-            if($config->server != 'lucilla' && $draft_quotation->customer->category_id == 6)
+            if($config->server != 'lucilla' && $order->customer->category_id == 6)
             {
                 $p_cat = CustomerCategory::where('id',4)->first();
                 $ref_prefix = $p_cat->short_code;
