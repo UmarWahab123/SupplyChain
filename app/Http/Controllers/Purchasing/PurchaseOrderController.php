@@ -4887,7 +4887,7 @@ class PurchaseOrderController extends Controller
 
         $dt = Datatables::of($details);
 
-        $add_columns = ['weight', 'unit_gross_weight', 'discount', 'remarks', 'supplier_packaging', 'order_no', 'amount_with_vat', 'amount', 'last_updated_price_on', 'unit_price_with_vat', 'unit_price', 'billed_unit_per_package', 'purchasing_vat', 'desired_qty', 'gross_weight', 'customer_pcs', 'customer_qty', 'quantity', 'warehouse', 'buying_unit', 'type', 'leading_time', 'brand', 'product_description', 'customer', 'item_ref', 'supplier_id', 'action','current_stock_qty'];
+        $add_columns = ['weight', 'unit_gross_weight', 'discount', 'remarks', 'supplier_packaging', 'order_no', 'amount_with_vat', 'amount', 'last_updated_price_on', 'unit_price_with_vat', 'unit_price', 'billed_unit_per_package', 'purchasing_vat', 'desired_qty', 'gross_weight', 'customer_pcs', 'customer_qty', 'quantity', 'warehouse', 'buying_unit', 'type', 'leading_time', 'brand', 'product_description', 'customer', 'item_ref', 'supplier_id', 'action','current_stock_qty', 'unit_price_after_discount'];
 
         foreach ($add_columns as $column) {
             $dt->addColumn($column, function($item) use ($column) {
@@ -4914,7 +4914,7 @@ class PurchaseOrderController extends Controller
         $dt->setRowId(function ($item) {
             return @$item->id;
         });
-        $dt->rawColumns(['action', 'supplier_id','supplier_ref','item_ref','customer','short_desc','buying_unit','quantity','unit_price','amount','remarks','order_no','warehouse','gross_weight','supplier_packaging','billed_unit_per_package','customer_qty','discount','desired_qty','pkg_billed_est','customer_pcs','product_description','a','unit_gross_weight','weight','amount_with_vat','unit_price_with_vat','purchasing_vat']);
+        $dt->rawColumns(['action', 'supplier_id','supplier_ref','item_ref','customer','short_desc','buying_unit','quantity','unit_price','amount','remarks','order_no','warehouse','gross_weight','supplier_packaging','billed_unit_per_package','customer_qty','discount','desired_qty','pkg_billed_est','customer_pcs','product_description','a','unit_gross_weight','weight','amount_with_vat','unit_price_with_vat','purchasing_vat', 'unit_price_after_discount']);
         return $dt->make(true);
     }
 
@@ -5040,6 +5040,10 @@ class PurchaseOrderController extends Controller
     public function UpdateUnitPrice(Request $request)
     {
         return PODetailCRUDHelper::UpdateUnitPrice($request);
+    }
+    public function UpdateUnitPriceAfterDiscount(Request $request)
+    {
+        return PODetailCRUDHelper::UpdateUnitPriceAfterDiscount($request);
     }
 
     public function UpdateUnitPriceWithVat(Request $request)
