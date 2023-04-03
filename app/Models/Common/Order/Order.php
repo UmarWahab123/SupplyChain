@@ -997,6 +997,37 @@ class Order extends Model
         if ($request->sortbyparam == 'target_ship_date') {
             $query->orderBy('target_ship_date', $sort_order);
         }
+        if ($request->sortbyparam == 'printed') {
+            $new_or = @$sort_order == 'ASC' ? 'DESC' : 'ASC';
+            
+            if($request->dosortby != 3){
+                // $query->leftJoin('print_histories', 'orders.id', '=', 'print_histories.order_id')->where('print_type', 'pick-instruction')->where('page_type', 'draft_invoice')
+                // ->select('orders.*', DB::raw('IF((print_histories.print_type = "pick-instruction" AND page_type = "draft_invoice"), 1, 0) as printed'));
+                // $query->orderBy('printed', $sort_order);
+                  // $query->orderByRaw('ISNULL(printed), printed '.@$new_or);
+
+                $query->leftJoin('print_histories', function($join) {
+                $join->on('orders.id', '=', 'print_histories.order_id')
+                     ->where('print_type', 'pick-instruction')->where('page_type', 'draft_invoice');
+                })
+                ->select('orders.*', DB::raw('IF(print_histories.id IS NULL, 0, 1) as printed'))->orderBy('printed', $sort_order);
+
+            }else{
+                
+                // $query->leftJoin('print_histories', 'orders.id', '=', 'print_histories.order_id')
+                // ->select('orders.*', DB::raw('IF((print_histories.print_type = "performa-to-pdf" AND page_type = "complete-invoice"), 1, 0) as printed'));
+                // $query->orderBy('printed', $sort_order)
+                //   ->orderByRaw('ISNULL(printed), printed '.@$new_or);
+
+                $query->leftJoin('print_histories', function($join) {
+                $join->on('orders.id', '=', 'print_histories.order_id')
+                     ->where('print_type', 'performa-to-pdf')->where('page_type', 'complete-invoice');
+                })
+                ->select('orders.*', DB::raw('IF(print_histories.id IS NULL, 0, 1) as printed'))->orderBy('printed', $sort_order);
+
+                // $query->leftJoin('print_histories', 'orders.id', '=', 'print_histories.order_id')->where('print_type', 'performa-to-pdf')->where('page_type', 'complete-invoice')->orderBy('print_histories.id', $sort_order);
+            }
+        }
 
     }
 
