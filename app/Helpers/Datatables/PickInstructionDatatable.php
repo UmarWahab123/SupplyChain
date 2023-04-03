@@ -92,6 +92,9 @@ class PickInstructionDatatable {
 
                 return $html_string;
                 break;
+            case 'printed':
+                return @$item->draft_invoice_pick_instruction_printed != null ? 'Yes' : 'No';
+                break;
         }
     }
 

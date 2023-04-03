@@ -766,7 +766,8 @@ $(function(e){
     $.get({
       url : "{{ route('column-reorder') }}",
       dataType : "json",
-      data : "type=importing_closed_product_receiving&order="+table2.colReorder.order(),
+      // data : "type=importing_closed_product_receiving&order="+table2.colReorder.order(),
+      data : "type=importing_open_product_receiving&order="+table2.colReorder.order(),
       beforeSend: function(){
 
       },

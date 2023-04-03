@@ -320,6 +320,7 @@
                 <img src="{{url('public/svg/down.svg')}}" alt="down" style="width:10px; height:10px; cursor: pointer;">
               </span> -->
             </th>
+            <th>Printed</th>
           </tr>
         </thead>
       </table>
@@ -450,6 +451,9 @@ $(function(e){
   var table2 = $('.table-quotation').DataTable({
     "sPaginationType": "listbox",
     processing: false,
+    colReorder: {
+          realtime: false,
+        },
     "language": {
         processing: '<i class="fa fa-spinner fa-spin fa-3x fa-fw" style="color:#13436c;"></i><span class="sr-only">Loading...</span> '},
     ordering: false,
@@ -489,12 +493,17 @@ $(function(e){
       { data: 'comment_to_warehouse', name: 'comment_to_warehouse' },
       { data: 'total_amount1', name: 'total_amount1' },
       { data: 'status1', name: 'status1' },
+      { data: 'printed', name: 'printed' },
     ],
     initComplete: function () {
     // Enable THEAD scroll bars
+        @if($display_my_quotation)
+            table2.colReorder.order( [{{$display_my_quotation->display_order}}]);
+        @endif
         $('.dataTables_scrollHead').css('overflow', 'auto');
         $('.dataTables_scrollHead').on('scroll', function () {
         $('.dataTables_scrollBody').scrollLeft($(this).scrollLeft());
+        
       });
     },
     drawCallback: function(){
@@ -526,9 +535,47 @@ $(function(e){
         }
  });
 
-  $('.table-transfer-doc').DataTable({
+    table2.on( 'column-reorder', function ( e, settings, details ) {
+      $.get({
+        url : "{{ route('column-reorder') }}",
+        dataType : "json",
+        data : "type=pick_instruction_dashboard&order="+table2.colReorder.order(),
+        beforeSend: function(){
+          $('#loader_modal').modal({
+            backdrop: 'static',
+            keyboard: false
+          });
+          $('#loader_modal').modal('hide');
+        },
+        success: function(data){
+          $('#loader_modal').modal('hide');
+        },
+        error: function(request, status, error){
+            $("#loader_modal").modal('hide');
+          }
+            });
+             //console.log(table.colReorder.order());
+         table2.button(0).remove();
+         table2.button().add(0,
+         {
+           extend: 'colvis',
+           autoClose: false,
+           fade: 0,
+           columns: ':not(.noVis)',
+           colVis: { showAll: "Show all" }
+         });
+
+         // table2.ajax.reload();
+         var headerCell = $( table2.column( details.to ).header() );
+         headerCell.addClass( 'reordered' );
+      });
+
+  var table3 = $('.table-transfer-doc').DataTable({
     "sPaginationType": "listbox",
     processing: true,
+    colReorder: {
+          realtime: false,
+    },
     "language": {
     processing: '<i class="fa fa-spinner fa-spin fa-3x fa-fw" style="color:#13436c;"></i><span class="sr-only">Loading...</span> '},
     ordering: false,
@@ -567,6 +614,9 @@ $(function(e){
       { data: 'status', name: 'status' },
     ],
     initComplete: function () {
+      @if($display_my_transfer)
+            table3.colReorder.order( [{{$display_my_transfer->display_order}}]);
+      @endif
       // Enable THEAD scroll bars
         $('.dataTables_scrollHead').css('overflow', 'auto');
         $('.dataTables_scrollHead').on('scroll', function () {
@@ -577,6 +627,41 @@ $(function(e){
       $('#loader_modal').modal('hide');
     },
    });
+
+    table3.on( 'column-reorder', function ( e, settings, details ) {
+      $.get({
+        url : "{{ route('column-reorder') }}",
+        dataType : "json",
+        data : "type=pick_instruction_dashboard_transfer&order="+table3.colReorder.order(),
+        beforeSend: function(){
+          $('#loader_modal').modal({
+            backdrop: 'static',
+            keyboard: false
+          });
+          $('#loader_modal').modal('hide');
+        },
+        success: function(data){
+          $('#loader_modal').modal('hide');
+        },
+        error: function(request, status, error){
+            $("#loader_modal").modal('hide');
+          }
+            });
+             //console.log(table.colReorder.order());
+         table3.button(0).remove();
+         table3.button().add(0,
+         {
+           extend: 'colvis',
+           autoClose: false,
+           fade: 0,
+           columns: ':not(.noVis)',
+           colVis: { showAll: "Show all" }
+         });
+
+         // table2.ajax.reload();
+         var headerCell = $( table3.column( details.to ).header() );
+         headerCell.addClass( 'reordered' );
+      });
 
   $(document).on('change','.orders-status',function(){
     var selected = $(this).val();

@@ -710,7 +710,7 @@ class DraftQuotationHelper
 
     public static function addByRefrenceNumber($request)
     {
-		$order = DraftQuotation::find($request->id['id']);
+		$order = DraftQuotation::with('customer')->find($request->id['id']);
 		$customer = Customer::select('category_id')->where('id',$order->customer_id)->first();
 		$unit_price = 0;
 		if($order->customer_id == null)
@@ -729,6 +729,7 @@ class DraftQuotationHelper
 			}
         	$is_mkt = CustomerTypeProductMargin::select('is_mkt')->where('product_id',$product->id)->where('customer_type_id',$customer->category_id)->first();
 	        $price_calculate_return = $product->price_calculate($product,$order);
+	        // dd($price_calculate_return, $order->customer->discount);
 	        $unit_price = $price_calculate_return[0];
 	        $price_type = $price_calculate_return[1];
 	        $price_date = $price_calculate_return[2];

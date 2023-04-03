@@ -248,8 +248,9 @@ class CustomerController extends Controller
         $payment_methods = PaymentType::get();
 
         $ref_no_config = QuotationConfig::where('section', 'account_receiveable_auto_run_payment_ref_no')->first();
+        $config        = Configuration::first();
 
-        return view('sales.customer.account-recievable', compact('customers', 'table_hide_columns', 'payment_methods', 'sales_persons', 'open_invoices', 'payments', 'account_receivable', 'delete_transaction', 'file_name', 'ref_no_config'));
+        return view('sales.customer.account-recievable', compact('customers', 'table_hide_columns', 'payment_methods', 'sales_persons', 'open_invoices', 'payments', 'account_receivable', 'delete_transaction', 'file_name', 'ref_no_config','config'));
     }
 
     public function exportAccountReceivableInvoices(Request $request)
@@ -3495,6 +3496,11 @@ class CustomerController extends Controller
                 $customer_history_record->column_name = 'reference_number';
                 $customer_history_record->old_value = $customer->reference_number;
                 $customer_history_record->new_value = $request->reference_number;
+                $customer_history_record->save();
+            }   else if ($key == 'discount') {
+                $customer_history_record->column_name = 'discount';
+                $customer_history_record->old_value = $customer->discount;
+                $customer_history_record->new_value = $request->discount;
                 $customer_history_record->save();
             }
         }

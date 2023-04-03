@@ -192,6 +192,8 @@
           </span>
         </a>
         @endif
+
+        <button class="btn btn-primary merge-draft-invoices">Merge</button>
   </div>
   @endif
   <div class="col-12 pr-0 mt-5">
@@ -324,6 +326,8 @@
               <span class="arrow_down sorting_filter_table" data-order="1" data-column_name="status">
                 <img src="{{url('public/svg/down.svg')}}" alt="down" style="width:10px; height:10px; cursor: pointer;">
               </span>
+            </th>
+            <th>Printed
             </th>
           </tr>
         </thead>
@@ -618,6 +622,7 @@ $('.sorting_filter_table').on('click',function(){
           { data: 'comment_to_warehouse', name: 'comment_to_warehouse' },
           { data: 'memo', name: 'memo' },
           { data: 'status', name: 'status' },
+          { data: 'printed', name: 'printed' },
         ],
          initComplete: function () {
           // Enable THEAD scroll bars
@@ -1124,6 +1129,55 @@ $('#header_customer_search').keyup(function(event){
  //      $('.selected-item').addClass('d-none');
  //    }
  // });
+
+ $('.merge-draft-invoices').on('click',function(){
+    var selected_quots = [];
+    $("input.check1:checked").each(function() {
+      selected_quots.push($(this).val());
+    });
+    swal({
+      title: "Alert!",
+      text: "Are you sure you want to merge selected orders?",
+      type: "info",
+      showCancelButton: true,
+      confirmButtonClass: "btn-danger",
+      confirmButtonText: "Yes!",
+      cancelButtonText: "No!",
+      closeOnConfirm: true,
+      closeOnCancel: false
+      },
+      function(isConfirm) {
+      if (isConfirm){
+        $.ajax({
+          method:"get",
+          dataType:"json",
+          data: {order_ids : selected_quots},
+          url:"{{ route('merge-draft-invoices') }}",
+          beforeSend:function(){
+            $('#loader_modal').modal({
+              backdrop: 'static',
+              keyboard: false
+            });
+            $('#loader_modal').modal('show');
+          },
+          success:function(result){
+            if(result.success == true)
+            {
+              toastr.success('Success', result.msg ,{"positionClass": "toast-bottom-right"});
+              window.location.href = result.url;
+            }
+            if(result.success == false)
+            {
+              toastr.error('Error!', result.msg ,{"positionClass": "toast-bottom-right"});
+            }
+          }
+        });
+      }
+      else{
+          swal("Cancelled", "", "error");
+      }
+      });
+ });
 </script>
 
 @stop

@@ -305,6 +305,9 @@
       @endforeach
     </table>
   </div>
+
+  <!-- show footer only on last page -->
+  @if($z == $do_pages_count)
   <!-- Remark section -->
   <div style="overflow: hidden;width: 22cm;margin-top: 0px;">
     <table style="width: 100%;border-collapse: collapse;">
@@ -357,6 +360,8 @@
       </tr>
     </table>
   </div>
+  @endif
+
   @if($z !== intval(@$do_pages_count))
           </div>
         </body>

@@ -504,6 +504,18 @@ use Carbon\Carbon;
           <input type="number" autocomplete="nope" name="customer_credit_limit" class="fieldFocus d-none" value="{{(@$customer->customer_credit_limit!=null)?$customer->customer_credit_limit:''}}"><br>
           </td>
         </tr>
+
+        <tr>
+          <td class="fontbold">Discount</td>
+          <td class="empty-td"></td>
+          <td class="text-wrap">
+          <span class="m-l-15 inputDoubleClick" id="discount"  data-fieldvalue="{{@$customer->discount}}">
+          {{(@$customer->discount!=null)?number_format(@$customer->discount,2,'.',','):'N/A'}}
+          </span>
+
+          <input type="number" autocomplete="nope" name="discount" class="fieldFocus d-none" value="{{(@$customer->discount!=null)?$customer->discount:''}}"><br>
+          </td>
+        </tr>
       </tbody>
     </table>
 
@@ -2093,7 +2105,7 @@ $(document).on("click",".secondarySalepersonDelete", function(){
             $(this).prev().html('N/A');
           }
           $(this).prev().data('fieldvalue', new_value);
-          saveCustData(thisPointer,thisPointer.attr('name'), thisPointer.val());
+          saveCustData(thisPointer,thisPointer.attr('name'), thisPointer.val(), fieldvalue);
         }
     }
 

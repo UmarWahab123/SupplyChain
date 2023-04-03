@@ -48,6 +48,16 @@ class Order extends Model
         return $this->hasMany('App\Models\Common\Order\OrderAttachment', 'order_id', 'id');
     }
 
+    public function invoice_proforma_printed()
+    {
+        return $this->hasOne('App\PrintHistory', 'order_id', 'id')->where('print_type', 'performa-to-pdf')->where('page_type', 'complete-invoice');
+    }
+
+    public function draft_invoice_pick_instruction_printed()
+    {
+        return $this->hasOne('App\PrintHistory', 'order_id', 'id')->where('print_type', 'pick-instruction')->where('page_type', 'draft_invoice');
+    }
+
     public function from_warehouse()
     {
         return $this->belongsTo('App\Models\Common\Warehouse', 'from_warehouse_id', 'id');
@@ -1178,6 +1188,10 @@ class Order extends Model
                 if ($customer_billing) {
                     return $customer_billing->title != null ? $customer_billing->title : '--';
                 }
+                break;
+            case 'printed':
+                return $item->primary_status == 2 ? (@$item->draft_invoice_pick_instruction_printed != null ? 'Yes' : 'No')
+                                                    : (@$item->invoice_proforma_printed != null ? 'Yes' : 'No');
                 break;
         }
     }
