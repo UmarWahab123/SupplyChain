@@ -8434,10 +8434,13 @@ class PurchaseOrderController extends Controller
                     {
                         $po_id_s = PurchaseOrder::where('po_group_id',$po_group_id)->where('supplier_id',$purchase_order->supplier_id)->whereNotIn('id',$po_ids)->pluck('id');
                         $all_record = PurchaseOrderDetail::whereIn('po_id',$po_id_s)->where('product_id',$p_o_d->product_id)->first();
-                        $po_group_product->po_id = $all_record->po_id;
-                        $po_group_product->pod_id = $all_record->id;
-                        $po_group_product->order_id = $all_record->order_product != null ? $all_record->order_product->order_id : null;
-                        $po_group_product->save();
+                        if($all_record){
+                            $po_group_product->po_id = $all_record->po_id;
+                            $po_group_product->pod_id = $all_record->id;
+                            $po_group_product->order_id = $all_record->order_product != null ? $all_record->order_product->order_id : null;
+                            $po_group_product->save();
+                        }
+                        
                     }
                 }
             }
