@@ -233,7 +233,7 @@ class HomeController extends Controller
     }
 
 
-    public function CancelOrderOld(Request $request)
+    public function CancelOrder(Request $request)
     {
       $base_link  = config('app.ecom_url');
       $ecommerceconfig = QuotationConfig::where('section','ecommerce_configuration')->first();
@@ -274,9 +274,9 @@ class HomeController extends Controller
         $order->primary_status = 17;
         $order->status = 18;
         $order->save();
-        $uri = $base_link."/api/updateorderstatus/".$order->ecommerce_order_no."/".$order->primary_status."/".$order->status;
+        // $uri = $base_link."/api/updateorderstatus/".$order->ecommerce_order_no."/".$order->primary_status."/".$order->status;
          // dd($uri);
-        $test =  $this->sendRequest($uri);
+        // $test =  $this->sendRequest($uri);
 
 
           // $check_order = Order::where('id', $quot)->where('primary_status', 17)->where('status', 18)->where('ecommerce_order', 1)->first();

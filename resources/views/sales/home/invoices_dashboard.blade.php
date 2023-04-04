@@ -480,7 +480,14 @@
                 <img src="{{url('public/svg/down.svg')}}" alt="down" style="width:10px; height:10px; cursor: pointer;">
               </span>
                       </th>
-                      <th>Printed</th>
+                      <th>Printed
+                        <span class="arrow_up sorting_filter_table" data-order="2" data-column_name="printed">
+                          <img src="{{url('public/svg/up.svg')}}" alt="up" style="width:10px; height:10px; cursor: pointer;">
+                        </span>
+                        <span class="arrow_down sorting_filter_table" data-order="1" data-column_name="printed">
+                          <img src="{{url('public/svg/down.svg')}}" alt="down" style="width:10px; height:10px; cursor: pointer;">
+                        </span>
+                      </th>
                   </tr>
               </thead>
                 <!-- <tfoot>
