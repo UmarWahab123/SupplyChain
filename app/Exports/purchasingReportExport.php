@@ -180,6 +180,7 @@ class purchasingReportExport implements FromQuery, ShouldAutoSize, WithHeadings,
         $data_array = [];
         array_push($data_array,$confirm_date);
         array_push($data_array,$supplier);
+        array_push($data_array,@$item->PurchaseOrder->PoSupplier->getcountry->name);
         array_push($data_array,$po_no);
 
         // Sup-1124
@@ -189,6 +190,8 @@ class purchasingReportExport implements FromQuery, ShouldAutoSize, WithHeadings,
 
         array_push($data_array,$pf_no);
         array_push($data_array,$desc);
+        array_push($data_array,@$item->product->productCategory->title);
+        array_push($data_array,@$item->product->weight);
         array_push($data_array,$product_type);
         if (in_array('product_type_2', $product_detail_section))
         {
@@ -283,6 +286,7 @@ class purchasingReportExport implements FromQuery, ShouldAutoSize, WithHeadings,
         $data_array = [];
         array_push($data_array, 'Confirm Date');
         array_push($data_array,'Supplier');
+        array_push($data_array,'Country');
         array_push($data_array,'PO#');
         // Sup-1124
         array_push($data_array,'Supplier invoice#');
@@ -290,6 +294,8 @@ class purchasingReportExport implements FromQuery, ShouldAutoSize, WithHeadings,
         // END
         array_push($data_array,$global_terminologies['our_reference_number']);
         array_push($data_array,$global_terminologies['product_description']);
+        array_push($data_array,'Category');
+        array_push($data_array,$global_terminologies['avg_units_for-sales']);
         array_push($data_array,$global_terminologies['type']);
         if (in_array('product_type_2', $product_detail_section))
         {
