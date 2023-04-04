@@ -5867,7 +5867,7 @@ wp = $(this).data('wp');
 // alert('clicked');
   $.ajax({
     method:"get",
-    data:{ warehouse_id:warehouse_id, product_id:prod_detail_id },
+    data:{ warehouse_id:warehouse_id, product_id:prod_detail_id, wp:wp },
     url:"{{ route('get-html-of-stock-data') }}",
     beforeSend:function(){
       // $('#loader_modal').modal({
@@ -5882,7 +5882,7 @@ wp = $(this).data('wp');
 
       if(data.success == true)
       {
-        $('#id'+wp).html(data.html);
+        $('#id'+data.wp).html(data.html);
 
         $(".expiration_date_sc").datepicker({
           format: "dd/mm/yyyy",
