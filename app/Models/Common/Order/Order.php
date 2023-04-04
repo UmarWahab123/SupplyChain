@@ -456,7 +456,14 @@ class Order extends Model
         })->orderBy('id', 'ASC')->count();
         $data['all_orders_count'] = $all_orders_count;
 
-        if ($all_orders_count <= 8) {
+        if ($all_orders_count <= 12) {
+            $do_pages_count = ceil($all_orders_count / 12);
+            $final_pages = $all_orders_count % 12;
+            if ($final_pages == 0) {
+                // $do_pages_count++;
+            }
+        }
+        elseif ($all_orders_count <= 8) {
             $do_pages_count = ceil($all_orders_count / 8);
             $final_pages = $all_orders_count % 8;
             if ($final_pages == 0) {
