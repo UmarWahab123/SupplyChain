@@ -76,15 +76,18 @@ class PurchasingReportJob implements ShouldQueue
                 array_push($statuses, 40);
             }
             $query = PurchaseOrderDetail::select('purchase_order_details.*');
-            $query->with('PurchaseOrder:id,ref_id,confirm_date,supplier_id,invoice_number,invoice_date','PurchaseOrder.PoSupplier:id,reference_name',
-            'product:id,refrence_code,short_desc,selling_unit,buying_unit,total_buy_unit_cost_price,vat,type_id,type_id_2,type_id_3,min_stock,unit_conversion_rate',
-            'product.sellingUnits:id,title',
-            'product.supplier_products:id,landing,freight,product_id,import_tax_actual',
-            'product.units:id,title',
-            'PurchaseOrder.po_group.po_group_product_details',
-            'product.productType',
-            'product.productType2',
-            'product.productType3')->where('purchase_order_details.is_billed','=', 'Product');
+            $query->with('PurchaseOrder:id,ref_id,confirm_date,supplier_id,invoice_number,invoice_date','PurchaseOrder.PoSupplier:id,reference_name,country',
+                'product:id,refrence_code,short_desc,selling_unit,buying_unit,total_buy_unit_cost_price,vat,type_id,type_id_2,type_id_3,min_stock,unit_conversion_rate,primary_category,weight',
+                'product.sellingUnits:id,title',
+                'product.supplier_products:id,landing,freight,product_id,import_tax_actual',
+                'product.units:id,title',
+                'PurchaseOrder.po_group.po_group_product_details',
+                'product.productType',
+                'product.productType2',
+                'product.productType3',
+                'PurchaseOrder.PoSupplier.getcountry:id,name',
+                'product.productCategory:id,title')
+                ->where('purchase_order_details.is_billed','=', 'Product');
 
             if($request['status_dropdown_exp'] == 40)
             {

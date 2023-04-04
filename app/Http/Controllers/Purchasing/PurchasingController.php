@@ -835,15 +835,17 @@ class PurchasingController extends Controller
             array_push($statuses, 40);
         }
 
-        $query->with('PurchaseOrder:id,ref_id,confirm_date,supplier_id,invoice_number,invoice_date','PurchaseOrder.PoSupplier:id,reference_name',
-        'product:id,refrence_code,short_desc,selling_unit,buying_unit,total_buy_unit_cost_price,vat,type_id,type_id_2,type_id_3,min_stock,unit_conversion_rate',
+        $query->with('PurchaseOrder:id,ref_id,confirm_date,supplier_id,invoice_number,invoice_date','PurchaseOrder.PoSupplier:id,reference_name,country',
+        'product:id,refrence_code,short_desc,selling_unit,buying_unit,total_buy_unit_cost_price,vat,type_id,type_id_2,type_id_3,min_stock,unit_conversion_rate,primary_category,weight',
         'product.sellingUnits:id,title',
         'product.supplier_products:id,landing,freight,product_id,import_tax_actual',
         'product.units:id,title',
         'PurchaseOrder.po_group.po_group_product_details',
         'product.productType',
         'product.productType2',
-        'product.productType3')
+        'product.productType3',
+        'PurchaseOrder.PoSupplier.getcountry:id,name',
+        'product.productCategory:id,title')
         ->where('purchase_order_details.is_billed','=', 'Product');
 
         if($request->status == 40)
@@ -931,7 +933,7 @@ class PurchasingController extends Controller
         $query = PurchaseOrderDetail::doSortby($request, $query);
 
         $dt = Datatables::of($query);
-        $add_columns = ['vat', 'sum_cost_amount', 'cost_unit_thb', 'total_cost', 'cost_unit', 'sum_qty', 'unit', 'buying_unit', 'short_desc', 'product_type_2', 'product_type_3', 'product_type', 'refrence_code', 'confirm_date', 'supplier', 'ref_id', 'custom_line_number', 'custom_invoice_number', 'seller_price', 'import_tax_actual', 'landing', 'freight', 'minimum_stock', 'supplier_invoice', 'supplier_invoice_date', 'vat_amount_euro', 'vat_amount_thb', 'unit_price_before_vat_euro', 'unit_price_before_vat_thb', 'unit_price_after_vat_euro', 'unit_price_after_vat_thb', 'discount_percent', 'sub_total_euro', 'sub_total_thb', 'total_amount_sfter_vat_euro', 'total_amount_sfter_vat_thb', 'conversion_rate', 'qty_into_stock'];
+        $add_columns = ['vat', 'sum_cost_amount', 'cost_unit_thb', 'total_cost', 'cost_unit', 'sum_qty', 'unit', 'buying_unit', 'short_desc', 'product_type_2', 'product_type_3', 'product_type', 'refrence_code', 'confirm_date', 'supplier', 'ref_id', 'custom_line_number', 'custom_invoice_number', 'seller_price', 'import_tax_actual', 'landing', 'freight', 'minimum_stock', 'supplier_invoice', 'supplier_invoice_date', 'vat_amount_euro', 'vat_amount_thb', 'unit_price_before_vat_euro', 'unit_price_before_vat_thb', 'unit_price_after_vat_euro', 'unit_price_after_vat_thb', 'discount_percent', 'sub_total_euro', 'sub_total_thb', 'total_amount_sfter_vat_euro', 'total_amount_sfter_vat_thb', 'conversion_rate', 'qty_into_stock', 'country', 'category', 'avg_weight'];
         foreach ($add_columns as $column) {
             $dt->addColumn($column, function ($item) use ($column) {
                 return PurchaseOrderDetail::returnAddColumnPurchasingReportDetail($column, $item);
@@ -945,7 +947,7 @@ class PurchasingController extends Controller
             });
         }
 
-        $dt->rawColumns(['ref_id','supplier', 'confirm_date','refrence_code','short_desc','unit','sum_qty','cost_unit','total_cost','vat','freight','landing','import_tax_actual','seller_price','custom_invoice_number','custom_invoice_number','product_type','product_type_2','product_type_3']);
+        $dt->rawColumns(['ref_id','supplier', 'confirm_date','refrence_code','short_desc','unit','sum_qty','cost_unit','total_cost','vat','freight','landing','import_tax_actual','seller_price','custom_invoice_number','custom_invoice_number','product_type','product_type_2','product_type_3', 'country', 'category', 'avg_weight']);
         return $dt->make(true);
     }
 

@@ -269,6 +269,14 @@ tbody tr td:nth-last-child(5) {
                 <img src="{{url('public/svg/down.svg')}}" alt="down" style="width:10px; height:10px; cursor: pointer;">
               </span>
             </th>
+            <th>Country
+              <span class="arrow_up sorting_filter_table" data-order="2" data-column_name="country">
+                <img src="{{url('public/svg/up.svg')}}" alt="up" style="width:10px; height:10px; cursor: pointer;">
+              </span>
+              <span class="arrow_down sorting_filter_table" data-order="1" data-column_name="country">
+                <img src="{{url('public/svg/down.svg')}}" alt="down" style="width:10px; height:10px; cursor: pointer;">
+              </span>
+            </th>
             <th>PO#
               <span class="arrow_up sorting_filter_table" data-order="2" data-column_name="po_no">
                 <img src="{{url('public/svg/up.svg')}}" alt="up" style="width:10px; height:10px; cursor: pointer;">
@@ -294,6 +302,22 @@ tbody tr td:nth-last-child(5) {
                 <img src="{{url('public/svg/up.svg')}}" alt="up" style="width:10px; height:10px; cursor: pointer;">
               </span>
               <span class="arrow_down sorting_filter_table" data-order="1" data-column_name="4">
+                <img src="{{url('public/svg/down.svg')}}" alt="down" style="width:10px; height:10px; cursor: pointer;">
+              </span>
+            </th>
+            <th>Category
+              <span class="arrow_up sorting_filter_table" data-order="2" data-column_name="category">
+                <img src="{{url('public/svg/up.svg')}}" alt="up" style="width:10px; height:10px; cursor: pointer;">
+              </span>
+              <span class="arrow_down sorting_filter_table" data-order="1" data-column_name="category">
+                <img src="{{url('public/svg/down.svg')}}" alt="down" style="width:10px; height:10px; cursor: pointer;">
+              </span>
+            </th>
+            <th>{{$global_terminologies['avg_units_for-sales'] }}
+              <span class="arrow_up sorting_filter_table" data-order="2" data-column_name="avg_weight">
+                <img src="{{url('public/svg/up.svg')}}" alt="up" style="width:10px; height:10px; cursor: pointer;">
+              </span>
+              <span class="arrow_down sorting_filter_table" data-order="1" data-column_name="avg_weight">
                 <img src="{{url('public/svg/down.svg')}}" alt="down" style="width:10px; height:10px; cursor: pointer;">
               </span>
             </th>
@@ -478,6 +502,9 @@ tbody tr td:nth-last-child(5) {
         <tfoot align="right" class="{{$showFooter}}">
           <tr>
             <th id="total_head"></th>
+            <th></th>
+            <th></th>
+            <th></th>
             <th></th>
             <th></th>
             <th></th>
@@ -739,6 +766,7 @@ tbody tr td:nth-last-child(5) {
     columns: [
       { data: 'confirm_date', name: 'confirm_date' },
       { data: 'supplier', name: 'supplier' },
+      { data: 'country', name: 'country' },
       { data: 'ref_id', name: 'ref_id'},
 
       // Sup-1124
@@ -748,6 +776,8 @@ tbody tr td:nth-last-child(5) {
 
       { data: 'refrence_code', name: 'refrence_code' },
       { data: 'short_desc', name: 'short_desc' },
+      { data: 'category', name: 'category' },
+      { data: 'avg_weight', name: 'avg_weight' },
       { data: 'product_type', name: 'product_type' },
       { data: 'product_type_2', name: 'product_type_2' @if (!in_array('product_type_2', $product_detail_section)) ,searchable: false, orderable: false, visible: false @endif},
       { data: 'product_type_3', name: 'product_type_3' @if (!in_array('product_type_3', $product_detail_section)) ,searchable: false, orderable: false, visible: false @endif},
@@ -832,15 +862,15 @@ tbody tr td:nth-last-child(5) {
         },
         beforeSend:function(){
           $( api.column( 0 ).footer() ).html('Loading...');
-          $( api.column( 7 ).footer() ).html('Loading...');
-          $( api.column( 8 ).footer() ).html('Loading...');
-          $( api.column( 9 ).footer() ).html('Loading...');
-          $( api.column( 10 ).footer() ).html('Loading...');
-          $( api.column( 11 ).footer() ).html('Loading...');
-          $( api.column( 12 ).footer() ).html('Loading...');
-          $( api.column( 13 ).footer() ).html('Loading...');
-          $( api.column( 14 ).footer() ).html('Loading...');
-          $( api.column( 15 ).footer() ).html('Loading...');
+          $( api.column( 16 ).footer() ).html('Loading...');
+          $( api.column( 19 ).footer() ).html('Loading...');
+          $( api.column( 20 ).footer() ).html('Loading...');
+          $( api.column( 21 ).footer() ).html('Loading...');
+          $( api.column( 22 ).footer() ).html('Loading...');
+          $( api.column( 23 ).footer() ).html('Loading...');
+          $( api.column( 24 ).footer() ).html('Loading...');
+          $( api.column( 25 ).footer() ).html('Loading...');
+          $( api.column( 26 ).footer() ).html('Loading...');
           $($.fn.dataTable.tables(true)).DataTable()
         .columns.adjust();
           // $('#total_head').html('Totals');
@@ -856,15 +886,15 @@ tbody tr td:nth-last-child(5) {
         },
         success:function(result){
           $( api.column( 0 ).footer() ).html('Totals');
-          $( api.column( 7 ).footer() ).html(result.qty_sum.toFixed(3).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
-          $( api.column( 8 ).footer() ).html(result.freight_p_b_unit.toFixed(3).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
-          $( api.column( 9 ).footer() ).html(result.landing_p_b_unit.toFixed(3).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
-          $( api.column( 10 ).footer() ).html(result.total_allocation.toFixed(3).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
-          $( api.column( 11 ).footer() ).html(result.total_unit_cost.toFixed(3).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
-          $( api.column( 12 ).footer() ).html(result.unit_euro.toFixed(3).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
-          $( api.column( 13 ).footer() ).html(result.total_amount_euro.toFixed(3).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
-          $( api.column( 14 ).footer() ).html(result.unit_cost_thb.toFixed(3).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
-          $( api.column( 15 ).footer() ).html(result.total_amount_thb.toFixed(3).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
+          $( api.column( 16 ).footer() ).html(result.qty_sum.toFixed(3).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
+          $( api.column( 19 ).footer() ).html(result.freight_p_b_unit.toFixed(3).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
+          $( api.column( 20 ).footer() ).html(result.landing_p_b_unit.toFixed(3).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
+          $( api.column( 21 ).footer() ).html(result.total_allocation.toFixed(3).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
+          $( api.column( 22 ).footer() ).html(result.total_unit_cost.toFixed(3).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
+          $( api.column( 23 ).footer() ).html(result.unit_euro.toFixed(3).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
+          $( api.column( 24 ).footer() ).html(result.total_amount_euro.toFixed(3).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
+          $( api.column( 25 ).footer() ).html(result.unit_cost_thb.toFixed(3).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
+          $( api.column( 26 ).footer() ).html(result.total_amount_thb.toFixed(3).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
           $($.fn.dataTable.tables(true)).DataTable()
         .columns.adjust();
           // $('#qty_sum').html(result.qty_sum.toFixed(3).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));

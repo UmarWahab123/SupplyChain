@@ -615,6 +615,27 @@ class PurchaseOrderDetail extends Model
             $sort_order = $request['sortbyvalue'] == 1 ? 'DESC' : 'ASC';
             $query->join('purchase_orders as po', 'po.id', '=', 'purchase_order_details.po_id')->join('po_groups as pog', 'pog.id', '=', 'po.po_group_id')->orderBy('pog.custom_invoice_number', $sort_order);
         }
+        elseif($request['sortbyparam'] == 'country')
+        {
+            $sort_order = $request['sortbyvalue'] == 1 ? 'DESC' : 'ASC';
+            $query->join('purchase_orders', 'purchase_orders.id', '=', 'purchase_order_details.po_id')
+            ->join('suppliers', 'suppliers.id', '=', 'purchase_orders.supplier_id')
+            ->join('countries', 'countries.id', '=', 'suppliers.country')
+            ->orderBy('countries.name', $sort_order);
+        }
+        elseif($request['sortbyparam'] == 'category')
+        {
+            $sort_order = $request['sortbyvalue'] == 1 ? 'DESC' : 'ASC';
+            $query->join('products as p', 'p.id', '=', 'purchase_order_details.product_id')
+            ->join('product_categories as pc', 'pc.id', '=', 'p.primary_category')
+            ->orderBy('pc.title', $sort_order);
+        }
+        elseif($request['sortbyparam'] == 'avg_weight')
+        {
+            $sort_order = $request['sortbyvalue'] == 1 ? 'DESC' : 'ASC';
+            $query->join('products as p', 'p.id', '=', 'purchase_order_details.product_id')
+            ->orderBy('p.weight', $sort_order);
+        }
         else
         {
             $query->select(\DB::raw('purchase_order_details.*'))
@@ -1365,6 +1386,12 @@ class PurchaseOrderDetail extends Model
             case 'short_desc':
                 return $item->product_id !== null ? $item->product->short_desc : 'N.A';
                 break;
+            case 'category':
+                return @$item->product->productCategory !== null ? @$item->product->productCategory->title : 'N.A';
+                break;
+            case 'avg_weight':
+                return @$item->product !== null ? @$item->product->weight?? '--' : 'N.A';
+                break;
 
             case 'product_type_2':
                 return @$item->product->productType2 !== null ? @$item->product->productType2->title : 'N.A';
@@ -1389,6 +1416,9 @@ class PurchaseOrderDetail extends Model
 
             case 'supplier':
                 return $item->po_id !== null && $item->PurchaseOrder->PoSupplier !== null ? $item->PurchaseOrder->PoSupplier->reference_name : 'N.A';
+                break;
+            case 'country':
+                return @$item->PurchaseOrder->PoSupplier->getcountry !== null ? $item->PurchaseOrder->PoSupplier->getcountry->name : 'N.A';
                 break;
 
             case 'ref_id':
