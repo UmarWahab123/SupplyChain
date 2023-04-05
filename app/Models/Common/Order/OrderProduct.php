@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\DB;
 class OrderProduct extends Model
 {
 
-    protected $fillable = ['order_id', 'product_id','supplier_id','from_warehouse_id','number_of_pieces','quantity','exp_unit_cost','margin','unit_price','total_price','total_price_with_vat','actual_cost','warehouse_id','status','is_mkt','short_desc','name','is_billed','created_by','category_id','vat','brand','selling_unit','discount','is_retail','qty_shipped','unit_price_with_vat','vat_amount_total','type_id','last_updated_price_on','locked_actual_cost','is_cogs_updated','manual_cogs_shipment','default_supplier','user_warehouse_id','is_warehouse','import_vat_amount','unit_price_with_discount','remarks'];
+    protected $fillable = ['order_id', 'product_id','supplier_id','from_warehouse_id','number_of_pieces','quantity','exp_unit_cost','margin','unit_price','total_price','total_price_with_vat','actual_cost','warehouse_id','status','is_mkt','short_desc','name','is_billed','created_by','category_id','vat','brand','selling_unit','discount','is_retail','qty_shipped','unit_price_with_vat','vat_amount_total','type_id','last_updated_price_on','locked_actual_cost','is_cogs_updated','manual_cogs_shipment','default_supplier','user_warehouse_id','is_warehouse','import_vat_amount','unit_price_with_discount','remarks', 'pcs_shipped'];
 
     public function get_order(){
     	return $this->belongsTo('App\Models\Common\Order\Order', 'order_id', 'id');

@@ -9,6 +9,7 @@ use App\Helpers\DraftQuotationHelper;
 use App\Helpers\QuantityReservedHistory;
 use App\Helpers\TransferDocumentHelper;
 use App\Http\Controllers\Controller;
+use App\Jobs\Order\PartialMailJob;
 use App\Jobs\PickInstructionJob;
 use App\Mail\PartialMail;
 use App\Models\Common\ColumnDisplayPreference;
@@ -2370,11 +2371,17 @@ class HomeController extends Controller
             $rec_date =  date('Y-m-d', strtotime($rec_date_ot));
             if ($request->page_info == "draft") {
                 if ($order_products->count() > 0) {
-                    foreach ($order_products as $order_product) {
-                        $order_product->pcs_shipped = $order_product->number_of_pieces;
-                        $order_product->qty_shipped = $order_product->quantity;
-                        $order_product->save();
-                    }
+                    // Use the update method to update the records in a single query
+                    OrderProduct::whereIn('id', $order_products->pluck('id')->toArray())
+                        ->update([
+                            'pcs_shipped' => DB::raw('number_of_pieces'),
+                            'qty_shipped' => DB::raw('quantity')
+                        ]);
+                    // foreach ($order_products as $order_product) {
+                    //     $order_product->pcs_shipped = $order_product->number_of_pieces;
+                    //     $order_product->qty_shipped = $order_product->quantity;
+                    //     $order_product->save();
+                    // }
                 }
             }
 
@@ -2391,14 +2398,6 @@ class HomeController extends Controller
                         $order->save();
                         return response()->json(['qty_shipped' => 'is_null', 'product' => $order_product->product->refrence_code]);
                     } else {
-                        $pids = PurchaseOrder::where('status', 21)->WhereNotNull('from_warehouse_id')->whereHas('PoWarehouse', function ($qq) use ($order_product) {
-                            $qq->where('from_warehouse_id', $order_product->user_warehouse_id);
-                        })->pluck('id')->toArray();
-
-                        $order_ids = Order::where('primary_status', 2)->where('id', '!=', $order_product->order_id)->whereHas('order_products', function ($q) use ($order_product) {
-                            $q->where('from_warehouse_id', $order_product->user_warehouse_id);
-                        })->pluck('id')->toArray();
-
                         if ($pi_config['pi_confirming_condition'] == 2) {
                             $warehouse_product = WarehouseProduct::where('product_id', $order_product->product_id)->where('warehouse_id', $order_product->user_warehouse_id)->first();
                             $stock_qty = (@$warehouse_product->current_quantity != null) ? @$warehouse_product->current_quantity : ' 0';
@@ -2423,6 +2422,14 @@ class HomeController extends Controller
                                 }
                             }
                         } elseif ($pi_config['pi_confirming_condition'] == 3) {
+                            $pids = PurchaseOrder::where('status', 21)->WhereNotNull('from_warehouse_id')->whereHas('PoWarehouse', function ($qq) use ($order_product) {
+                            $qq->where('from_warehouse_id', $order_product->user_warehouse_id);
+                            })->pluck('id')->toArray();
+
+                            $order_ids = Order::where('primary_status', 2)->where('id', '!=', $order_product->order_id)->whereHas('order_products', function ($q) use ($order_product) {
+                                $q->where('from_warehouse_id', $order_product->user_warehouse_id);
+                            })->pluck('id')->toArray();
+
                             $warehouse_product = WarehouseProduct::where('product_id', $order_product->product_id)->where('warehouse_id', $order_product->user_warehouse_id)->first();
                             $stock_qty = (@$warehouse_product->current_quantity != null) ? @$warehouse_product->current_quantity : ' 0';
                             $order_rsv_qty = OrderProduct::whereIn('order_id', $order_ids)->where('product_id', $order_product->product_id)->sum('quantity');
@@ -2495,43 +2502,47 @@ class HomeController extends Controller
                             $stock->save();
                         }
                         if ($stock != null) {
-                            $stock_out = new StockManagementOut;
-                            $stock_out->smi_id = $stock->id;
-                            $stock_out->order_id = $order_product->order_id;
-                            $stock_out->order_product_id = $order_product->id;
-                            $stock_out->product_id = $order_product->product_id;
-                            $stock_out->quantity_out = $order_product->qty_shipped != null ? '-' . $order_product->qty_shipped : 0;
-                            $stock_out->created_by = Auth::user()->id;
-                            $stock_out->warehouse_id = $warehouse_id;
-                            $stock_out->available_stock = $order_product->qty_shipped != null ? '-' . $order_product->qty_shipped : 0;
-                            $stock_out->save();
+                            $stock_out = StockManagementOut::addManualAdjustment($stock, $order_product, '-'.$order_product->qty_shipped, $warehouse_id, null, true);
 
-                            //To find from which stock the order will be deducted
-                            $find_stock = $stock->stock_out()->whereNotNull('quantity_in')->where('available_stock', '>', 0)->orderBy('id', 'asc')->get();
-                            if ($find_stock->count() > 0) {
-                                foreach ($find_stock as $out) {
+                            $find_stock_from_which_order_deducted = StockManagementOut::findStockFromWhicOrderIsDeducted('-'.$order_product->qty_shipped, $stock, $stock_out, $order_product);
 
-                                    if (abs($stock_out->available_stock) > 0) {
-                                        if ($out->available_stock >= abs($stock_out->available_stock)) {
-                                            $history_quantity = $stock_out->available_stock;
-                                            $stock_out->parent_id_in .= $out->id . ',';
-                                            $out->available_stock = $out->available_stock - abs($stock_out->available_stock);
-                                            $stock_out->available_stock = 0;
+                            // $stock_out = new StockManagementOut;
+                            // $stock_out->smi_id = $stock->id;
+                            // $stock_out->order_id = $order_product->order_id;
+                            // $stock_out->order_product_id = $order_product->id;
+                            // $stock_out->product_id = $order_product->product_id;
+                            // $stock_out->quantity_out = $order_product->qty_shipped != null ? '-' . $order_product->qty_shipped : 0;
+                            // $stock_out->created_by = Auth::user()->id;
+                            // $stock_out->warehouse_id = $warehouse_id;
+                            // $stock_out->available_stock = $order_product->qty_shipped != null ? '-' . $order_product->qty_shipped : 0;
+                            // $stock_out->save();
 
-                                            $new_stock_out_history = (new StockOutHistory)->setHistory($out, $stock_out, $order_product, abs($history_quantity));
-                                        } else {
-                                            $history_quantity = $out->available_stock;
-                                            $stock_out->parent_id_in .= $out->id . ',';
-                                            $stock_out->available_stock = $out->available_stock - abs($stock_out->available_stock);
-                                            $out->available_stock = 0;
+                            // //To find from which stock the order will be deducted
+                            // $find_stock = $stock->stock_out()->whereNotNull('quantity_in')->where('available_stock', '>', 0)->orderBy('id', 'asc')->get();
+                            // if ($find_stock->count() > 0) {
+                            //     foreach ($find_stock as $out) {
 
-                                            $new_stock_out_history = (new StockOutHistory)->setHistory($out, $stock_out, $order_product, round(abs($history_quantity), 4));
-                                        }
-                                        $out->save();
-                                        $stock_out->save();
-                                    }
-                                }
-                            }
+                            //         if (abs($stock_out->available_stock) > 0) {
+                            //             if ($out->available_stock >= abs($stock_out->available_stock)) {
+                            //                 $history_quantity = $stock_out->available_stock;
+                            //                 $stock_out->parent_id_in .= $out->id . ',';
+                            //                 $out->available_stock = $out->available_stock - abs($stock_out->available_stock);
+                            //                 $stock_out->available_stock = 0;
+
+                            //                 $new_stock_out_history = (new StockOutHistory)->setHistory($out, $stock_out, $order_product, abs($history_quantity));
+                            //             } else {
+                            //                 $history_quantity = $out->available_stock;
+                            //                 $stock_out->parent_id_in .= $out->id . ',';
+                            //                 $stock_out->available_stock = $out->available_stock - abs($stock_out->available_stock);
+                            //                 $out->available_stock = 0;
+
+                            //                 $new_stock_out_history = (new StockOutHistory)->setHistory($out, $stock_out, $order_product, round(abs($history_quantity), 4));
+                            //             }
+                            //             $out->save();
+                            //             $stock_out->save();
+                            //         }
+                            //     }
+                            // }
                         }
                     } else {
                         $stock = StockManagementIn::where('product_id', $order_product->product_id)->where('warehouse_id', $warehouse_id)->whereNotNull('expiration_date')->orderBy('expiration_date', "ASC")->get();
@@ -2544,85 +2555,91 @@ class HomeController extends Controller
                             if ($balance > 0) {
                                 $inStock = $balance - $shipped;
                                 if ($inStock >= 0) {
-                                    $stock_out = new StockManagementOut;
-                                    $stock_out->smi_id = $st->id;
-                                    $stock_out->order_id = $order_product->order_id;
-                                    $stock_out->order_product_id = $order_product->id;
-                                    $stock_out->product_id = $order_product->product_id;
-                                    $stock_out->quantity_out = $shipped != null ? '-' . $shipped : 0;
-                                    $stock_out->available_stock = '-' . $shipped;
-                                    $stock_out->created_by = Auth::user()->id;
-                                    $stock_out->warehouse_id = $warehouse_id;
-                                    $stock_out->save();
+                                    $stock_out = StockManagementOut::addManualAdjustment($st, $order_product, '-'.$shipped, $warehouse_id, null, true);
+                                    $find_stock_from_which_order_deducted = StockManagementOut::findStockFromWhicOrderIsDeducted('-'.$shipped, $st, $stock_out, $order_product);
+
+                                    // $stock_out = new StockManagementOut;
+                                    // $stock_out->smi_id = $st->id;
+                                    // $stock_out->order_id = $order_product->order_id;
+                                    // $stock_out->order_product_id = $order_product->id;
+                                    // $stock_out->product_id = $order_product->product_id;
+                                    // $stock_out->quantity_out = $shipped != null ? '-' . $shipped : 0;
+                                    // $stock_out->available_stock = '-' . $shipped;
+                                    // $stock_out->created_by = Auth::user()->id;
+                                    // $stock_out->warehouse_id = $warehouse_id;
+                                    // $stock_out->save();
 
 
-                                    //To find from which stock the order will be deducted
-                                    $find_stock = $st->stock_out()->whereNotNull('quantity_in')->where('available_stock', '>', 0)->orderBy('id', 'asc')->get();
-                                    if ($find_stock->count() > 0) {
-                                        foreach ($find_stock as $out) {
+                                    // //To find from which stock the order will be deducted
+                                    // $find_stock = $st->stock_out()->whereNotNull('quantity_in')->where('available_stock', '>', 0)->orderBy('id', 'asc')->get();
+                                    // if ($find_stock->count() > 0) {
+                                    //     foreach ($find_stock as $out) {
 
-                                            if ($shipped > 0) {
-                                                if ($out->available_stock >= $shipped) {
-                                                    $stock_out->parent_id_in .= $out->id . ',';
-                                                    $out->available_stock = $out->available_stock - $shipped;
-                                                    $stock_out->available_stock = 0;
-                                                    $new_stock_out_history = (new StockOutHistory)->setHistory($out, $stock_out, $order_product, abs($shipped));
-                                                } else {
-                                                    $history_quantity = $out->available_stock;
-                                                    $stock_out->parent_id_in .= $out->id . ',';
-                                                    $stock_out->available_stock = $out->available_stock - $shipped;
-                                                    $out->available_stock = 0;
-                                                    $new_stock_out_history = (new StockOutHistory)->setHistory($out, $stock_out, $order_product, round(abs($history_quantity), 4));
-                                                }
-                                                $out->save();
-                                                $stock_out->save();
-                                                $shipped = abs($stock_out->available_stock);
-                                            }
-                                        }
-                                    }
+                                    //         if ($shipped > 0) {
+                                    //             if ($out->available_stock >= $shipped) {
+                                    //                 $stock_out->parent_id_in .= $out->id . ',';
+                                    //                 $out->available_stock = $out->available_stock - $shipped;
+                                    //                 $stock_out->available_stock = 0;
+                                    //                 $new_stock_out_history = (new StockOutHistory)->setHistory($out, $stock_out, $order_product, abs($shipped));
+                                    //             } else {
+                                    //                 $history_quantity = $out->available_stock;
+                                    //                 $stock_out->parent_id_in .= $out->id . ',';
+                                    //                 $stock_out->available_stock = $out->available_stock - $shipped;
+                                    //                 $out->available_stock = 0;
+                                    //                 $new_stock_out_history = (new StockOutHistory)->setHistory($out, $stock_out, $order_product, round(abs($history_quantity), 4));
+                                    //             }
+                                    //             $out->save();
+                                    //             $stock_out->save();
+                                    //             $shipped = abs($stock_out->available_stock);
+                                    //         }
+                                    //     }
+                                    // }
                                     $shipped = 0;
                                     break;
                                 } else {
-                                    $stock_out = new StockManagementOut;
-                                    $stock_out->smi_id = $st->id;
-                                    $stock_out->order_id = $order_product->order_id;
-                                    $stock_out->order_product_id = $order_product->id;
-                                    $stock_out->product_id = $order_product->product_id;
-                                    $stock_out->quantity_out = -$balance;
-                                    $stock_out->available_stock = -$balance;
-                                    // $stock_out->available_stock = $inStock;
-                                    $stock_out->created_by = Auth::user()->id;
-                                    $stock_out->warehouse_id = $warehouse_id;
-                                    $stock_out->save();
+                                    $stock_out = StockManagementOut::addManualAdjustment($st, $order_product, '-'.$balance, $warehouse_id, null, true);
+                                    $find_stock_from_which_order_deducted = StockManagementOut::findStockFromWhicOrderIsDeducted('-'.$balance, $st, $stock_out, $order_product);
 
-                                    //To find from which stock the order will be deducted
-                                    $find_stock = $st->stock_out()->whereNotNull('quantity_in')->where('available_stock', '>', 0)->orderBy('id', 'asc')->get();
+                                    // $stock_out = new StockManagementOut;
+                                    // $stock_out->smi_id = $st->id;
+                                    // $stock_out->order_id = $order_product->order_id;
+                                    // $stock_out->order_product_id = $order_product->id;
+                                    // $stock_out->product_id = $order_product->product_id;
+                                    // $stock_out->quantity_out = -$balance;
+                                    // $stock_out->available_stock = -$balance;
+                                    // // $stock_out->available_stock = $inStock;
+                                    // $stock_out->created_by = Auth::user()->id;
+                                    // $stock_out->warehouse_id = $warehouse_id;
+                                    // $stock_out->save();
 
-                                    $find_available_stock = $find_stock->sum('available_stock');
-                                    if ($find_stock->count() > 0) {
-                                        foreach ($find_stock as $out) {
+                                    // //To find from which stock the order will be deducted
+                                    // $find_stock = $st->stock_out()->whereNotNull('quantity_in')->where('available_stock', '>', 0)->orderBy('id', 'asc')->get();
 
-                                            if ($balance > 0) {
-                                                if ($out->available_stock >= $balance) {
-                                                    $stock_out->parent_id_in .= $out->id . ',';
-                                                    $out->available_stock = $out->available_stock - $balance;
-                                                    $stock_out->available_stock = 0;
+                                    // $find_available_stock = $find_stock->sum('available_stock');
+                                    // if ($find_stock->count() > 0) {
+                                    //     foreach ($find_stock as $out) {
 
-                                                    $new_stock_out_history = (new StockOutHistory)->setHistory($out, $stock_out, $order_product, abs($balance));
-                                                } else {
-                                                    $history_quantity = $out->available_stock;
-                                                    $stock_out->parent_id_in .= $out->id . ',';
-                                                    $stock_out->available_stock = $out->available_stock - $balance;
-                                                    $out->available_stock = 0;
-                                                    $new_stock_out_history = (new StockOutHistory)->setHistory($out, $stock_out, $order_product, round(abs($history_quantity), 4));
-                                                }
-                                                $out->save();
-                                                $stock_out->save();
+                                    //         if ($balance > 0) {
+                                    //             if ($out->available_stock >= $balance) {
+                                    //                 $stock_out->parent_id_in .= $out->id . ',';
+                                    //                 $out->available_stock = $out->available_stock - $balance;
+                                    //                 $stock_out->available_stock = 0;
 
-                                                $balance = abs($stock_out->available_stock);
-                                            }
-                                        }
-                                    }
+                                    //                 $new_stock_out_history = (new StockOutHistory)->setHistory($out, $stock_out, $order_product, abs($balance));
+                                    //             } else {
+                                    //                 $history_quantity = $out->available_stock;
+                                    //                 $stock_out->parent_id_in .= $out->id . ',';
+                                    //                 $stock_out->available_stock = $out->available_stock - $balance;
+                                    //                 $out->available_stock = 0;
+                                    //                 $new_stock_out_history = (new StockOutHistory)->setHistory($out, $stock_out, $order_product, round(abs($history_quantity), 4));
+                                    //             }
+                                    //             $out->save();
+                                    //             $stock_out->save();
+
+                                    //             $balance = abs($stock_out->available_stock);
+                                    //         }
+                                    //     }
+                                    // }
                                     $shipped = abs($inStock);
                                 }
                             }
@@ -2639,45 +2656,48 @@ class HomeController extends Controller
                                 $stock->save();
                             }
 
-                            //To find from which stock the order will be deducted
-                            $find_stock = $stock->stock_out()->whereNotNull('quantity_in')->where('available_stock', '>', 0)->orderBy('id', 'asc')->get();
+                            $stock_out = StockManagementOut::addManualAdjustment($stock, $order_product, '-'.$shipped, $warehouse_id, null, true);
+                            $find_stock_from_which_order_deducted = StockManagementOut::findStockFromWhicOrderIsDeducted('-'.$shipped, $stock, $stock_out, $order_product);
 
-                            $stock_out = new StockManagementOut;
-                            $stock_out->smi_id = $stock->id;
-                            $stock_out->order_id = $order_product->order_id;
-                            $stock_out->order_product_id = $order_product->id;
-                            $stock_out->product_id = $order_product->product_id;
-                            $stock_out->quantity_out = $shipped != null ? '-' . $shipped : 0;
-                            $stock_out->available_stock = $shipped != null ? '-' . $shipped : 0;
-                            $stock_out->created_by = Auth::user()->id;
-                            $stock_out->warehouse_id = $warehouse_id;
-                            $stock_out->save();
+                            // //To find from which stock the order will be deducted
+                            // $find_stock = $stock->stock_out()->whereNotNull('quantity_in')->where('available_stock', '>', 0)->orderBy('id', 'asc')->get();
 
-                            if ($find_stock->count() > 0) {
-                                foreach ($find_stock as $out) {
+                            // $stock_out = new StockManagementOut;
+                            // $stock_out->smi_id = $stock->id;
+                            // $stock_out->order_id = $order_product->order_id;
+                            // $stock_out->order_product_id = $order_product->id;
+                            // $stock_out->product_id = $order_product->product_id;
+                            // $stock_out->quantity_out = $shipped != null ? '-' . $shipped : 0;
+                            // $stock_out->available_stock = $shipped != null ? '-' . $shipped : 0;
+                            // $stock_out->created_by = Auth::user()->id;
+                            // $stock_out->warehouse_id = $warehouse_id;
+                            // $stock_out->save();
 
-                                    if ($shipped > 0) {
-                                        if ($out->available_stock >= $shipped) {
-                                            $stock_out->parent_id_in .= $out->id . ',';
-                                            $out->available_stock = $out->available_stock - $shipped;
-                                            $stock_out->available_stock = 0;
-                                            $new_stock_out_history = (new StockOutHistory)->setHistory($out, $stock_out, $order_product, abs($shipped));
-                                        } else {
-                                            $history_quantity = $out->available_stock;
-                                            $stock_out->parent_id_in .= $out->id . ',';
-                                            $stock_out->available_stock = $out->available_stock - $shipped;
-                                            $out->available_stock = 0;
-                                            $new_stock_out_history = (new StockOutHistory)->setHistory($out, $stock_out, $order_product, round(abs($history_quantity), 4));
-                                        }
-                                        $out->save();
-                                        $stock_out->save();
-                                        $shipped = abs($stock_out->available_stock);
-                                    }
-                                }
-                            } else {
-                                $stock_out->available_stock = '-' . @$shipped;
-                                $stock_out->save();
-                            }
+                            // if ($find_stock->count() > 0) {
+                            //     foreach ($find_stock as $out) {
+
+                            //         if ($shipped > 0) {
+                            //             if ($out->available_stock >= $shipped) {
+                            //                 $stock_out->parent_id_in .= $out->id . ',';
+                            //                 $out->available_stock = $out->available_stock - $shipped;
+                            //                 $stock_out->available_stock = 0;
+                            //                 $new_stock_out_history = (new StockOutHistory)->setHistory($out, $stock_out, $order_product, abs($shipped));
+                            //             } else {
+                            //                 $history_quantity = $out->available_stock;
+                            //                 $stock_out->parent_id_in .= $out->id . ',';
+                            //                 $stock_out->available_stock = $out->available_stock - $shipped;
+                            //                 $out->available_stock = 0;
+                            //                 $new_stock_out_history = (new StockOutHistory)->setHistory($out, $stock_out, $order_product, round(abs($history_quantity), 4));
+                            //             }
+                            //             $out->save();
+                            //             $stock_out->save();
+                            //             $shipped = abs($stock_out->available_stock);
+                            //         }
+                            //     }
+                            // } else {
+                            //     $stock_out->available_stock = '-' . @$shipped;
+                            //     $stock_out->save();
+                            // }
                         }
                     }
 
@@ -2694,62 +2714,7 @@ class HomeController extends Controller
                     $re      = $new_his->updateCurrentReservedQuantity($order_product, 'Order Confirmed By Warehouse ' . $msg . ' Reserved Subtracted ', 'subtract', Auth::user()->id);
                 }
 
-                // if ($order_product->is_retail == 'qty') {
-                //     // $total_price = $order_product->qty_shipped * $order_product->unit_price;
-                //     $total_price = $item_unit_price * $order_product->qty_shipped;
-                //     $num = $order_product->qty_shipped;
-                // } else if ($order_product->is_retail == 'pieces') {
-                //     // $total_price = $order_product->pcs_shipped * $order_product->unit_price;
-                //     $total_price = $item_unit_price * $order_product->pcs_shipped;
-                //     $num = $order_product->pcs_shipped;
-                // }
-                // // $product = $order_product->product;
-                // $discount = $order_product->discount;
-
-                // if ($discount != null) {
-                //     $dis = $discount / 100;
-                //     $discount_value = $dis * $total_price;
-                //     $result = $total_price - $discount_value;
-                // } else {
-                //     $result = $total_price;
-                // }
-
-                // $order_product->total_price = round($result, 2);
-
-                // // $order_product->total_price_with_vat = (($order_product->vat/100)*$result)+$result;
-                // // $unit_price = round($order_product->unit_price,2);
-                // $vat = $order_product->vat;
-                // // $vat_amount = @$unit_price * ( @$vat / 100 );
-                // //  $vat_amountt = @$item_unit_price * ( @$vat / 100 );
-                // // $vat_amount = number_format(floor($vat_amountt*10000)/10000,4,'.','');
-
-                // $vat_amountt = @$item_unit_price * (@$vat / 100);
-                // $vat_amount = number_format($vat_amountt, 4, '.', '');
-                // $vat_amount_total_over_item = $vat_amount * $num;
-                // $order_product->vat_amount_total = number_format($vat_amount_total_over_item, 4, '.', '');
-                // if ($order_product->vat !== null && $order_product->unit_price_with_vat !== null) {
-                //     // $unit_price_with_vat = $order_product->unit_price_with_vat * $num;
-                //     // $unit_price_with_vat = number_format(floor(($order_product->unit_price_with_vat * $num)*10000)/10000,4,'.','');
-                //     $unit_price_with_vat = round($total_price, 2) + round($vat_amount_total_over_item, 2);
-                // } else {
-                //     // $unit_price_with_vat = round(@$unit_price+@$vat_amount,2) * $num;
-                //     //   $unit_price_with_vatt = (@$item_unit_price+@$vat_amount) * $num;
-                //     // $unit_price_with_vat = number_format(floor($unit_price_with_vatt*10000)/10000,4,'.','');
-                //     $unit_price_with_vat = round($total_price, 2) + round($vat_amount_total_over_item, 2);
-                // }
-                // if (@$discount !== null) {
-                //     $percent_value = $discount / 100;
-                //     $dis_value = $unit_price_with_vat * $percent_value;
-                //     $tpwt = $unit_price_with_vat - @$dis_value;
-
-                //     $vat_amount_total_over_item_with_discount = @$vat_amount_total_over_item * $percent_value;
-                //     $vat_amount_total_over_item = $vat_amount_total_over_item - $vat_amount_total_over_item_with_discount;
-                //     $order_product->vat_amount_total = number_format($vat_amount_total_over_item, 4, '.', '');
-                // } else {
-                //     $tpwt = $unit_price_with_vat;
-                // }
-                // $order_product->total_price_with_vat = round($tpwt, 2);
-                // $order_product->save();
+                
                 $calcu = DraftQuotationHelper::orderCalculation($order_product, $order);
                 $order_total += @$order_product->total_price_with_vat;
 
@@ -2775,64 +2740,6 @@ class HomeController extends Controller
             }
 
             foreach ($order_products_billed as $order_product) {
-                // $item_unit_price = number_format($order_product->unit_price, 2, '.', '');
-
-                // if ($order_product->is_retail == 'qty') {
-                //     // $total_price = $order_product->qty_shipped * $order_product->unit_price;
-                //     $total_price = $item_unit_price * $order_product->qty_shipped;
-                //     $num = $order_product->qty_shipped;
-                // } else if ($order_product->is_retail == 'pieces') {
-                //     // $total_price = $order_product->pcs_shipped * $order_product->unit_price;
-                //     $total_price = $item_unit_price * $order_product->pcs_shipped;
-                //     $num = $order_product->pcs_shipped;
-                // }
-                // // $product = $order_product->product;
-                // $discount = $order_product->discount;
-
-                // if ($discount != null) {
-                //     $dis = $discount / 100;
-                //     $discount_value = $dis * $total_price;
-                //     $result = $total_price - $discount_value;
-                // } else {
-                //     $result = $total_price;
-                // }
-
-                // $order_product->total_price = round($result, 2);
-
-                // // $order_product->total_price_with_vat = (($order_product->vat/100)*$result)+$result;
-                // // $unit_price = round($order_product->unit_price,2);
-                // $vat = $order_product->vat;
-                // // $vat_amount = @$unit_price * ( @$vat / 100 );
-                // //  $vat_amountt = @$item_unit_price * ( @$vat / 100 );
-                // // $vat_amount = number_format(floor($vat_amountt*10000)/10000,4,'.','');
-
-                // $vat_amountt = @$item_unit_price * (@$vat / 100);
-                // $vat_amount = number_format($vat_amountt, 4, '.', '');
-                // $vat_amount_total_over_item = $vat_amount * $num;
-                // $order_product->vat_amount_total = number_format($vat_amount_total_over_item, 4, '.', '');
-                // if ($order_product->vat !== null && $order_product->unit_price_with_vat !== null) {
-                //     // $unit_price_with_vat = $order_product->unit_price_with_vat * $num;
-                //     // $unit_price_with_vat = number_format(floor(($order_product->unit_price_with_vat * $num)*10000)/10000,4,'.','');
-                //     $unit_price_with_vat = round($total_price, 2) + round($vat_amount_total_over_item, 2);
-                // } else {
-                //     // $unit_price_with_vat = round(@$unit_price+@$vat_amount,2) * $num;
-                //     //   $unit_price_with_vatt = (@$item_unit_price+@$vat_amount) * $num;
-                //     // $unit_price_with_vat = number_format(floor($unit_price_with_vatt*10000)/10000,4,'.','');
-                //     $unit_price_with_vat = round($total_price, 2) + round($vat_amount_total_over_item, 2);
-                // }
-                // if (@$discount !== null) {
-                //     $percent_value = $discount / 100;
-                //     $dis_value = $unit_price_with_vat * $percent_value;
-                //     $tpwt = $unit_price_with_vat - @$dis_value;
-
-                //     $vat_amount_total_over_item_with_discount = @$vat_amount_total_over_item * $percent_value;
-                //     $vat_amount_total_over_item = $vat_amount_total_over_item - $vat_amount_total_over_item_with_discount;
-                //     $order_product->vat_amount_total = number_format($vat_amount_total_over_item, 4, '.', '');
-                // } else {
-                //     $tpwt = $unit_price_with_vat;
-                // }
-                // $order_product->total_price_with_vat = round($tpwt, 2);
-                // $order_product->save();
                 $calcu = DraftQuotationHelper::orderCalculation($order_product, $order);
                 $order_total += @$order_product->total_price_with_vat;
             }
@@ -2945,15 +2852,13 @@ class HomeController extends Controller
                         foreach ($ordered_products as $products) {
                             if ($products->qty_shipped < $products->quantity) {
                                 $is_partial = true;
+                                break;
                             }
                         }
                     }
 
                     if ($is_partial == true) {
-                        //To send email for partial order
-                        $to_email = config('app.partial_email');
-                        $fr_email = config('app.mail_username');
-                        Mail::to($to_email)->send(new PartialMail($order->id, $fr_email));
+                        PartialMailJob::dispatch($order);
                     }
                 }
             }
@@ -2973,6 +2878,7 @@ class HomeController extends Controller
             // $c_p_ref->converted_to_invoice_on = carbon::now();
             // $c_p_ref->save();
             // DB::commit();
+            return response()->json(['success' => false, 'msg' => $e->getMessage()]);
         }
     }
 
