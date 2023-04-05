@@ -36,7 +36,7 @@ class PartialMailJob implements ShouldQueue
         $order = $this->order;
         $data = array(
                   'from' => config('app.mail_username'),
-                  'to' => config('app.mail_username'),
+                  'to' => config('app.partial_email'),
                 );
         Mail::to($data['to'])->send(new PartialMail($order->id, $data['from']));
     }
