@@ -771,12 +771,14 @@ class HomeController extends Controller
       $orders_array = explode(",",$id);
       $id = $orders_array[0];
 
-      $print_history             = new PrintHistory;
-      $print_history->order_id    = $id;
-      $print_history->user_id    = Auth::user()->id;
-      $print_history->print_type = 'pick-instruction';
-      $print_history->page_type = $page_type;
-      $print_history->save();
+      foreach ($orders_array as $id) {
+        $print_history             = new PrintHistory;
+        $print_history->order_id    = $id;
+        $print_history->user_id    = Auth::user()->id;
+        $print_history->print_type = 'pick-instruction';
+        $print_history->page_type = $page_type;
+        $print_history->save();
+      }
 
       $ordersProducts = OrderProduct::with('get_order')->where('order_id', $id)->whereNotNull('product_id');
 
