@@ -140,7 +140,8 @@ use Carbon\Carbon;
           <i class=" fa fa-check "></i>
 
             <b>Export file is ready to download.
-              <a download href="{{asset('storage/app/Importing-Product-Receiving-'.$po_group->ref_id.'.xlsx')}}"><u>Click Here</u></a>
+              <!-- <a download href="{{asset('storage/app/Importing-Product-Receiving-'.$po_group->ref_id.'.xlsx')}}"><u>Click Here</u></a> -->
+              <a class="exp_download" href="{{ url('get-download-xslx','Importing-Product-Receiving-'.$po_group->ref_id.'.xlsx')}}" target="_blank" id=""><u>Click Here</u></a>
             </b>
           </div>
             <div class="alert alert-primary export-alert-another-user d-none"  role="alert">

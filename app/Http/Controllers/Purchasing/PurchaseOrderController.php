@@ -8004,7 +8004,7 @@ class PurchaseOrderController extends Controller
             $custom_table_data .= '</tbody>
             </table></div>';
 
-            return response()->json(['success' => true, 'html' => $custom_table_data]);
+            return response()->json(['success' => true, 'html' => $custom_table_data, 'wp' => $request->wp]);
     }
 
     public function getStockDataCard(Request $request){
