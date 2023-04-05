@@ -178,7 +178,7 @@ class StockManagementOut extends Model
         return $stock;
     }
 
-    public static function addManualAdjustment($stock, $order_product, $quantity_diff, $warehouse_id,$balance = null, $existing_order = false)
+    public static function addManualAdjustment($stock, $order_product, $quantity_diff, $warehouse_id,$balance = null, $existing_order = false, $user_id = null)
     {
       $stock_out                   = new StockManagementOut;
       $stock_out->smi_id           = $stock->id;
@@ -199,14 +199,14 @@ class StockManagementOut extends Model
           // $stock_out->available_stock  = $balance !== null ? $balance : $quantity_diff;
           $stock_out->available_stock  = null;
       }
-      $stock_out->created_by       = Auth::user()->id;
+      $stock_out->created_by       = @$user_id != null ? $user_id : @Auth::user()->id;
       $stock_out->warehouse_id     = $warehouse_id;
       $stock_out->save();
       $stock_out->cost     = $stock_out->cost == null ? ($stock_out->get_product != null ? round($stock_out->get_product->selling_price,3) : null) : $stock_out->cost;
       $stock_out->save();
       if($quantity_diff < 0 && $existing_order == false)
       {
-        $dummy_order = Order::createManualOrder($stock_out, @$order_product->order_id, 'Quantity shipped updated by '. Auth::user()->user_name . ' in '. @$order_product->get_order->full_inv_no .' Invoice on '. Carbon::now());
+        $dummy_order = Order::createManualOrder($stock_out, @$order_product->order_id, 'Quantity shipped updated by user '.$user_id.' '. @Auth::user()->user_name . ' in '. @$order_product->get_order->full_inv_no .' Invoice on '. Carbon::now(), $user_id);
       }
       // else
       // {
