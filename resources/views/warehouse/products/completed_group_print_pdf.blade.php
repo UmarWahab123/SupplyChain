@@ -214,8 +214,8 @@
                     {{$item->product->units->title != null ? $item->product->units->title : ''}}
                   </td>
                   <td>{{round($item->quantity_inv,3)}}</td>
-                  <td> {{@$item->quantity_received_1}} </td> <!-- Quantity Received -->
-                  <td> {{number_format(($item->quantity_inv - @$item->quantity_received_1),2,'.',',')}} </td> <!-- Quantity Received -->
+                  <td> {{@$item->quantity_received_1 + $item->quantity_received_2}} </td> <!-- Quantity Received -->
+                  <td> {{number_format(($item->quantity_inv - (@$item->quantity_received_1 + $item->quantity_received_2)),2,'.',',')}} </td> <!-- Quantity Received -->
                   <td>
                   @if(@$item->good_condition == 'normal')
                     <i class="fa fa-check" style="margin-top: 10px;margin-left: 5px;"></i>
