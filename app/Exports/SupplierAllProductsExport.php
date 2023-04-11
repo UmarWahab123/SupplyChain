@@ -2,16 +2,17 @@
 
 namespace App\Exports;
 
-use App\QuotationConfig;
-use App\Models\Common\Product;
-use Illuminate\Contracts\View\View;
+use App\Models\Common\Configuration;
 use App\Models\Common\CustomerCategory;
+use App\Models\Common\Product;
 use App\Models\Common\SupplierProducts;
 use App\Models\Common\WarehouseProduct;
+use App\QuotationConfig;
+use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
-use Maatwebsite\Excel\Events\AfterSheet;
-use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\AfterSheet;
 
 class SupplierAllProductsExport implements  FromView, ShouldAutoSize, WithEvents
 {
@@ -109,10 +110,11 @@ class SupplierAllProductsExport implements  FromView, ShouldAutoSize, WithEvents
 
         $products = $products->with('supplier_products.supplier', 'units', 'sellingUnits', 'stockUnit', 'productCategory', 'productSubCategory', 'productType', 'productType2', 'productType3', 'product_fixed_price')->get();
         $customerCategory = CustomerCategory::where('is_deleted',0)->get();
+        $configuration = Configuration::first();
 
         $warehouse = null;
 
-        return view('users.exports.supplier-products',compact('products','warehouse','customerCategory','global_terminologies','sup_id'));
+        return view('users.exports.supplier-products',compact('products','warehouse','customerCategory','global_terminologies','sup_id', 'configuration'));
     }
 
     public function registerEvents(): array

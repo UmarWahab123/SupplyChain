@@ -42,7 +42,9 @@
                 <th>goods_type_3</th>
                 <th>temprature_c</th>
                 <th>note_two</th>
+                @if(@$configuration->server == 'lucilla')
                 <th>order_qty_per_piece</th>
+                @endif
                 @if($customerCategory->count() > 0)
                     @foreach($customerCategory as $cat)
                     <th>{{$cat->title}}_fixed_prices</th>
@@ -88,7 +90,9 @@
                 <th>Good <br>@if(!array_key_exists('product_type_3', $global_terminologies)) Type 3 @else {{$global_terminologies['product_type_3']}} @endif</th>
                 <th>Good <br>{{$global_terminologies['temprature_c']}} </th>
                 <th>{{$global_terminologies['note_two']}}</th>
+                @if(@$configuration->server == 'lucilla')
                 <th>{{ $global_terminologies['order_qty_per_piece'] }}</th>
+                @endif
                 @if($customerCategory->count() > 0)
                     @foreach($customerCategory as $cat)
                     <th>{{$cat->title}} <br> Fixed <br> Prices</th>
@@ -134,7 +138,9 @@
                 <td>{{$product->productType3 != null ? $product->productType3->title : ''}}</td>
                 <td>{{$product->product_temprature_c}}</td>
                 <td>{{$product->product_notes}}</td>
+                @if(@$configuration->server == 'lucilla')
                 <td>{{$product->order_qty_per_piece}}</td>
+                @endif
                 @foreach($customerCategory as $cust)
                     <td>{{$product->product_fixed_price != null ? ($product->product_fixed_price->where('customer_type_id',$cust->id)->first() != null ? $product->product_fixed_price->where('customer_type_id',$cust->id)->first()->fixed_price : 'N.A') : 'N.A'}}</td>
                 @endforeach
@@ -175,7 +181,9 @@
                 <td>{{$product->productType3 != null ? $product->productType3->title : ''}}</td>
                 <td>{{$product->product_temprature_c}}</td>
                 <td>{{$product->product_notes}}</td>
+                @if(@$configuration->server == 'lucilla')
                 <td>{{$product->order_qty_per_piece}}</td>
+                @endif
                 @foreach($customerCategory as $cust)
                     <td>{{$product->product_fixed_price != null ? ($product->product_fixed_price->where('customer_type_id',$cust->id)->first() != null ? $product->product_fixed_price->where('customer_type_id',$cust->id)->first()->fixed_price : 'N.A') : 'N.A'}}</td>
                 @endforeach
