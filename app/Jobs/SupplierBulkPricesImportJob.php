@@ -61,6 +61,14 @@ class SupplierBulkPricesImportJob implements ShouldQueue
                 $remove = array_shift($row1);
 
                 $increment = 3;
+                // Extract an array of reference codes from the rows
+                $referenceCodes = array_column($row1, 'system_code');
+
+                $products = Product::whereIn('refrence_code', $referenceCodes)->with(['supplier_products' => function($q) use ($supplier_id){
+                    $q->where('supplier_id', $supplier_id)->with('supplier.getCurrency');
+                }])->get();
+                $supplier = Supplier::find($this->supplier_id);
+                // dd($products[0]->supplier_products->first()->buying_price);
                 foreach ($row1 as $key => $row) 
                 {
                     if(array_key_exists("system_code", $row))
@@ -73,13 +81,15 @@ class SupplierBulkPricesImportJob implements ShouldQueue
                         }
                         else
                         {
-                            $product  = Product::where('refrence_code', $row['system_code'])->first();
+                            // $product  = Product::where('refrence_code', $row['system_code'])->first();
+                            $product  = $products[$key];
                             if($product)
                             {
-                                $supplier = Supplier::where('reference_name', $row['supplier'])->count();
-                                $supplier_product = SupplierProducts::with('supplier.getCurrency')->where('product_id', $product->id)->where('supplier_id', $this->supplier_id)->first();
+                                // $supplier = Supplier::where('reference_name', $row['supplier'])->count();
+                                // $supplier_product = SupplierProducts::with('supplier.getCurrency')->where('product_id', $product->id)->where('supplier_id', $this->supplier_id)->first();
+                                $supplier_product = $product->supplier_products->first();
                                 // this is the price of after conversion for THB
-                                if($supplier_product != null && $supplier != 0) 
+                                if($supplier_product != null && $supplier) 
                                 {
                                     $old_price_value = $supplier_product->buying_price;
                                     $supplier_conv_rate_thb = $supplier_product->supplier->getCurrency->conversion_rate;
@@ -87,13 +97,16 @@ class SupplierBulkPricesImportJob implements ShouldQueue
 
                                     if (is_numeric($row['purchasing_price_euro'])) 
                                     {
-                                        $supplier_product->buying_price = $row['purchasing_price_euro'];
-                                        $supplier_product->buying_price_in_thb = ($row['purchasing_price_euro'] / $supplier_conv_rate_thb);
-                                        // this condition will only execute if this is the default supplier of product
-                                        if($product->supplier_id == $this->supplier_id)
-                                        {
-                                            $price_calculation = $supplier_product->defaultSupplierProductPriceCalculation($product->id, $product->supplier_id, $row['purchasing_price_euro'], $supplier_product->freight, $supplier_product->landing, $supplier_product->extra_cost, $importTax, $supplier_product->extra_tax, $product, $supplier_product);
+                                        if($old_price_value != $row['purchasing_price_euro']){
+                                            $supplier_product->buying_price = $row['purchasing_price_euro'];
+                                            $supplier_product->buying_price_in_thb = ($row['purchasing_price_euro'] / $supplier_conv_rate_thb);
+                                            // this condition will only execute if this is the default supplier of product
+                                            if($product->supplier_id == $this->supplier_id)
+                                            {
+                                                $price_calculation = $supplier_product->defaultSupplierProductPriceCalculation($product->id, $product->supplier_id, $row['purchasing_price_euro'], $supplier_product->freight, $supplier_product->landing, $supplier_product->extra_cost, $importTax, $supplier_product->extra_tax, $product, $supplier_product);
+                                            }
                                         }
+                                        
                                     }
                                     else
                                     {
@@ -109,7 +122,7 @@ class SupplierBulkPricesImportJob implements ShouldQueue
                                     }
                                     $supplier_product->save();
 
-                                    if (is_numeric($row['purchasing_price_euro'])) 
+                                    if (is_numeric($row['purchasing_price_euro']) && $old_price_value != $row['purchasing_price_euro']) 
                                     {
                                         \Log::info('product '.$key);
                                         $product_history              = new ProductHistory;
