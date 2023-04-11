@@ -569,15 +569,13 @@ class PurchaseOrderGroupsController extends Controller
     	// dd('here');
 		$po_group = PoGroup::find($id);
 		$po_group_detail = $po_group->po_group_detail;
-
 		$group_detail = DB::table('po_groups')
             ->join('po_group_details', 'po_groups.id', '=', 'po_group_details.po_group_id')
             ->join('purchase_orders', 'po_group_details.purchase_order_id', '=', 'purchase_orders.id')
             ->join('purchase_order_details', 'purchase_orders.id', '=', 'purchase_order_details.po_id')
             ->select('po_groups.*','po_groups.target_receive_date as datee','po_group_details.*','purchase_orders.*','purchase_order_details.*')->where('po_groups.id',$id)
             ->count();
-       $status_history = PoGroupStatusHistory::with('get_user')->where('po_group_id',$id)->get();
-
+        $status_history = PoGroupStatusHistory::with('get_user')->where('po_group_id',$id)->get();
         return $this->render('warehouse.home.transfer-products-receiving',compact('po_group','id','status_history','group_detail'));
 	}
 
@@ -2062,7 +2060,6 @@ class PurchaseOrderGroupsController extends Controller
 
     public function savePoGroupDetailChanges(Request $request)
     {
-    	// dd($request->all());
         $po_detail = PurchaseOrderDetail::where('id',$request->pod_id)->first();
         $warehouse_id = $po_detail->PurchaseOrder->to_warehouse_id != null ? $po_detail->PurchaseOrder->to_warehouse_id : Auth::user()->get_warehouse->id;
         $po_detail_transfer = PoGroupDetail::where('po_group_id',$request->po_group_id)->first();
@@ -2576,13 +2573,23 @@ class PurchaseOrderGroupsController extends Controller
             {
                 $value = str_replace("/","-",$request->expiration_date);
                 $value =  date('Y-m-d',strtotime($value));
-                $po_detail->$key = $value;
+				$params['term_key']  = $key;
+				$params['old_value'] = $po_detail->$key;
+				$params['new_value'] = $value;
+				$params['ip_address'] = $request->ip();
+				$this->saveProductReceivingHistory($params, $po_detail->id,$request->po_group_id);
+				$po_detail->$key = $value;
             }
             elseif($key == 'expiration_date_2')
             {
                 $value = str_replace("/","-",$request->expiration_date_2);
                 $value =  date('Y-m-d',strtotime($value));
-                $po_detail->$key = $value;
+				$params['term_key']  = $key;
+				$params['old_value'] = $po_detail->$key;
+				$params['new_value'] = $value;
+				$params['ip_address'] = $request->ip();
+				$this->saveProductReceivingHistory($params, $po_detail->id,$request->po_group_id);
+				$po_detail->$key = $value;
             }
             // elseif($key == 'custom_invoice_number')
             // {
@@ -2621,12 +2628,11 @@ class PurchaseOrderGroupsController extends Controller
 		$product_receiving_history->po_group_id = $po_group_id;
 		$product_receiving_history->pod_id      = $pod_id;
 
-        if($params['term_key'] == 'quantity_received' || $params['term_key'] == 'quantity_received_2'){
+        if($params['term_key'] == 'quantity_received' || $params['term_key'] == 'quantity_received_2' || $params['term_key'] == 'expiration_date' || $params['term_key'] == 'expiration_date_2'){
             $key =  ucwords(str_replace('_', ' ',$params['term_key']));
             $old_value  = $params['old_value'];
             $new_value  = $params['new_value'];
         }
-
 		$product_receiving_history->term_key   = $key;
 		$product_receiving_history->old_value  = $old_value;
 		$product_receiving_history->new_value  = $new_value;
