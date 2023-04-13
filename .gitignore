@@ -6,6 +6,8 @@
 /public/menu-icon
 /storage
 /vendor
+/vendor-upgrade
+/vendor-old
 .env
 .env.backup
 .phpunit.result.cache
