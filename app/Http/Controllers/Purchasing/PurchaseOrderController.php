@@ -2930,7 +2930,7 @@ class PurchaseOrderController extends Controller
         {
             $PO = false;
         }
-        $query = DraftPurchaseOrderDetail::with('getProduct.supplier_products','draftPo.getSupplier.getCurrency','getProduct.productType','getProduct.units','getProduct.sellingUnits','notes')->where('po_id', $id)->select('draft_purchase_order_details.*');
+        $query = DraftPurchaseOrderDetail::with('getProduct.supplier_products','draftPo.getSupplier.getCurrency','getProduct.productType','getProduct.units','getProduct.sellingUnits','notes', 'getProductStock')->where('po_id', $id)->select('draft_purchase_order_details.*');
         $query = DraftPurchaseOrderDetail::DraftPOSorting($request, $query);
 
         return Datatables::of($query)
@@ -3632,10 +3632,13 @@ class PurchaseOrderController extends Controller
                     $html_string .= '<input type="number" style="width:100%;" name="pod_vat_actual" class="d-none" id="pod_vat_actual_span_'.$item->product_id.'" value="'.@$item->pod_vat_actual.'">';
                     return $html_string;
             })
+            ->addColumn('current_stock_qty', function ($item) {
+                return $item->getProductStock != null ? round(@$item->getProductStock->where('warehouse_id', @$item->draftPo->to_warehouse_id)->first()->current_quantity,3) : '--';
+            })
             ->setRowId(function ($item){
                 return $item->id;
             })
-            ->rawColumns(['action','supplier_id','item_ref','short_desc','buying_unit','quantity','unit_price','amount','gross_weight','supplier_packaging','billed_unit_per_package','unit_gross_weight','discount','item_notes','customer','product_description','leading_time','order_no','customer_qty','customer_pcs','custom_line_number','custom_invoice_number','supplier_invoice_number','weight','purchasing_vat','unit_price_with_vat','amount_with_vat'])
+            ->rawColumns(['action','supplier_id','item_ref','short_desc','buying_unit','quantity','unit_price','amount','gross_weight','supplier_packaging','billed_unit_per_package','unit_gross_weight','discount','item_notes','customer','product_description','leading_time','order_no','customer_qty','customer_pcs','custom_line_number','custom_invoice_number','supplier_invoice_number','weight','purchasing_vat','unit_price_with_vat','amount_with_vat', 'current_stock_qty'])
             ->make(true);
     }
 

@@ -1245,7 +1245,7 @@ class PurchaseOrderDetail extends Model
                 return $html_string;
                 break;
             case 'current_stock_qty':
-                return $item->getProductStock != null ? @$item->getProductStock->where('warehouse_id', $item->warehouse_id)->first()->current_quantity : '--';
+                return $item->getProductStock != null ? round(@$item->getProductStock->where('warehouse_id', $item->warehouse_id)->first()->current_quantity,3) : '--';
                 break;
 
 
