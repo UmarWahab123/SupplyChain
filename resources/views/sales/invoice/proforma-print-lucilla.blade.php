@@ -183,7 +183,7 @@
             </div>
             <div>
               <span style="padding-left: 75px">{{@$order->customer->primary_contact->name}} {{@$order->customer->primary_contact->sur_name}}</span><br>
-              <span style="padding-left: 75px">{{@$customerShippingAddress->billing_phone}}</span>
+              <span style="padding-left: 75px">{{@$order->customer->primary_contact->telehone_number}}</span>
             </div>
            </div>
         </td>
