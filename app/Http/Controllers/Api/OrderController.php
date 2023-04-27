@@ -57,6 +57,7 @@ class OrderController extends Controller
 
     public function create(Request $request)
     {
+        \Log::info('order created');
       $customer = Customer::where('id', $request->order_detail['customer_id'])->first();
       if($customer)
       {
@@ -285,7 +286,7 @@ class OrderController extends Controller
          \DB::commit();
          return response()->json(['success' => true, 'order' => $order]);
       }
-
+       \Log::info('order creation failed customer does not exist');
       return response()->json(['success' => false, 'message' => 'Customer does not exists !!!']);
     }
 }
