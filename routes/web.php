@@ -657,6 +657,7 @@ Route::group(['namespace' => 'Purchasing', 'middleware' => 'purchasing'], functi
     Route::post('order-product-supplier-save', 'PurchasingController@orderProductSupplierSave')->name('order-product-supplier-save');
     Route::post('order-product-warehouse-save', 'PurchasingController@orderProductWarehouseSave')->name('order-product-warehouse-save');
     Route::post('update-unit-price', 'PurchaseOrderController@UpdateUnitPrice')->name('update-unit-price');
+    Route::post('update-unit-price-after-discount', 'PurchaseOrderController@UpdateUnitPriceAfterDiscount')->name('update-unit-price-after-discount');
     Route::post('update-unit-price-with-vat', 'PurchaseOrderController@UpdateUnitPriceWithVat')->name('update-unit-price-with-vat');
     Route::post('update-pod-gross-weight-price', 'PurchaseOrderController@updateUnitGrossWeight')->name('update-pod-gross-weight-price');
     Route::post('update-desired-qty', 'PurchaseOrderController@UpdateDesireQty')->name('update-desired-qty');

@@ -131,7 +131,7 @@ return [
     'mail_username'     => env('MAIL_USERNAME','farooq@pkteam.com'),
     'version_api_key'   => env('VERSION_API_KEY'),
     'version_server'    => env('VERSION_SERVER','https://vms.d11u.com/'),
-    'partial_email'     => env('PARTIAL_EMAIL','bank@agsth.com'),
+    'partial_email'     => env('PARTIAL_EMAIL','farooq@pkteam.com'),
     'external_link'     => env('EXTERNAL_LINK'),
     'external_token'    => env('','eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wvc2NoYWluZGV2LmQxMXUuY29tXC9hcGlcL2xvZ2luIiwiaWF0IjoxNjM4Nzg1NzY1LCJleHAiOjE2Mzg3ODkzNjUsIm5iZiI6MTYzODc4NTc2NSwianRpIjoibm5zRGhOZk1BYmh6N0lFbSIsInN1YiI6MjEsInBydiI6Ijg3ZTBhZjFlZjlmZDE1ODEyZmRlYzk3MTUzYTE0ZTBiMDQ3NTQ2YWEifQ.7k9UlaNmykFyfHEVGkNT0ad9dvA39rDH0m6cnYuG-OU'),
     'app_barcode'       => env('APP_BARCODE','https://schaindev.d11u.com/api=supplychainkey12453'),

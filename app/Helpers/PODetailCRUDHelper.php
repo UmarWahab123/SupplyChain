@@ -593,6 +593,7 @@ class PODetailCRUDHelper
             'total_w_v' => $grandCalculations != null ? $grandCalculations['total_w_v'] : 0,
             'id'        => $updateRow->id,
             'unit_price' => $calColumn != null ? $calColumn['unit_price'] : 0,
+            'unit_price_after_discount' => $updateRow != null ? @$updateRow->pod_unit_price_after_discount : 0,
             'unit_price_w_vat' => $calColumn != null ? $calColumn['unit_price_w_vat'] : 0,
             'total_amount_wo_vat' => $calColumn != null ? $calColumn['total_amount_wo_vat'] : 0,
             'total_amount_w_vat' => $calColumn != null ? $calColumn['total_amount_w_vat'] : 0,
@@ -600,6 +601,7 @@ class PODetailCRUDHelper
             'total_gross_weight' => $calColumn != null ? $calColumn['total_gross_weight'] : 0,
             'desired_qty' => $calColumn != null ? $calColumn['desired_qty'] : 0,
             'quantity' => $calColumn != null ? $calColumn['quantity'] : 0,
+            'discount' => $updateRow != null ? $updateRow->discount : 0,
         ]);
 	}
 
@@ -973,6 +975,62 @@ class PODetailCRUDHelper
         }
 
 	}
+
+    public static function UpdateUnitPriceAfterDiscount($request){
+        DB::beginTransaction();
+        try {
+            $checkSameProduct = PurchaseOrderDetail::find($request->rowId);
+            $po = PurchaseOrder::with('PoSupplier.getCurrency')->find($request->po_id);
+            $unit_price = $checkSameProduct->pod_unit_price;
+            $discount = $checkSameProduct->discount;
+            $unit_price_after_discount = $request->unit_price_after_discount;
+
+            if(($unit_price == 0 || $unit_price == null) && ($discount == null || $discount == 0)){
+                $old_value = $checkSameProduct->pod_unit_price;
+                $checkSameProduct->pod_unit_price_after_discount = $unit_price_after_discount;
+                $checkSameProduct->save();
+
+                (new PODetailCRUDHelper)->MakeHistory(@$checkSameProduct->po_id, $checkSameProduct->order_id, "Unit Price After Discount", @$checkSameProduct->id, @$checkSameProduct->product->refrence_code, @$request->old_value, @$request->unit_price_after_discount);
+
+                DB::commit();
+                $update_unit_price = new \Illuminate\Http\Request();
+                $update_unit_price->replace(['rowId' => $request->rowId, 'po_id' => $request->po_id,'unit_price' => $unit_price_after_discount, 'old_value' => $old_value]);
+
+                return self::UpdateUnitPrice($update_unit_price);
+            }
+
+            if((@$unit_price < $unit_price_after_discount) && $unit_price != null && $unit_price != 0){
+                return response()->json(['success' => false, 'msg' => 'Unit price after discount must be less than Unit Price']);
+            }
+
+            if ($unit_price != 0) {
+                $discount_percentage = (($unit_price - $unit_price_after_discount) / $unit_price) * 100;
+            } else {
+                $discount_percentage = 0;
+            }
+
+            $old_value = $checkSameProduct->pod_unit_price;
+            $old_discount = $checkSameProduct->discount;
+            $checkSameProduct->pod_unit_price_after_discount = $unit_price_after_discount;
+            $checkSameProduct->discount = $discount_percentage;
+            $checkSameProduct->save();
+
+            (new PODetailCRUDHelper)->MakeHistory(@$checkSameProduct->po_id, $checkSameProduct->order_id, "Unit Price After Discount", @$checkSameProduct->id, @$checkSameProduct->product->refrence_code, @$request->old_value, @$request->unit_price_after_discount);
+
+            (new PODetailCRUDHelper)->MakeHistory(@$checkSameProduct->po_id, $checkSameProduct->order_id, "Discount", @$checkSameProduct->id, @$checkSameProduct->product->refrence_code, @$old_discount, @$checkSameProduct->discount);
+
+            DB::commit();
+            $update_discount_req = new \Illuminate\Http\Request();
+            $update_discount_req->replace(['rowId' => $request->rowId, 'po_id' => $request->po_id,'discount' => $checkSameProduct->discount, 'old_value' => $old_discount]);
+
+            return self::SavePoProductDiscount($update_discount_req);
+            // return response()->json(['success' => true, 'msg' => 'Unit price after discount updated successfully !!!']);
+
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json(['success' => false, 'msg' => $e->getMessage()]);
+        }
+    }
 
 	public static function SavePoProductVatActual($request)
 	{
