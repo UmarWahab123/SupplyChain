@@ -153,7 +153,7 @@ class DraftPOInsertUpdateHelper
         }
 	}
 
-	private function MakeHistory($draft_po_id, $product_id, $column_name, $new_value, $old_value)
+	private function MakeHistory($draft_po_id, $product_id, $column_name, $new_value, $old_value, $pod_id = null)
 	{
 		$order_history = new DraftPurchaseOrderHistory;
         $order_history->user_id = Auth::user()->id;
@@ -161,6 +161,7 @@ class DraftPOInsertUpdateHelper
         $order_history->old_value = $old_value;
         $order_history->column_name = $column_name;
         $order_history->po_id = $draft_po_id;
+        $order_history->pod_id = $pod_id;
         $order_history->new_value = $new_value;
         $order_history->save();
 	}
@@ -251,7 +252,7 @@ class DraftPOInsertUpdateHelper
             if($key == 'quantity' && $value != $request->old_value)
             {
                 // create history
-                (new DraftPOInsertUpdateHelper)->MakeHistory($request->draft_po_id, $po->product_id, "QTY Inv", $value, $request->old_value);
+                (new DraftPOInsertUpdateHelper)->MakeHistory($request->draft_po_id, $po->product_id, "Quantity", $value, $request->old_value, $po->id);
             }
         }
 
@@ -760,6 +761,25 @@ class DraftPOInsertUpdateHelper
                     }
                 }
             }
+
+            $draftPurchaseOrderHistory = DraftPurchaseOrderHistory::with('product')->where('pod_id',$dpo_detail->id)->orderBy('id', 'asc')->get();
+            foreach ($draftPurchaseOrderHistory as $value)
+            {
+                $PurchaseHistory = new PurchaseOrdersHistory;
+                $PurchaseHistory->user_id           = $value->user_id;
+                $PurchaseHistory->type               = 'PO';
+                $PurchaseHistory->reference_number  = $value->product != null ? $value->product->refrence_code : 'Billed Item';
+                $PurchaseHistory->column_name       = $value->column_name == 'QTY Inv' ? 'Quantity' : $value->column_name;
+                $PurchaseHistory->old_value         = $value->old_value;
+                $PurchaseHistory->new_value         = $value->new_value;
+                $PurchaseHistory->po_id             = $purchaseOrder->id;
+                $PurchaseHistory->pod_id             = $purchaseOrderDetail->id;
+                $PurchaseHistory->save();
+
+                if(!$request->copy_and_update == 'yes'){
+                    $value->delete();
+                }
+            }
         }
 
         // getting documents of draft_Po
@@ -828,7 +848,7 @@ class DraftPOInsertUpdateHelper
             }
         }
         // --------------------------transfer history from Draftpurchase to PurchaserHistory---------
-        $draftPurchaseOrderHistory = DraftPurchaseOrderHistory::with('product')->where('po_id',$request->draft_po_id)->get();
+        $draftPurchaseOrderHistory = DraftPurchaseOrderHistory::with('product')->whereNull('pod_id')->where('po_id',$request->draft_po_id)->orderBy('id', 'asc')->get();
         foreach ($draftPurchaseOrderHistory as $value)
         {
             $PurchaseHistory = new PurchaseOrdersHistory;
@@ -841,14 +861,10 @@ class DraftPOInsertUpdateHelper
             $PurchaseHistory->po_id             = $purchaseOrder->id;
             $PurchaseHistory->save();
 
-           if($request->copy_and_update == 'yes')
+           if(!$request->copy_and_update == 'yes')
            {
-
-           }
-            else
-            {
                 $value->delete();
-            }
+           }
         }
 
         /*re-calulation through a function*/

@@ -82,6 +82,12 @@ class PurchaseOrderDetail extends Model
     {
         return $this->hasMany('App\Models\Common\PurchaseOrders\PurchaseOrdersHistory', 'pod_id', 'id');
     }
+    public function pod_quantity_history()
+    {
+        return $this->hasOne('App\Models\Common\PurchaseOrders\PurchaseOrdersHistory', 'pod_id', 'id')->where(function($q){
+            $q->where('column_name', 'Quantity')->orWhere('column_name', 'QTY Inv');
+        })->orderBy('id', 'asc');
+    }
 
     public function update_stock_card($pod, $new_value)
     {
@@ -768,7 +774,7 @@ class PurchaseOrderDetail extends Model
         return $query;
     }
 
-    public static function returnAddColumn($column, $item) {
+    public static function returnAddColumn($column, $item, $config) {
         switch ($column) {
             case 'weight':
                 if($item->product_id != null)
@@ -1076,6 +1082,10 @@ class PurchaseOrderDetail extends Model
                     $html_string .= ($item->order_product_id != null ? ($item->order_product->quantity != null ? $item->order_product->quantity : "--").' '.$selling_unit : "--");
                     $html_string .= '</span>';
                     return $html_string;
+                }
+                else if(@$item->pod_quantity_history != null && @$config->server == 'lucilla'){
+                    $billed_unit = $item->product_id !== null ? @$item->product->units->title : 'N.A';
+                    return @$item->pod_quantity_history->new_value.' '.@$billed_unit;
                 }
                 else
                 {
