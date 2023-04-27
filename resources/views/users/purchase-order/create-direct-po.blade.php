@@ -579,6 +579,9 @@ use Carbon\Carbon;
                 <img src="{{url('public/svg/down.svg')}}" alt="down" style="width:10px; height:10px; cursor: pointer;">
               </span>
           </th>
+          <th @if(in_array(26,$hidden_columns_by_admin)) class="noVis" @endif>
+            Current Stock <br> QTY
+          </th>
       </tr>
       </thead>
     </table>
@@ -1162,6 +1165,7 @@ $hidden_by_default = '';
         { data: 'order_no', name: 'order_no' },
         { data: 'gross_weight', name: 'gross_weight' },
         { data: 'weight', name: 'weight' },
+        { data: 'current_stock_qty', name: 'current_stock_qty' },
     ],
     drawCallback: function(){
       $('#loader_modal').modal('hide');

@@ -2,43 +2,45 @@
 
 namespace App\Http\Controllers\Accounting;
 
+use App\General;
+use App\Helpers\Datatables\AccountingDashboardDatatable;
 use App\Http\Controllers\Controller;
-use App\Models\Common\Country;
-use App\Models\Common\State;
-use App\Models\Common\Status;
-use App\Models\Common\Supplier;
-use App\Models\Common\Courier;
-use App\Models\Common\TableHideColumn;
-use App\Models\Common\UserDetail;
-use Illuminate\Support\Arr;
-use App\Models\Common\PaymentTerm;
 use App\Models\Common\Company;
-use App\Models\Common\Order\OrderProduct;
+use App\Models\Common\Configuration;
+use App\Models\Common\Country;
+use App\Models\Common\Courier;
+use App\Models\Common\CustomerCategory;
 use App\Models\Common\Order\CustomerBillingDetail;
-use App\Models\Common\Order\OrderStatusHistory;
+use App\Models\Common\Order\Order;
 use App\Models\Common\Order\OrderAttachment;
 use App\Models\Common\Order\OrderNote;
-use App\Models\Sales\Customer;
-use App\Models\Common\Unit;
-use App\User;
-use Illuminate\Support\Carbon;
-use App\Models\Common\Order\Order;
-use Auth;
-use Hash;
-use App\Models\Common\Warehouse;
-use App\Models\Common\SupplierProducts;
+use App\Models\Common\Order\OrderProduct;
 use App\Models\Common\Order\OrderProductNote;
-use App\Models\Common\CustomerCategory;
-use Yajra\Datatables\Datatables;
-use Illuminate\Http\Request;
-use DB;
-use App\General;
-use Illuminate\Support\Facades\View;
-use Illuminate\Support\Facades\Schema;
-use App\Variable;
-use App\Models\Common\Configuration;
-use App\Helpers\Datatables\AccountingDashboardDatatable;
+use App\Models\Common\Order\OrderStatusHistory;
+use App\Models\Common\PaymentTerm;
 use App\Models\Common\PurchaseOrders\PurchaseOrder;
+use App\Models\Common\State;
+use App\Models\Common\Status;
+use App\Models\Common\StockManagementIn;
+use App\Models\Common\StockManagementOut;
+use App\Models\Common\Supplier;
+use App\Models\Common\SupplierProducts;
+use App\Models\Common\TableHideColumn;
+use App\Models\Common\Unit;
+use App\Models\Common\UserDetail;
+use App\Models\Common\Warehouse;
+use App\Models\Sales\Customer;
+use App\User;
+use App\Variable;
+use Auth;
+use DB;
+use Hash;
+use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\View;
+use Yajra\Datatables\Datatables;
 
 class HomeController extends Controller
 {
@@ -350,7 +352,7 @@ class HomeController extends Controller
     public function completeCreditNote(Request $request){
         // dd($request->all());
 
-        $credit_note = Order::find($request->inv_id);
+        $credit_note = Order::with('order_products')->find($request->inv_id);
 
         $credit_note->status = 27;
         $credit_note->converted_to_invoice_on = Carbon::now();
@@ -363,6 +365,27 @@ class HomeController extends Controller
                 $prod->status = 27;
             }
            $prod->save();
+
+           if($prod->return_to_stock == 1){
+            $stock = StockManagementIn::where('product_id', $prod->product_id)->where('warehouse_id', auth()->user()->warehouse_id)->whereNull('expiration_date')->orderBy('id', 'desc')->first();
+            $shipped = $prod->quantity;
+            if($stock){
+              $stock_out                   = new StockManagementOut;
+              $stock_out->smi_id           = $stock->id;
+              $stock_out->order_id         = $prod->order_id;
+              $stock_out->order_product_id = $prod->id;
+              $stock_out->product_id       = $prod->product_id;
+              $stock_out->original_order_id = @$prod->order_id;
+              $stock_out->title       = 'Quantity returned from credit note '.@$prod->get_order->status_prefix.''.@$prod->get_order->ref_id;
+              $stock_out->quantity_in     = $shipped;
+              $stock_out->available_stock = $shipped;
+              $stock_out->created_by       = @Auth::user()->id;
+              $stock_out->warehouse_id     = auth()->user()->warehouse_id;
+              $stock_out->save();
+              $stock_out->cost     = $stock_out->cost == null ? ($stock_out->get_product != null ? round($stock_out->get_product->selling_price,3) : null) : $stock_out->cost;
+              $stock_out->save();
+            }
+           }
         }
 
         return response()->json(['success'=>true]);
@@ -812,11 +835,12 @@ class HomeController extends Controller
         $query = OrderProduct::with('product:id,refrence_code','get_order:id,primary_status,status,customer_id','product.units','product.supplier_products','purchase_order_detail','from_warehouse','from_supplier','order_product_note')->where('order_products.order_id', $id);
         $units = Unit::orderBy('title')->get();
         $warehouses = Warehouse::where('status',1)->orderBy('warehouse_title')->get();
+        $config = Configuration::first();
         // $SupplierProducts=SupplierProducts::all();
         OrderProduct::doSort($request,$query);
          return Datatables::of($query)
 
-            ->addColumn('action', function ($item) {
+            ->addColumn('action', function ($item) use ($config) {
                 $html_string = '';
                 if(Auth::user()->role_id == 2)
                 {
@@ -870,6 +894,18 @@ class HomeController extends Controller
                 else
                 {
                   $html_string .= '--';
+                }
+
+                // functinality for lucilla only
+                if(@$config->server == 'lucilla')
+                {
+                  $checked = $item->return_to_stock == 1 ? 'checked' : '';
+                  $html_string .= '<div class="custom-control d-inline-block ml-2">
+                  <input class="custom-control-input return_to_stock_check" type="checkbox"
+                         id="return_to_stock_check_' . $item->id . '"
+                         value="' . $item->id . '" data-id="'.$item->id.'" '.$checked.'>
+                  <label class="custom-control-label" for="return_to_stock_check_' . $item->id . '"></label>
+                  </div>';
                 }
                 return $html_string;
             })
@@ -1548,6 +1584,11 @@ $html = '';
         return response()->json(['success' => true]);
       }
       $order = Order::find($request->id);
+      // to check whether it's return to stock or not
+      $check = OrderProduct::where('return_to_stock', 1)->where('order_id', $order->id)->first();
+      if($check){
+        return response()->json(['success' => false, 'msg' => 'Some / All items are returned into stock cannot delete this CN']);
+      }
       $order->order_products()->delete();
       $order->order_attachment()->delete();
       $order->order_notes()->delete();
@@ -1844,5 +1885,15 @@ $html = '';
         $dt->rawColumns(['action','ref_id', 'supplier','status','supplier_ref_no']);
         $dt->with('post',$query->sum('total_with_vat'));
         return $dt->make(true);
+    }
+
+    public function returnStockFromCreditNote(Request $request){
+
+      $order_product = OrderProduct::find($request->id);
+      if($order_product){
+        $order_product->return_to_stock = $request->checked == "true" ? 1 : 0;
+        $order_product->save();
+      }
+      return response()->json(['success' => true]);
     }
 }

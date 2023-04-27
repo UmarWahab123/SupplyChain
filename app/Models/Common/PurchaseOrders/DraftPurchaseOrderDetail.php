@@ -28,6 +28,11 @@ class DraftPurchaseOrderDetail extends Model
       return $this->hasMany('App\Models\Common\PurchaseOrders\DraftPurchaseOrderDetailNote', 'draft_po_id', 'id');
     }
 
+    public function getProductStock()
+    {
+      return $this->hasMany('App\Models\Common\WarehouseProduct', 'product_id', 'product_id');
+    }
+
     public function calculateVatToSystemCurrency($draft_po_id, $amount)
     {
         $data = array();

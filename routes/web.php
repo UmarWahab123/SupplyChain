@@ -2408,6 +2408,8 @@ Route::group(['namespace' => 'Accounting', 'prefix' => 'accounting', 'middleware
     Route::get('delete-debit-note', 'HomeController@deleteDebitNote')->name('delete-debit-note');
 
     Route::get('/get_draft_invoices_dashboard', 'HomeController@getDraftInvoices')->name('get_draft_invoices_dashboard');
+
+    Route::get('/return-stock-from-credit-note', 'HomeController@returnStockFromCreditNote')->name('return-stock-from-credit-note');
 });
 
 Route::group(['middleware' => 'auth'], function () {

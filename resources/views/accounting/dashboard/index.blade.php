@@ -684,6 +684,9 @@ $('.sorting_filter_table').on('click',function(){
               $('.table-quotation').DataTable().ajax.reload();
               $('.table-supplier-credit-note').DataTable().ajax.reload();
             }
+            if(result.success == false){
+              toastr.error('Sorry!', result.msg,{"positionClass": "toast-bottom-right"});
+            }
           }
         });
       }
