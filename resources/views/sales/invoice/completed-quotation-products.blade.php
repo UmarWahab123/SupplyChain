@@ -724,6 +724,7 @@ use Carbon\Carbon;
               </span> -->
             </th>
             <th @if(in_array(22,$hidden_columns_by_admin)) class="noVis" @endif>Discount
+              <br><i class="fa fa-plus" title="Add same discount on all items" data-toggle="modal" data-target="#addDiscountOnAllItems"></i>
              {{-- <span class="arrow_up sorting_filter_table" data-order="asc" data-column_name="2">
                 <img src="{{url('public/svg/up.svg')}}" alt="up" style="width:10px; height:10px; cursor: pointer;">
               </span>
@@ -1452,6 +1453,35 @@ use Carbon\Carbon;
             <button class="btn btn-info product-upload-btn" type="submit">Upload</button>
           </form>
         </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+  <!-- Add discount on all items Modal -->
+<div class="modal" id="addDiscountOnAllItems">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Add Same Discount On All Items</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <div class="row">
+          <div class="col">
+            <input type="text" class="form-control overall-discount-input" pattern="\d+(\.\d{1,2})?" placeholder="Enter discount e.g. 80" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary btn-sm add-discount-on-all-items">Add</button>
       </div>
 
     </div>
@@ -4495,7 +4525,61 @@ $(document).on('click','.remove-products',function(e){
                 $("#loader_modal").modal('hide');
             }
         });
-    })
+    });
+    // When a key is pressed in the discount input field
+  $('.overall-discount-input').on('keypress', function(e) {
+    // Get the current value of the input field
+    var currentValue = $(this).val();
+    // Get the key that was pressed
+    var keyPressed = e.which;
+    // Only allow numbers, decimal point, and backspace
+    if ((keyPressed < 48 || keyPressed > 57) && keyPressed != 46 && keyPressed != 8) {
+      e.preventDefault();
+    }
+    // Only allow one decimal point
+    if (keyPressed == 46 && currentValue.indexOf('.') != -1) {
+      e.preventDefault();
+    }
+    // Only allow up to two decimal places
+    if (currentValue.indexOf('.') != -1 && currentValue.split('.')[1].length >= 2) {
+      e.preventDefault();
+    }
+  });
+
+  $(document).on('click', '.add-discount-on-all-items', function(e){
+    var discount = $('.overall-discount-input').val();
+    // alert(discount);
+    if(!discount || discount == ''){
+      toastr.warning('Please!', 'Enter a valid discount !!!',{"positionClass": "toast-bottom-right"});
+      return false;
+    }
+    var id = '{{$id}}';
+    $.ajax({
+        method: "get",
+        url: "{{route('add-discount-on-all-items')}}",
+        data: 'id='+id+'&page=quotation&discount='+discount,
+        beforeSend: function() {
+            $("#loader_modal").modal('show');
+            $('.add-discount-on-all-items').attr('disabled', true);
+            $('.add-discount-on-all-items').html('Please wait...');
+        },
+        success: function(data) {
+            if (data.success == true) {
+                $("#loader_modal").modal('hide');
+                toastr.success('Success!', 'Data updated successfully !!!',{"positionClass": "toast-bottom-right"});
+                location.reload();
+                return true;
+            }
+            $('.add-discount-on-all-items').attr('disabled', false);
+            $('.add-discount-on-all-items').html('Add');
+            toastr.error('Sorry!', 'Something went wrong. Try again !!!',{"positionClass": "toast-bottom-right"});
+            return false;
+        },
+        error: function(request, status, error) {
+            $("#loader_modal").modal('hide');
+        }
+    });
+  });
 </script>
 <script src="{{asset('public/site/assets/backend/js/save_sales_person.js')}}"></script>
 @stop

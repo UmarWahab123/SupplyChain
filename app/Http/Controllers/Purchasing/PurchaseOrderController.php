@@ -8692,4 +8692,22 @@ class PurchaseOrderController extends Controller
             return response()->json(['success' => true, 'total_gross_weight' => $total_gross_weight]);
         }
     }
+
+    public function addPoDiscountOnAllItems(Request $request){
+        try {
+            $po = PurchaseOrder::Find($request->id);
+            if($po->status > 14){
+                return response()->json(['received_into_stock' => true]);
+            }
+            $po_items = PurchaseOrderDetail::where('po_id', $request->id)->get();
+            foreach ($po_items as $item) {
+                $new_req = new \Illuminate\Http\Request();
+                $new_req->replace(['rowId' => $item->id, 'po_id' => $item->po_id, 'discount' => $request->discount, 'old_value' => $item->discount]);
+                    $this->SavePoProductDiscount($new_req);
+            }
+            return response()->json(['success' => true, 'msg' => 'Data updated successfully!!!']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'msg' => $e->getMessage()]);
+        }
+    }
 }

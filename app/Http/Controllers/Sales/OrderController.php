@@ -6600,4 +6600,31 @@ class OrderController extends Controller
             return response()->json(['success' => false, 'msg' => $e->getMessage()]);
         }
     }
+
+    public function addDiscountOnAllItems(Request $request){
+        // dd($request->all());
+        try {
+            if($request->page == 'draft'){
+                $draft_products = DraftQuotationProduct::where('draft_quotation_id', $request->id)->get();
+                foreach ($draft_products as $prod) {
+                    $new_req = new \Illuminate\Http\Request();
+                    $new_req->replace(['draft_quotation_id' => $prod->id, 'discount' => $request->discount, 'old_value' => $prod->discount]);
+                    $this->UpdateQuotationData($new_req);
+                }
+            }
+
+            if($request->page == 'quotation'){
+                $order_products = OrderProduct::where('order_id', $request->id)->get();
+                foreach ($order_products as $prod) {
+                    $new_req = new \Illuminate\Http\Request();
+                    $new_req->replace(['order_id' => $prod->id, 'discount' => $request->discount, 'old_value' => $prod->discount]);
+                    $this->UpdateOrderQuotationData($new_req);
+                }
+            }
+
+            return response()->json(['success' => true, 'msg' => 'Data updated successfully!!!']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'msg' => $e->getMessage()]);
+        }
+    }
 }
