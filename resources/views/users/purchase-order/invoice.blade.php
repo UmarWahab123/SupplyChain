@@ -273,7 +273,7 @@
             @endphp
             <td align="left" width="30%">{{ $description }}</td>
             {{-- <td align="left">{{ $customer }}</td> --}}
-            <td align="left">{{ @$result->sum('desired_qty') != 0 ? number_format($result->sum('desired_qty'), 3, '.', ',') : "-"}}  {{$result[0]->supplier_packaging != null ? @$result[0]->supplier_packaging : "--"}} </td>
+            <td align="left">{{ @$result->sum('desired_qty') != 0 ? round($result->sum('desired_qty'), 3) : "-"}}  {{$result[0]->supplier_packaging != null ? @$result[0]->supplier_packaging : "--"}} </td>
             {{--<td align="left">{{ @$result->sum('billed_unit_per_package') != 0 ? @$result->sum('billed_unit_per_package') : "-"  }}</td>--}}
 
             {{-- <td align="left">{{ $result[0]->product_id != null ? @$result[0]->product->units->title : "--" }}</td> --}}
@@ -303,7 +303,7 @@
          </td>
             @if(@$price_checked == 1)
 
-            <td align="left">{{ @$result->sum('quantity') !== null ? number_format($result->sum('quantity'), 3, '.', ',') : "-" }} {{$result[0]->product_id != null ? @$result[0]->product->units->title : "--"}}</td>
+            <td align="left">{{ @$result->sum('quantity') !== null ? round($result->sum('quantity'), 3) : "-" }} {{$result[0]->product_id != null ? @$result[0]->product->units->title : "--"}}</td>
 
             <td align="right">
               @php

@@ -175,10 +175,10 @@ use Carbon\Carbon;
       {{ $draft_po->getSupplier->address_line_1.' '.$draft_po->getSupplier->address_line_2 }},
       @endif
       @if($draft_po->getSupplier->country !== null)
-      {{ $draft_po->getSupplier->getcountry->name }},
+      {{ @$draft_po->getSupplier->getcountry->name }},
       @endif
       @if($draft_po->getSupplier->state !== null)
-      {{ $draft_po->getSupplier->getstate->name }},
+      {{ @$draft_po->getSupplier->getstate->name }},
       @endif
       @if($draft_po->getSupplier->city !== null)
       {{ $draft_po->getSupplier->city }},
@@ -215,10 +215,10 @@ use Carbon\Carbon;
       {{ $draft_po->getFromWarehoue->getCompany->billing_address }},
       @endif
       @if($draft_po->getFromWarehoue->getCompany->getcountry !== null)
-      {{ $draft_po->getFromWarehoue->getCompany->getcountry->name }},
+      {{ @$draft_po->getFromWarehoue->getCompany->getcountry->name }},
       @endif
       @if($draft_po->getFromWarehoue->getCompany->getstate !== null)
-      {{ $draft_po->getFromWarehoue->getCompany->getstate->name }},
+      {{ @$draft_po->getFromWarehoue->getCompany->getstate->name }},
       @endif
       @if($draft_po->getFromWarehoue->getCompany->city !== null)
       {{ $draft_po->getFromWarehoue->getCompany->city }},
