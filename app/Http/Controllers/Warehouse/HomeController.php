@@ -2373,16 +2373,16 @@ class HomeController extends Controller
             if ($request->page_info == "draft") {
                 if ($order_products->count() > 0) {
                     // Use the update method to update the records in a single query
-                    OrderProduct::whereIn('id', $order_products->pluck('id')->toArray())
-                        ->update([
-                            'pcs_shipped' => DB::raw('number_of_pieces'),
-                            'qty_shipped' => DB::raw('quantity')
-                        ]);
-                    // foreach ($order_products as $order_product) {
-                    //     $order_product->pcs_shipped = $order_product->number_of_pieces;
-                    //     $order_product->qty_shipped = $order_product->quantity;
-                    //     $order_product->save();
-                    // }
+                    // OrderProduct::whereIn('id', $order_products->pluck('id')->toArray())
+                    //     ->update([
+                    //         'pcs_shipped' => DB::raw('number_of_pieces'),
+                    //         'qty_shipped' => DB::raw('quantity')
+                    //     ]);
+                    foreach ($order_products as $order_product) {
+                        $order_product->pcs_shipped = $order_product->number_of_pieces;
+                        $order_product->qty_shipped = $order_product->quantity;
+                        $order_product->save();
+                    }
                 }
             }
 
