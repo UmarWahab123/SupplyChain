@@ -1118,7 +1118,10 @@ class DraftQuotationHelper
         $unit_price_w_vat = $draft_quotation_product->unit_price_with_vat != null ?  number_format($draft_quotation_product->unit_price_with_vat,2,'.','') : '--';
         $quantity = round($draft_quotation_product->quantity,4);
         $pcs = round($draft_quotation_product->number_of_pieces,4);
-        if($draft_quotation_product->supplier_id != null)
+        if($draft_quotation_product->is_warehouse == 1){
+        	$supply_from = 'Warehouse';
+        }
+        elseif($draft_quotation_product->supplier_id != null)
         {
         	$supply_from = $draft_quotation_product->from_supplier != null ? $draft_quotation_product->from_supplier->reference_name : '--';
         }

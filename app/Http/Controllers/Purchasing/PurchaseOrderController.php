@@ -2930,7 +2930,7 @@ class PurchaseOrderController extends Controller
         {
             $PO = false;
         }
-        $query = DraftPurchaseOrderDetail::with('getProduct.supplier_products','draftPo.getSupplier.getCurrency','getProduct.productType','getProduct.units','getProduct.sellingUnits','notes')->where('po_id', $id)->select('draft_purchase_order_details.*');
+        $query = DraftPurchaseOrderDetail::with('getProduct.supplier_products','draftPo.getSupplier.getCurrency','getProduct.productType','getProduct.units','getProduct.sellingUnits','notes', 'getProductStock')->where('po_id', $id)->select('draft_purchase_order_details.*');
         $query = DraftPurchaseOrderDetail::DraftPOSorting($request, $query);
 
         return Datatables::of($query)
@@ -3632,10 +3632,13 @@ class PurchaseOrderController extends Controller
                     $html_string .= '<input type="number" style="width:100%;" name="pod_vat_actual" class="d-none" id="pod_vat_actual_span_'.$item->product_id.'" value="'.@$item->pod_vat_actual.'">';
                     return $html_string;
             })
+            ->addColumn('current_stock_qty', function ($item) {
+                return $item->getProductStock != null ? round(@$item->getProductStock->where('warehouse_id', @$item->draftPo->to_warehouse_id)->first()->current_quantity,3) : '--';
+            })
             ->setRowId(function ($item){
                 return $item->id;
             })
-            ->rawColumns(['action','supplier_id','item_ref','short_desc','buying_unit','quantity','unit_price','amount','gross_weight','supplier_packaging','billed_unit_per_package','unit_gross_weight','discount','item_notes','customer','product_description','leading_time','order_no','customer_qty','customer_pcs','custom_line_number','custom_invoice_number','supplier_invoice_number','weight','purchasing_vat','unit_price_with_vat','amount_with_vat'])
+            ->rawColumns(['action','supplier_id','item_ref','short_desc','buying_unit','quantity','unit_price','amount','gross_weight','supplier_packaging','billed_unit_per_package','unit_gross_weight','discount','item_notes','customer','product_description','leading_time','order_no','customer_qty','customer_pcs','custom_line_number','custom_invoice_number','supplier_invoice_number','weight','purchasing_vat','unit_price_with_vat','amount_with_vat', 'current_stock_qty'])
             ->make(true);
     }
 
@@ -4881,17 +4884,18 @@ class PurchaseOrderController extends Controller
 
     public function getPurchaseOrderProdDetail(Request $request, $id)
     {
-        $details = PurchaseOrderDetail::with('customer','product.supplier_products','getOrder','PurchaseOrder.PoSupplier.getCurrency','product.units','getWarehouse','pod_histories','order_product.product.sellingUnits','order_product.get_order_product_notes','pod_notes','product.productType','getProductStock')->where('purchase_order_details.po_id',$id)->select('purchase_order_details.*');
+        $details = PurchaseOrderDetail::with('customer','product.supplier_products','getOrder','PurchaseOrder.PoSupplier.getCurrency','product.units','getWarehouse','pod_histories','order_product.product.sellingUnits','order_product.get_order_product_notes','pod_notes','product.productType','getProductStock', 'pod_quantity_history')->where('purchase_order_details.po_id',$id)->select('purchase_order_details.*');
         $details = PurchaseOrderDetail::PurchaseOrderDetailSorting($request, $details);
+        $config = Configuration::first();
         // dd($details->first()->getProductStock->where('warehouse_id', 1)->first()->id);
 
         $dt = Datatables::of($details);
 
-        $add_columns = ['weight', 'unit_gross_weight', 'discount', 'remarks', 'supplier_packaging', 'order_no', 'amount_with_vat', 'amount', 'last_updated_price_on', 'unit_price_with_vat', 'unit_price', 'billed_unit_per_package', 'purchasing_vat', 'desired_qty', 'gross_weight', 'customer_pcs', 'customer_qty', 'quantity', 'warehouse', 'buying_unit', 'type', 'leading_time', 'brand', 'product_description', 'customer', 'item_ref', 'supplier_id', 'action','current_stock_qty'];
+        $add_columns = ['weight', 'unit_gross_weight', 'discount', 'remarks', 'supplier_packaging', 'order_no', 'amount_with_vat', 'amount', 'last_updated_price_on', 'unit_price_with_vat', 'unit_price', 'billed_unit_per_package', 'purchasing_vat', 'desired_qty', 'gross_weight', 'customer_pcs', 'customer_qty', 'quantity', 'warehouse', 'buying_unit', 'type', 'leading_time', 'brand', 'product_description', 'customer', 'item_ref', 'supplier_id', 'action','current_stock_qty', 'unit_price_after_discount'];
 
         foreach ($add_columns as $column) {
-            $dt->addColumn($column, function($item) use ($column) {
-                return PurchaseOrderDetail::returnAddColumn($column, $item);
+            $dt->addColumn($column, function($item) use ($column, $config) {
+                return PurchaseOrderDetail::returnAddColumn($column, $item, $config);
              });
         }
 
@@ -4914,7 +4918,7 @@ class PurchaseOrderController extends Controller
         $dt->setRowId(function ($item) {
             return @$item->id;
         });
-        $dt->rawColumns(['action', 'supplier_id','supplier_ref','item_ref','customer','short_desc','buying_unit','quantity','unit_price','amount','remarks','order_no','warehouse','gross_weight','supplier_packaging','billed_unit_per_package','customer_qty','discount','desired_qty','pkg_billed_est','customer_pcs','product_description','a','unit_gross_weight','weight','amount_with_vat','unit_price_with_vat','purchasing_vat']);
+        $dt->rawColumns(['action', 'supplier_id','supplier_ref','item_ref','customer','short_desc','buying_unit','quantity','unit_price','amount','remarks','order_no','warehouse','gross_weight','supplier_packaging','billed_unit_per_package','customer_qty','discount','desired_qty','pkg_billed_est','customer_pcs','product_description','a','unit_gross_weight','weight','amount_with_vat','unit_price_with_vat','purchasing_vat', 'unit_price_after_discount']);
         return $dt->make(true);
     }
 
@@ -5040,6 +5044,10 @@ class PurchaseOrderController extends Controller
     public function UpdateUnitPrice(Request $request)
     {
         return PODetailCRUDHelper::UpdateUnitPrice($request);
+    }
+    public function UpdateUnitPriceAfterDiscount(Request $request)
+    {
+        return PODetailCRUDHelper::UpdateUnitPriceAfterDiscount($request);
     }
 
     public function UpdateUnitPriceWithVat(Request $request)
@@ -8682,6 +8690,24 @@ class PurchaseOrderController extends Controller
         if ($request->action == 'calculate_gross_weight') {
             $total_gross_weight = PurchaseOrder::whereIn('id', $request->selected_pos)->sum('total_gross_weight');
             return response()->json(['success' => true, 'total_gross_weight' => $total_gross_weight]);
+        }
+    }
+
+    public function addPoDiscountOnAllItems(Request $request){
+        try {
+            $po = PurchaseOrder::Find($request->id);
+            if($po->status > 14){
+                return response()->json(['received_into_stock' => true]);
+            }
+            $po_items = PurchaseOrderDetail::where('po_id', $request->id)->get();
+            foreach ($po_items as $item) {
+                $new_req = new \Illuminate\Http\Request();
+                $new_req->replace(['rowId' => $item->id, 'po_id' => $item->po_id, 'discount' => $request->discount, 'old_value' => $item->discount]);
+                    $this->SavePoProductDiscount($new_req);
+            }
+            return response()->json(['success' => true, 'msg' => 'Data updated successfully!!!']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'msg' => $e->getMessage()]);
         }
     }
 }

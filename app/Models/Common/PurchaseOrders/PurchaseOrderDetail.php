@@ -82,6 +82,12 @@ class PurchaseOrderDetail extends Model
     {
         return $this->hasMany('App\Models\Common\PurchaseOrders\PurchaseOrdersHistory', 'pod_id', 'id');
     }
+    public function pod_quantity_history()
+    {
+        return $this->hasOne('App\Models\Common\PurchaseOrders\PurchaseOrdersHistory', 'pod_id', 'id')->where(function($q){
+            $q->where('column_name', 'Quantity')->orWhere('column_name', 'QTY Inv');
+        })->orderBy('id', 'asc');
+    }
 
     public function update_stock_card($pod, $new_value)
     {
@@ -268,6 +274,18 @@ class PurchaseOrderDetail extends Model
         return $data;
     }
 
+    public function calculateUnitPriceAfterDiscount($unit_price, $discount)
+    {
+        $data = array();
+        $discount_amount = $unit_price * ( $discount / 100 );
+        $discount_amount = number_format($discount_amount,4,'.','');
+        $pod_unit_price_after_discount = ($unit_price - $discount_amount);
+
+        $data['discount_amount'] = $discount_amount;
+        $data['pod_unit_price_after_discount'] = $pod_unit_price_after_discount;
+        return $data;
+    }
+
     /*grand calculation on each event for Draft PO/TD*/
     public function grandCalculationForPurchaseOrder($po_id)
     {
@@ -290,6 +308,10 @@ class PurchaseOrderDetail extends Model
             $pod_unit_price  = $value->pod_unit_price;
             $unit_price_wd   = $value->quantity * $pod_unit_price - (($value->quantity * $pod_unit_price) * (@$value->discount / 100));
             $value->pod_total_unit_price = $unit_price_wd;
+
+            $cal_pod_unit_price = $value->pod_unit_price;
+            $to_cal_pod_unit_price_after_discount = $this->calculateUnitPriceAfterDiscount($cal_pod_unit_price, $value->discount);
+            $value->pod_unit_price_after_discount = round($to_cal_pod_unit_price_after_discount['pod_unit_price_after_discount'], 2);
 
             $cal_pod_unit_price = $value->pod_unit_price;
             $to_cal_pod_unit_price_with_vat = $this->calculateVat($cal_pod_unit_price, $value->pod_vat_actual);
@@ -768,7 +790,7 @@ class PurchaseOrderDetail extends Model
         return $query;
     }
 
-    public static function returnAddColumn($column, $item) {
+    public static function returnAddColumn($column, $item, $config) {
         switch ($column) {
             case 'weight':
                 if($item->product_id != null)
@@ -806,7 +828,7 @@ class PurchaseOrderDetail extends Model
                 {
                     if($item->PurchaseOrder->status == 12 || $item->PurchaseOrder->status == 13 || $item->PurchaseOrder->status == 14 || $item->PurchaseOrder->status == 26 || $item->PurchaseOrder->status == 27 || $item->PurchaseOrder->status == 29 || $item->PurchaseOrder->status == 30)
                     {
-                        $html = '<span class="inputDoubleClick font-weight-bold" data-fieldvalue="'.$item->discount.'">'.($item->discount != null ? $item->discount : "--" ).'</span><input type="number" name="discount" value="'.$item->discount.'" class="discount form-control input-height d-none" style="width:85%"  maxlength="5" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);">';
+                        $html = '<span class="inputDoubleClick font-weight-bold discount_span_'.$item->id.'" data-fieldvalue="'.$item->discount.'">'.($item->discount != null ? $item->discount : "--" ).'</span><input type="number" name="discount" value="'.$item->discount.'" class="discount form-control input-height d-none discount_field_'.$item->id.'" style="width:85%"  maxlength="5" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);">';
                         return $html.' %';
                     }
                     else
@@ -982,6 +1004,36 @@ class PurchaseOrderDetail extends Model
                     return $item->pod_unit_price !== null ? number_format($item->pod_unit_price,3,'.','').'<span class="ml-2">'.$billed_unit.'</span>' : "--".'<span class="ml-2">'.$supp_curren.' / '.$billed_unit.'</span>';
                 }
                 break;
+            case 'unit_price_after_discount':
+                $billed_unit = $item->product_id !== null ? @$item->product->units->title : 'N.A';
+                $supp_curren = $item->PurchaseOrder->supplier_id !== null ? @$item->PurchaseOrder->PoSupplier->getCurrency->currency_code : '';
+
+                if($item->PurchaseOrder->status == 12 || $item->PurchaseOrder->status == 13 || $item->PurchaseOrder->status == 14 || $item->PurchaseOrder->status == 26 || $item->PurchaseOrder->status == 27 || $item->PurchaseOrder->status == 29 || $item->PurchaseOrder->status == 30)
+                {
+                    $history = $item->pod_histories->where('column_name','Unit Price After Discount')->where('old_value','!=','')->where('old_value','!=','--')->first();
+                    // dd($history);
+                    if($history !== null)
+                    {
+                        $style = 'color:red';
+                    }
+                    else
+                    {
+                        $style = '';
+                    }
+
+                    $html_string = '
+                    <span class="m-l-15 inputDoubleClickQuantity unit_price_after_discount unit_price_after_discount_span_'.$item->id.' mr-2" style="'.$style.'" data-id id="unit_price_after_discount"  data-fieldvalue="'.number_format(@$item->pod_unit_price_after_discount, 3, '.', '').'">';
+                    $html_string .= $item->pod_unit_price_after_discount !== null ? number_format(@$item->pod_unit_price_after_discount, 3, '.', ',') : "--" ;
+                    $html_string .= '</span>';
+                    $html_string .= '<input type="number" style="width:100%;" name="unit_price_after_discount" class="unitfieldFocus d-none form-control input-height unit_price_after_discount_field_'.$item->id.'" min="0" value="'.number_format(@$item->pod_unit_price_after_discount, 3, '.', '').'">';
+                    $html_string .= $supp_curren.' / '.$billed_unit;
+                    return $html_string;
+                }
+                else
+                {
+                    return $item->pod_unit_price_after_discount !== null ? number_format($item->pod_unit_price_after_discount,3,'.','').'<span class="ml-2">'.$billed_unit.'</span>' : "--".'<span class="ml-2">'.$supp_curren.' / '.$billed_unit.'</span>';
+                }
+                break;
 
             case 'billed_unit_per_package':
                 if($item->product_id != null)
@@ -1076,6 +1128,10 @@ class PurchaseOrderDetail extends Model
                     $html_string .= ($item->order_product_id != null ? ($item->order_product->quantity != null ? $item->order_product->quantity : "--").' '.$selling_unit : "--");
                     $html_string .= '</span>';
                     return $html_string;
+                }
+                else if(@$item->pod_quantity_history != null && @$config->server == 'lucilla'){
+                    $billed_unit = $item->product_id !== null ? @$item->product->units->title : 'N.A';
+                    return @$item->pod_quantity_history->new_value.' '.@$billed_unit;
                 }
                 else
                 {
@@ -1245,7 +1301,7 @@ class PurchaseOrderDetail extends Model
                 return $html_string;
                 break;
             case 'current_stock_qty':
-                return $item->getProductStock != null ? @$item->getProductStock->where('warehouse_id', $item->warehouse_id)->first()->current_quantity : '--';
+                return $item->getProductStock != null ? round(@$item->getProductStock->where('warehouse_id', $item->warehouse_id)->first()->current_quantity,3) : '--';
                 break;
 
 

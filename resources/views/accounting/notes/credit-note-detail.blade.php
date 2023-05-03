@@ -2820,6 +2820,31 @@ $(document).on('click','.remove-products',function(e){
     document.getElementById(prod_id).remove();
 });
 
+$(document).on('change', '.return_to_stock_check', function(e){
+
+  var checked = $(this).is(":checked");
+  var id = $(this).data('id');
+  $.ajax({
+    type: "get",
+    dataType: 'json',
+    url: "{{ route('return-stock-from-credit-note') }}",
+    data: 'id='+id+'&checked='+checked,
+    beforeSend: function(){
+      $('#loader_modal').modal({
+        backdrop: 'static',
+        keyboard: false
+      });
+      $("#loader_modal").modal('show');
+    },
+    success: function(response){
+      $("#loader_modal").modal('hide');
+    },
+    error: function(request, status, error){
+      $("#loader_modal").modal('hide');
+    }
+  });
+});
+
 </script>
 @stop
 

@@ -641,6 +641,7 @@ Route::group(['namespace' => 'Purchasing', 'middleware' => 'purchasing'], functi
 
     Route::post('save-dpo-product-desc', 'PurchaseOrderController@SaveDpoProductDesc')->name('save-dpo-product-desc');
     Route::post('save-po-product-discount', 'PurchaseOrderController@SavePoProductDiscount')->name('save-po-product-discount');
+    Route::get('add-po-discount-on-all-items', 'PurchaseOrderController@addPoDiscountOnAllItems')->name('add-po-discount-on-all-items');
     Route::post('save-draft-po-product-quantity', 'PurchaseOrderController@SaveDraftPoProductQuantity')->name('save-draft-po-product-quantity');
     Route::post('save-draft-po-pod-vat-actual-quantity', 'PurchaseOrderController@SaveDraftPoVatActual')->name('save-draft-po-pod-vat-actual-quantity');
     Route::post('update-draft-po-billed-unit-per-package', 'PurchaseOrderController@updateDraftPoBilledUnitPerPackage')->name('update-draft-po-billed-unit-per-package');
@@ -657,6 +658,7 @@ Route::group(['namespace' => 'Purchasing', 'middleware' => 'purchasing'], functi
     Route::post('order-product-supplier-save', 'PurchasingController@orderProductSupplierSave')->name('order-product-supplier-save');
     Route::post('order-product-warehouse-save', 'PurchasingController@orderProductWarehouseSave')->name('order-product-warehouse-save');
     Route::post('update-unit-price', 'PurchaseOrderController@UpdateUnitPrice')->name('update-unit-price');
+    Route::post('update-unit-price-after-discount', 'PurchaseOrderController@UpdateUnitPriceAfterDiscount')->name('update-unit-price-after-discount');
     Route::post('update-unit-price-with-vat', 'PurchaseOrderController@UpdateUnitPriceWithVat')->name('update-unit-price-with-vat');
     Route::post('update-pod-gross-weight-price', 'PurchaseOrderController@updateUnitGrossWeight')->name('update-pod-gross-weight-price');
     Route::post('update-desired-qty', 'PurchaseOrderController@UpdateDesireQty')->name('update-desired-qty');
@@ -2032,6 +2034,8 @@ Route::group(['namespace' => 'Sales', 'prefix' => 'sales', 'middleware' => 'sale
     Route::get('enquiry-item-as-new-product-op', 'OrderController@AddEnquiryItemAsNewOrdPr')->name('enquiry-item-as-new-product-op');
     Route::get('fetch-suppliers-for-inquiry-product', 'OrderController@fetchSuppliersForInquiry')->name('fetch-suppliers-for-inquiry-product');
 
+    //adding discount on all items in draft and quotation orders
+    Route::get('add-discount-on-all-items', 'OrderController@addDiscountOnAllItems')->name('add-discount-on-all-items');
 
     Route::get('cancel-orders', 'OrderController@cancelOrders')->name('cancel-orders');
     Route::get('merge-draft-invoices', 'OrderController@mergeDraftInvoices')->name('merge-draft-invoices');
@@ -2407,6 +2411,8 @@ Route::group(['namespace' => 'Accounting', 'prefix' => 'accounting', 'middleware
     Route::get('delete-debit-note', 'HomeController@deleteDebitNote')->name('delete-debit-note');
 
     Route::get('/get_draft_invoices_dashboard', 'HomeController@getDraftInvoices')->name('get_draft_invoices_dashboard');
+
+    Route::get('/return-stock-from-credit-note', 'HomeController@returnStockFromCreditNote')->name('return-stock-from-credit-note');
 });
 
 Route::group(['middleware' => 'auth'], function () {

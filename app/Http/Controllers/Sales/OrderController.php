@@ -971,7 +971,9 @@ class OrderController extends Controller
                 ->limit(10)
                 ->pluck('product_id')
                 ->toArray();
-                $detail = Product::whereIn('id', $product_ids)->get();
+                $detail = Product::with(['warehouse_products' => function($q) use ($po){
+                    $q->where('warehouse_id', $po->to_warehouse_id);
+                }])->whereIn('id', $product_ids)->get();
 
             } else if($request['query'] == 'default') {
                 // if ($request->page == "draft_Quot") {
@@ -1051,7 +1053,7 @@ class OrderController extends Controller
                         $output .= '<div class="supplier_ref pr-2 ' . $sup_ref_no . '">Sup Ref#</div><div class="pf pr-2 ' . $prod_code . '">' . $product_ref . '</div><div class="supplier pr-2 ' . $sup_ref_name . '">Supplier</div><div class="p_winery pr-2 ' . $brandCls . '">' . $brand . '</div><div class="description pr-2 ' . $prod_desc . '">' . $desc . '</div><div class="p_type pr-2 ' . $prod_type . '">' . $type . '</div><div class="p_notes pr-2 ' . $prod_note . '">' . $note . '</div><span class="rsv pl-2 ' . $rsv . '">Rsv</span><span class="pStock pl-2 ' . $stock . '">Stock</span><span class="aStock pl-2 ' . $available . '">Available</span></a>
               </li>';
                     } elseif ($request->page == "Po" || $request->page == "draft_Po") {
-                        $output .= '<div class="supplier_ref pr-2 ' . $sup_ref_no . '">Sup Ref#</div><div class="pf pr-2 ' . $prod_code . '">' . $product_ref . '</div><div class="supplier pr-2 ' . $sup_ref_name . '">Supplier</div><div class="p_winery pr-2 ' . $brandCls . '">' . $brand . '</div><div class="description pr-2 ' . $prod_desc . '">' . $desc . '</div><div class="p_type pr-2 ' . $prod_type . '">' . $type . '</div><div class="p_notes pr-2 ' . $prod_note . '">' . $note . '</div></a>
+                        $output .= '<div class="supplier_ref pr-2 ' . $sup_ref_no . '">Sup Ref#</div><div class="pf pr-2 ' . $prod_code . '">' . $product_ref . '</div><div class="supplier pr-2 ' . $sup_ref_name . '">Supplier</div><div class="p_winery pr-2 ' . $brandCls . '">' . $brand . '</div><div class="description pr-2 ' . $prod_desc . '">' . $desc . '</div><div class="p_type pr-2 ' . $prod_type . '">' . $type . '</div><div class="p_notes pr-2 ' . $prod_note . '">' . $note . '</div><div>Stock</div></a>
               </li>';
                     }
                 }
@@ -1084,7 +1086,7 @@ class OrderController extends Controller
 
                             $output .= ('<div class="supplier_ref pr-2 ' . $sup_ref_no . '">' . ($row->s_product_supplier_reference_no != null ? $row->s_product_supplier_reference_no : "-") . '</div><div class="pf pr-2 ' . $prod_code . '">' . $row->refrence_code . '</div><div class="supplier pr-2 ' . $sup_ref_name . '">' . @$getSupplierName->reference_name . '</div><div class="p_winery pr-2 ' . $brandCls . '">' . ($row->brand != null ? $row->brand : "-") . '</div><div class="description pr-2 ' . $prod_desc . '">' . $row->short_desc) . '</div><div class="p_type pr-2 ' . $prod_type . '">' . ($row->type_id != null ? $row->productType->title : "N.A") . '</div><div class="p_notes pr-2 ' . $prod_note . '">' . ($row->product_notes != null ? $row->product_notes : "-") . '</div><span class="rsv pl-2 ' . $rsv . '">' . round(@$order_products, 3) . '</span><span class="pStock pl-2 ' . $stock . '">' . (@$warehouse_products->current_quantity != null ? round(@$warehouse_products->current_quantity, 3) : 0) . '</span><span class="aStock pl-2 ' . @$available . '">' . (@$warehouse_products->available_quantity != null ? round(@$warehouse_products->available_quantity, 3) : 0) . '</span>';
                         } elseif ($request->page == "Po" || $request->page == "draft_Po") {
-                            $output .= ('<div class="supplier_ref pr-2 ' . $sup_ref_no . '">' . ($row->s_product_supplier_reference_no != null ? $row->s_product_supplier_reference_no : "-") . '</div><div class="pf pr-2 ' . $prod_code . '">' . $row->refrence_code . '</div><div class="supplier pr-2 ' . $sup_ref_name . '">' . @$getSupplierName->reference_name . '</div><div class="p_winery pr-2 ' . $brandCls . '">' . ($row->brand != null ? $row->brand : "-") . '</div><div class="description pr-2 ' . $prod_desc . '">' . $row->short_desc) . '</div><div class="p_type pr-2 ' . $prod_type . '">' . ($row->type_id != null ? $row->productType->title : "N.A") . '</div><div class="p_notes pr-2 ' . $prod_note . '">' . ($row->product_notes != null ? $row->product_notes : "-") . '</div>';
+                            $output .= ('<div class="supplier_ref pr-2 ' . $sup_ref_no . '">' . ($row->s_product_supplier_reference_no != null ? $row->s_product_supplier_reference_no : "-") . '</div><div class="pf pr-2 ' . $prod_code . '">' . $row->refrence_code . '</div><div class="supplier pr-2 ' . $sup_ref_name . '">' . @$getSupplierName->reference_name . '</div><div class="p_winery pr-2 ' . $brandCls . '">' . ($row->brand != null ? $row->brand : "-") . '</div><div class="description pr-2 ' . $prod_desc . '">' . $row->short_desc) . '</div><div class="p_type pr-2 ' . $prod_type . '">' . ($row->type_id != null ? $row->productType->title : "N.A") . '</div><div class="p_notes pr-2 ' . $prod_note . '">' . ($row->product_notes != null ? $row->product_notes : "-") . '</div><div style="position: relative;"><span style="position: absolute; right: -100%;">'.round(@$row->warehouse_products[0]->current_quantity,2).'</span></div>';
                         }
                         $output .= '</a></li>';
                     }
@@ -6595,6 +6597,33 @@ class OrderController extends Controller
             return response()->json(['success' => true, 'msg' => 'Merged successfully', 'url' => $url]);
         } catch (\Exception $e) {
             \DB::rollBack();
+            return response()->json(['success' => false, 'msg' => $e->getMessage()]);
+        }
+    }
+
+    public function addDiscountOnAllItems(Request $request){
+        // dd($request->all());
+        try {
+            if($request->page == 'draft'){
+                $draft_products = DraftQuotationProduct::where('draft_quotation_id', $request->id)->get();
+                foreach ($draft_products as $prod) {
+                    $new_req = new \Illuminate\Http\Request();
+                    $new_req->replace(['draft_quotation_id' => $prod->id, 'discount' => $request->discount, 'old_value' => $prod->discount]);
+                    $this->UpdateQuotationData($new_req);
+                }
+            }
+
+            if($request->page == 'quotation'){
+                $order_products = OrderProduct::where('order_id', $request->id)->get();
+                foreach ($order_products as $prod) {
+                    $new_req = new \Illuminate\Http\Request();
+                    $new_req->replace(['order_id' => $prod->id, 'discount' => $request->discount, 'old_value' => $prod->discount]);
+                    $this->UpdateOrderQuotationData($new_req);
+                }
+            }
+
+            return response()->json(['success' => true, 'msg' => 'Data updated successfully!!!']);
+        } catch (\Exception $e) {
             return response()->json(['success' => false, 'msg' => $e->getMessage()]);
         }
     }

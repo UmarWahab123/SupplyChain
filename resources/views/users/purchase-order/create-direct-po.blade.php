@@ -175,10 +175,10 @@ use Carbon\Carbon;
       {{ $draft_po->getSupplier->address_line_1.' '.$draft_po->getSupplier->address_line_2 }},
       @endif
       @if($draft_po->getSupplier->country !== null)
-      {{ $draft_po->getSupplier->getcountry->name }},
+      {{ @$draft_po->getSupplier->getcountry->name }},
       @endif
       @if($draft_po->getSupplier->state !== null)
-      {{ $draft_po->getSupplier->getstate->name }},
+      {{ @$draft_po->getSupplier->getstate->name }},
       @endif
       @if($draft_po->getSupplier->city !== null)
       {{ $draft_po->getSupplier->city }},
@@ -215,10 +215,10 @@ use Carbon\Carbon;
       {{ $draft_po->getFromWarehoue->getCompany->billing_address }},
       @endif
       @if($draft_po->getFromWarehoue->getCompany->getcountry !== null)
-      {{ $draft_po->getFromWarehoue->getCompany->getcountry->name }},
+      {{ @$draft_po->getFromWarehoue->getCompany->getcountry->name }},
       @endif
       @if($draft_po->getFromWarehoue->getCompany->getstate !== null)
-      {{ $draft_po->getFromWarehoue->getCompany->getstate->name }},
+      {{ @$draft_po->getFromWarehoue->getCompany->getstate->name }},
       @endif
       @if($draft_po->getFromWarehoue->getCompany->city !== null)
       {{ $draft_po->getFromWarehoue->getCompany->city }},
@@ -578,6 +578,9 @@ use Carbon\Carbon;
               <span class="arrow_down sorting_filter_table" data-order="1" data-column_name="avg_units_for_sales">
                 <img src="{{url('public/svg/down.svg')}}" alt="down" style="width:10px; height:10px; cursor: pointer;">
               </span>
+          </th>
+          <th @if(in_array(26,$hidden_columns_by_admin)) class="noVis" @endif>
+            Current Stock <br> QTY
           </th>
       </tr>
       </thead>
@@ -1162,6 +1165,7 @@ $hidden_by_default = '';
         { data: 'order_no', name: 'order_no' },
         { data: 'gross_weight', name: 'gross_weight' },
         { data: 'weight', name: 'weight' },
+        { data: 'current_stock_qty', name: 'current_stock_qty' },
     ],
     drawCallback: function(){
       $('#loader_modal').modal('hide');

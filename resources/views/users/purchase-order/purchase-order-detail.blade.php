@@ -690,6 +690,9 @@ use Carbon\Carbon;
               </span>
           </th>
           <th @if(in_array(20,$hidden_columns_by_admin)) class="noVis" @endif>Discount
+            @if($status < 14)
+            <br><a href="javascript:void(0)" class="fa fa-plus" title="Add same discount on all items" data-toggle="modal" data-target="#addDiscountOnAllItems"></a>
+            @endif
             <span class="arrow_up sorting_filter_table" data-order="2" data-column_name="discount">
                 <img src="{{url('public/svg/up.svg')}}" alt="up" style="width:10px; height:10px; cursor: pointer;">
               </span>
@@ -724,6 +727,7 @@ use Carbon\Carbon;
               </span>
           </th>
           <th @if(in_array(26,$hidden_columns_by_admin)) class="noVis" @endif>Current Stock <br>QTY</th>
+          <th @if(in_array(27,$hidden_columns_by_admin)) class="noVis" @endif>Unit Price After<br>Discount (EUR)</th>
         </tr>
       </thead>
     </table>
@@ -1022,6 +1026,36 @@ use Carbon\Carbon;
             <button class="btn btn-info product-upload-btn" type="submit">Upload</button>
           </form>
         </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+  <!-- Add discount on all items Modal -->
+<div class="modal" id="addDiscountOnAllItems">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Add Same Discount On All Items</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <div class="row">
+          <div class="col">
+            <input type="text" class="form-control overall-discount-input" pattern="\d+(\.\d{1,2})?" placeholder="Enter discount e.g. 80" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary btn-sm add-discount-on-all-items">Add</button>
       </div>
 
     </div>
@@ -1547,6 +1581,7 @@ $('#add_notes_modal').on('hidden.bs.modal', function () {
         { data: 'order_no', name: 'order_no' },
         { data: 'weight', name: 'weight' },
         { data: 'current_stock_qty', name: 'current_stock_qty' },
+        { data: 'unit_price_after_discount', name: 'unit_price_after_discount' },
       ],
       createdRow: function (row, data, index) {
       if (is_clear) {
@@ -2069,6 +2104,9 @@ $('#add_notes_modal').on('hidden.bs.modal', function () {
                     $('.unit_price_span_'+data.id).html(data.unit_price);
                     $('.unit_price_span_'+data.id).attr('data-fieldvalue',data.unit_price);
                     $('.unit_price_field_'+data.id).val(data.unit_price);
+                    $('.unit_price_after_discount_span_'+data.id).html(data.unit_price_after_discount);
+                    $('.unit_price_after_discount_span_'+data.id).attr('data-fieldvalue',data.unit_price_after_discount);
+                    $('.unit_price_after_discount_field_'+data.id).val(data.unit_price_after_discount);
                     $('.unit_price_with_vat_span_'+data.id).html(data.unit_price_w_vat);
                     $('.unit_price_with_vat_span_'+data.id).attr('data-fieldvalue',data.unit_price_w_vat);
                     $('.unit_price_with_vat_field_'+data.id).val(data.unit_price_w_vat);
@@ -2170,6 +2208,9 @@ $('#add_notes_modal').on('hidden.bs.modal', function () {
                 $('.unit_price_span_'+data.id).html(data.unit_price);
                 $('.unit_price_span_'+data.id).attr('data-fieldvalue',data.unit_price);
                 $('.unit_price_field_'+data.id).val(data.unit_price);
+                $('.unit_price_after_discount_span_'+data.id).html(data.unit_price_after_discount);
+                $('.unit_price_after_discount_span_'+data.id).attr('data-fieldvalue',data.unit_price_after_discount);
+                $('.unit_price_after_discount_field_'+data.id).val(data.unit_price_after_discount);
                 $('.unit_price_with_vat_span_'+data.id).html(data.unit_price_w_vat);
                 $('.unit_price_with_vat_span_'+data.id).attr('data-fieldvalue',data.unit_price_w_vat);
                 $('.unit_price_with_vat_field_'+data.id).val(data.unit_price_w_vat);
@@ -2249,6 +2290,9 @@ $('#add_notes_modal').on('hidden.bs.modal', function () {
                 $('.unit_price_span_'+data.id).html(data.unit_price);
                 $('.unit_price_span_'+data.id).attr('data-fieldvalue',data.unit_price);
                 $('.unit_price_field_'+data.id).val(data.unit_price);
+                $('.unit_price_after_discount_span_'+data.id).html(data.unit_price_after_discount);
+                $('.unit_price_after_discount_span_'+data.id).attr('data-fieldvalue',data.unit_price_after_discount);
+                $('.unit_price_after_discount_field_'+data.id).val(data.unit_price_after_discount);
                 $('.unit_price_with_vat_span_'+data.id).html(data.unit_price_w_vat);
                 $('.unit_price_with_vat_span_'+data.id).attr('data-fieldvalue',data.unit_price_w_vat);
                 $('.unit_price_with_vat_field_'+data.id).val(data.unit_price_w_vat);
@@ -2335,6 +2379,10 @@ $('#add_notes_modal').on('hidden.bs.modal', function () {
                   $('.unit_price_with_vat_span_'+data.id).css("color","red");
                   $('.unit_price_span_'+data.id).css("color","red");
                 }
+                $('.unit_price_after_discount_span_'+data.id).html(data.unit_price_after_discount);
+                $('.unit_price_after_discount_span_'+data.id).attr('data-fieldvalue',data.unit_price_after_discount);
+                $('.unit_price_after_discount_field_'+data.id).val(data.unit_price_after_discount);
+
                 $('.unit_price_with_vat_span_'+data.id).html(data.unit_price_w_vat);
                 $('.unit_price_with_vat_span_'+data.id).attr('data-fieldvalue',data.unit_price_w_vat);
                 $('.unit_price_with_vat_field_'+data.id).val(data.unit_price_w_vat);
@@ -2354,6 +2402,107 @@ $('#add_notes_modal').on('hidden.bs.modal', function () {
                 $('.desired_qty_span_'+data.id).attr('data-fieldvalue',data.desired_qty);
                 $('.desired_qty_field_'+data.id).val(data.desired_qty);
 
+              }
+              $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
+              // $('.table-purchase-order-history').DataTable().ajax.reload();
+
+            },
+            error: function(request, status, error){
+              $("#loader_modal").modal('hide');
+            }
+          });
+        }
+      }
+
+      // unit price after discount
+      if ($(this).attr('name') == 'unit_price_after_discount')
+      {
+        if ($(this).val() !== '' && $(this).hasClass('active'))
+        {
+          var old_value = $(this).prev().html();
+
+          $(this).prev().html($(this).val());
+          $(this).removeClass('active');
+          $(this).addClass('d-none');
+          $(this).prev().removeClass('d-none');
+
+          $.ajaxSetup({
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="_token"]').attr('content')
+            }
+          });
+
+          $.ajax({
+            type: "post",
+            url: "{{ route('update-unit-price-after-discount') }}",
+            dataType: 'json',
+            data: 'rowId=' + rowId + '&' + 'po_id=' + po_id + '&' + attr_name + '=' + $(this).val() + '&' + 'old_value=' + old_value,
+            beforeSend: function() {
+              // $('#loader_modal').modal({
+              //   backdrop: 'static',
+              //   keyboard: false
+              // });
+              // $('#loader_modal').modal('show');
+            },
+            success: function(data) {
+              $('#loader_modal').modal('hide');
+              if (data.success == true) {
+                toastr.success('Success!', 'Unit Price After Discount Updated Successfully.', {
+                  "positionClass": "toast-bottom-right"
+                });
+                // $('.po-porducts-details').DataTable().ajax.reload();
+                var sub_total_value = data.sub_total.toFixed(3);
+                $('.sub-total').html(sub_total_value);
+                $('#sub_total').val(sub_total_value);
+                var vat_total_amount = data.vat_amout.toFixed(3);
+                $('.vat-amount').html(vat_total_amount);
+
+                var amount_with_vat = data.total_w_v.toFixed(3);
+                $('.amount-with-vat').html(amount_with_vat);
+
+                $('.amount_'+data.id).html(data.total_amount_wo_vat);
+                $('.amount_with_vat_'+data.id).html(data.total_amount_w_vat);
+                $('.unit_price_span_'+data.id).html(data.unit_price);
+                $('.unit_price_span_'+data.id).attr('data-fieldvalue',data.unit_price);
+                $('.unit_price_field_'+data.id).val(data.unit_price);
+                if(data.old_value !== '' && data.old_value !== null && data.old_value !== '--')
+                {
+                  $('.unit_price_with_vat_span_'+data.id).css("color","red");
+                  $('.unit_price_span_'+data.id).css("color","red");
+                }
+
+                $('.discount_span_'+data.id).html(data.discount);
+                $('.discount_span_'+data.id).attr('data-fieldvalue',data.discount);
+                $('.discount_field_'+data.id).val(data.discount);
+
+                $('.unit_price_after_discount_span_'+data.id).html(data.unit_price_after_discount);
+                $('.unit_price_after_discount_span_'+data.id).attr('data-fieldvalue',data.unit_price_after_discount);
+                $('.unit_price_after_discount_field_'+data.id).val(data.unit_price_after_discount);
+
+                $('.unit_price_with_vat_span_'+data.id).html(data.unit_price_w_vat);
+                $('.unit_price_with_vat_span_'+data.id).attr('data-fieldvalue',data.unit_price_w_vat);
+                $('.unit_price_with_vat_field_'+data.id).val(data.unit_price_w_vat);
+
+                $('.unit_gross_weight_'+data.id).html(data.unit_gross_weight);
+                $('.unit_gross_weight_'+data.id).attr('data-fieldvalue',data.unit_gross_weight);
+                $('.unit_gross_weight_field_'+data.id).val(data.unit_gross_weight);
+
+                $('.total_gross_weight_'+data.id).html(data.total_gross_weight);
+                $('.total_gross_weight_'+data.id).attr('data-fieldvalue',data.total_gross_weight);
+
+                $('.quantity_span_'+data.id).html(data.quantity);
+                $('.quantity_span_'+data.id).attr('data-fieldvalue',data.quantity);
+                $('.quantity_field_'+data.id).val(data.quantity);
+
+                $('.desired_qty_span_'+data.id).html(data.desired_qty);
+                $('.desired_qty_span_'+data.id).attr('data-fieldvalue',data.desired_qty);
+                $('.desired_qty_field_'+data.id).val(data.desired_qty);
+
+              }
+              if(data.success == false){
+                toastr.error('Sorry!', data.msg, {
+                  "positionClass": "toast-bottom-right"
+                });
               }
               $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
               // $('.table-purchase-order-history').DataTable().ajax.reload();
@@ -2418,6 +2567,9 @@ $('#add_notes_modal').on('hidden.bs.modal', function () {
                 $('.unit_price_span_'+data.id).html(data.unit_price);
                 $('.unit_price_span_'+data.id).attr('data-fieldvalue',data.unit_price);
                 $('.unit_price_field_'+data.id).val(data.unit_price);
+                $('.unit_price_after_discount_span_'+data.id).html(data.unit_price_after_discount);
+                $('.unit_price_after_discount_span_'+data.id).attr('data-fieldvalue',data.unit_price_after_discount);
+                $('.unit_price_after_discount_field_'+data.id).val(data.unit_price_after_discount);
                 $('.unit_price_with_vat_span_'+data.id).html(data.unit_price_w_vat);
                 $('.unit_price_with_vat_span_'+data.id).attr('data-fieldvalue',data.unit_price_w_vat);
                 $('.unit_price_with_vat_field_'+data.id).val(data.unit_price_w_vat);
@@ -2510,6 +2662,9 @@ $('#add_notes_modal').on('hidden.bs.modal', function () {
                 $('.unit_price_span_'+data.id).html(data.unit_price);
                 $('.unit_price_span_'+data.id).attr('data-fieldvalue',data.unit_price);
                 $('.unit_price_field_'+data.id).val(data.unit_price);
+                $('.unit_price_after_discount_span_'+data.id).html(data.unit_price_after_discount);
+                $('.unit_price_after_discount_span_'+data.id).attr('data-fieldvalue',data.unit_price_after_discount);
+                $('.unit_price_after_discount_field_'+data.id).val(data.unit_price_after_discount);
                 $('.unit_price_with_vat_span_'+data.id).html(data.unit_price_w_vat);
                 $('.unit_price_with_vat_span_'+data.id).attr('data-fieldvalue',data.unit_price_w_vat);
                 $('.unit_price_with_vat_field_'+data.id).val(data.unit_price_w_vat);
@@ -2601,6 +2756,9 @@ $('#add_notes_modal').on('hidden.bs.modal', function () {
                 $('.unit_price_span_'+data.id).html(data.unit_price);
                 $('.unit_price_span_'+data.id).attr('data-fieldvalue',data.unit_price);
                 $('.unit_price_field_'+data.id).val(data.unit_price);
+                $('.unit_price_after_discount_span_'+data.id).html(data.unit_price_after_discount);
+                $('.unit_price_after_discount_span_'+data.id).attr('data-fieldvalue',data.unit_price_after_discount);
+                $('.unit_price_after_discount_field_'+data.id).val(data.unit_price_after_discount);
                 $('.unit_price_with_vat_span_'+data.id).html(data.unit_price_w_vat);
                 $('.unit_price_with_vat_span_'+data.id).attr('data-fieldvalue',data.unit_price_w_vat);
                 $('.unit_price_with_vat_field_'+data.id).val(data.unit_price_w_vat);
@@ -2679,6 +2837,9 @@ $('#add_notes_modal').on('hidden.bs.modal', function () {
                 $('.unit_price_span_'+data.id).html(data.unit_price);
                 $('.unit_price_span_'+data.id).attr('data-fieldvalue',data.unit_price);
                 $('.unit_price_field_'+data.id).val(data.unit_price);
+                $('.unit_price_after_discount_span_'+data.id).html(data.unit_price_after_discount);
+                $('.unit_price_after_discount_span_'+data.id).attr('data-fieldvalue',data.unit_price_after_discount);
+                $('.unit_price_after_discount_field_'+data.id).val(data.unit_price_after_discount);
                 $('.unit_price_with_vat_span_'+data.id).html(data.unit_price_w_vat);
                 $('.unit_price_with_vat_span_'+data.id).attr('data-fieldvalue',data.unit_price_w_vat);
                 $('.unit_price_with_vat_field_'+data.id).val(data.unit_price_w_vat);
@@ -4083,8 +4244,68 @@ $(document).ready(function(){
         if (e.keyCode == 13 && !$('#prod_name').is(':focus') && $('.addProductModal').is(":visible") && product_ids_array.length != 0) {
             $(".add_product_to").trigger('click');
         }
-    })
-})
+    });
+    // When a key is pressed in the discount input field
+  $('.overall-discount-input').on('keypress', function(e) {
+    // Get the current value of the input field
+    var currentValue = $(this).val();
+    // Get the key that was pressed
+    var keyPressed = e.which;
+    // Only allow numbers, decimal point, and backspace
+    if ((keyPressed < 48 || keyPressed > 57) && keyPressed != 46 && keyPressed != 8) {
+      e.preventDefault();
+    }
+    // Only allow one decimal point
+    if (keyPressed == 46 && currentValue.indexOf('.') != -1) {
+      e.preventDefault();
+    }
+    // Only allow up to two decimal places
+    if (currentValue.indexOf('.') != -1 && currentValue.split('.')[1].length >= 2) {
+      e.preventDefault();
+    }
+  });
+
+  $(document).on('click', '.add-discount-on-all-items', function(e){
+    var discount = $('.overall-discount-input').val();
+    // alert(discount);
+    if(!discount || discount == ''){
+      toastr.warning('Please!', 'Enter a valid discount !!!',{"positionClass": "toast-bottom-right"});
+      return false;
+    }
+    var id = '{{$id}}';
+    alert(id);
+    $.ajax({
+        method: "get",
+        url: "{{route('add-po-discount-on-all-items')}}",
+        data: 'id='+id+'&page=draft&discount='+discount,
+        beforeSend: function() {
+            $("#loader_modal").modal('show');
+            $('.add-discount-on-all-items').attr('disabled', true);
+            $('.add-discount-on-all-items').html('Please wait...');
+        },
+        success: function(data) {
+            if (data.success == true) {
+                $("#loader_modal").modal('hide');
+                toastr.success('Success!', 'Data updated successfully !!!',{"positionClass": "toast-bottom-right"});
+                location.reload();
+                return true;
+            }
+            if(data.received_into_stock == true){
+              toastr.info('Sorry!', 'Cannot add discount PO already received into stock !!!',{"positionClass": "toast-bottom-right"});
+                location.reload();
+                return false;
+            }
+            $('.add-discount-on-all-items').attr('disabled', false);
+            $('.add-discount-on-all-items').html('Add');
+            toastr.error('Sorry!', 'Something went wrong. Try again !!!',{"positionClass": "toast-bottom-right"});
+            return false;
+        },
+        error: function(request, status, error) {
+            $("#loader_modal").modal('hide');
+        }
+    });
+  });
+});
 </script>
 
 <script src="{{ asset('public\site\assets\backend\js\excel-export-ajax.js') }}"></script>
