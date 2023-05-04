@@ -2969,7 +2969,7 @@ Route::get('/simple-excel',function(){
 Route::get('/invoice-with-quantity-difference',function(){
 	$invoices = OrderProduct::whereHas('get_order',function($or){
 		$or->where('primary_status',3);
-	})->get();
+	})->where('created_at','>','2023-04-30')->get();
 	$ids = [];
 	$html = '<table style="width:100%;text-align:center;">
 		      	<thead>
