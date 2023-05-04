@@ -2967,8 +2967,8 @@ Route::get('/simple-excel',function(){
 	return \Storage::disk('public')->download('export.csv');
 	});
 Route::get('/invoice-with-quantity-difference',function(){
-	$invoices = OrderProduct::where('is_billed', 'Product')->where('created_at','>','2023-04-30')->whereHas('get_order',function($or){
-		$or->where('primary_status',3);
+	$invoices = OrderProduct::where('is_billed', 'Product')->whereHas('get_order',function($or){
+		$or->where('primary_status',3)->where('converted_to_invoice_on','>','2023-04-30');
 	})->paginate(100);
 	$ids = [];
 	$html = '<table style="width:100%;text-align:center;">
