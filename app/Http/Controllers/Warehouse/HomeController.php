@@ -2503,11 +2503,11 @@ class HomeController extends Controller
                             $stock->save();
                         }
                         if ($stock != null) {
-                            ConfirmPickInstructionStockJob::dispatch($stock, $order_product, '-'.$order_product->qty_shipped, $warehouse_id, auth()->user()->id, null);
+                            // ConfirmPickInstructionStockJob::dispatch($stock, $order_product, '-'.$order_product->qty_shipped, $warehouse_id, auth()->user()->id, null);
 
-                            // $stock_out = StockManagementOut::addManualAdjustment($stock, $order_product, '-'.$order_product->qty_shipped, $warehouse_id, null, true);
+                            $stock_out = StockManagementOut::addManualAdjustment($stock, $order_product, '-'.$order_product->qty_shipped, $warehouse_id, null, true);
 
-                            // $find_stock_from_which_order_deducted = StockManagementOut::findStockFromWhicOrderIsDeducted('-'.$order_product->qty_shipped, $stock, $stock_out, $order_product);
+                            $find_stock_from_which_order_deducted = StockManagementOut::findStockFromWhicOrderIsDeducted('-'.$order_product->qty_shipped, $stock, $stock_out, $order_product);
 
                             // $stock_out = new StockManagementOut;
                             // $stock_out->smi_id = $stock->id;
@@ -2558,10 +2558,10 @@ class HomeController extends Controller
                             if ($balance > 0) {
                                 $inStock = $balance - $shipped;
                                 if ($inStock >= 0) {
-                                    ConfirmPickInstructionStockJob::dispatch($st, $order_product, '-'.$shipped, $warehouse_id, auth()->user()->id, null);
+                                    // ConfirmPickInstructionStockJob::dispatch($st, $order_product, '-'.$shipped, $warehouse_id, auth()->user()->id, null);
 
-                                    // $stock_out = StockManagementOut::addManualAdjustment($st, $order_product, '-'.$shipped, $warehouse_id, null, true);
-                                    // $find_stock_from_which_order_deducted = StockManagementOut::findStockFromWhicOrderIsDeducted('-'.$shipped, $st, $stock_out, $order_product);
+                                    $stock_out = StockManagementOut::addManualAdjustment($st, $order_product, '-'.$shipped, $warehouse_id, null, true);
+                                    $find_stock_from_which_order_deducted = StockManagementOut::findStockFromWhicOrderIsDeducted('-'.$shipped, $st, $stock_out, $order_product);
 
                                     // $stock_out = new StockManagementOut;
                                     // $stock_out->smi_id = $st->id;
@@ -2602,10 +2602,10 @@ class HomeController extends Controller
                                     $shipped = 0;
                                     break;
                                 } else {
-                                    ConfirmPickInstructionStockJob::dispatch($st, $order_product, '-'.$balance, $warehouse_id, auth()->user()->id, null);
+                                    // ConfirmPickInstructionStockJob::dispatch($st, $order_product, '-'.$balance, $warehouse_id, auth()->user()->id, null);
 
-                                    // $stock_out = StockManagementOut::addManualAdjustment($st, $order_product, '-'.$balance, $warehouse_id, null, true);
-                                    // $find_stock_from_which_order_deducted = StockManagementOut::findStockFromWhicOrderIsDeducted('-'.$balance, $st, $stock_out, $order_product);
+                                    $stock_out = StockManagementOut::addManualAdjustment($st, $order_product, '-'.$balance, $warehouse_id, null, true);
+                                    $find_stock_from_which_order_deducted = StockManagementOut::findStockFromWhicOrderIsDeducted('-'.$balance, $st, $stock_out, $order_product);
 
                                     // $stock_out = new StockManagementOut;
                                     // $stock_out->smi_id = $st->id;
@@ -2663,9 +2663,9 @@ class HomeController extends Controller
                                 $stock->save();
                             }
 
-                            ConfirmPickInstructionStockJob::dispatch($stock, $order_product, '-'.$shipped, $warehouse_id, auth()->user()->id, null);
-                            // $stock_out = StockManagementOut::addManualAdjustment($stock, $order_product, '-'.$shipped, $warehouse_id, null, true);
-                            // $find_stock_from_which_order_deducted = StockManagementOut::findStockFromWhicOrderIsDeducted('-'.$shipped, $stock, $stock_out, $order_product);
+                            // ConfirmPickInstructionStockJob::dispatch($stock, $order_product, '-'.$shipped, $warehouse_id, auth()->user()->id, null);
+                            $stock_out = StockManagementOut::addManualAdjustment($stock, $order_product, '-'.$shipped, $warehouse_id, null, true);
+                            $find_stock_from_which_order_deducted = StockManagementOut::findStockFromWhicOrderIsDeducted('-'.$shipped, $stock, $stock_out, $order_product);
 
                             // //To find from which stock the order will be deducted
                             // $find_stock = $stock->stock_out()->whereNotNull('quantity_in')->where('available_stock', '>', 0)->orderBy('id', 'asc')->get();
