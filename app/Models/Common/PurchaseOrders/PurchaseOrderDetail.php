@@ -2,21 +2,22 @@
 
 namespace App\Models\Common\PurchaseOrders;
 
-use DB;
-use Auth;
-use Carbon\Carbon;
-use App\QuotationConfig;
 use App\Helpers\MyHelper;
-use App\Models\Common\PoGroup;
-use App\Models\Common\Product;
-use App\Models\Common\SupplierProducts;
-use App\Models\Common\WarehouseProduct;
-use Illuminate\Database\Eloquent\Model;
 use App\Helpers\QuantityReservedHistory;
-use App\TransferDocumentReservedQuantity;
+use App\Models\Common\PoGroup;
+use App\Models\Common\PoGroupProductDetail;
+use App\Models\Common\Product;
 use App\Models\Common\PurchaseOrders\PurchaseOrder;
 use App\Models\Common\PurchaseOrders\PurchaseOrdersHistory;
+use App\Models\Common\SupplierProducts;
+use App\Models\Common\WarehouseProduct;
 use App\Models\Sales\Customer;
+use App\QuotationConfig;
+use App\TransferDocumentReservedQuantity;
+use Auth;
+use Carbon\Carbon;
+use DB;
+use Illuminate\Database\Eloquent\Model;
 
 
 class PurchaseOrderDetail extends Model
@@ -1364,6 +1365,7 @@ class PurchaseOrderDetail extends Model
 
 
     public static function returnAddColumnPurchasingReportDetail($column, $item) {
+        $po_group_product_detail = PoGroupProductDetail::where('status', 1)->where('po_group_id', @$item->PurchaseOrder->po_group_id)->where('supplier_id', @$item->PurchaseOrder->supplier_id)->where('product_id', $item->product_id)->first();
         switch ($column) {
             case 'custom_line_number':
                 $po_group = $item->PurchaseOrder->po_group_id !== null ? $item->PurchaseOrder->po_group : null;
@@ -1394,14 +1396,25 @@ class PurchaseOrderDetail extends Model
                 break;
 
             case 'import_tax_actual':
+                if($po_group_product_detail){
+                    return round(@$po_group_product_detail->actual_tax_percent,4) ?? 0;
+                }
                 return $item->product_id !== null ? ($item->product->supplier_products->where('supplier_id',$item->product->supplier_id)->first()->import_tax_actual !== null ? number_format((float) $item->product->supplier_products->where('supplier_id',$item->product->supplier_id)->first()->import_tax_actual, 3, '.', ',') : '--') : 'N.A';
                 break;
 
             case 'landing':
+                if($po_group_product_detail){
+                    return round(@$po_group_product_detail->landing,4) ?? 0;
+                }
                 return $item->product_id !== null ? ($item->product->supplier_products->where('supplier_id',$item->product->supplier_id)->first()->landing !== null ? number_format((float) $item->product->supplier_products->where('supplier_id',$item->product->supplier_id)->first()->landing, 3, '.', ',') : '--') : 'N.A';
                 break;
 
             case 'freight':
+            // dd($po_group_product_detail);
+                if($po_group_product_detail){
+                    return round(@$po_group_product_detail->freight,4) ?? 0;
+                }
+
                 return $item->product_id !== null ? ($item->product->supplier_products->where('supplier_id',$item->product->supplier_id)->first()->freight !== null ? number_format((float) $item->product->supplier_products->where('supplier_id',$item->product->supplier_id)->first()->freight, 3, '.', ',') : '--') : 'N.A';
                 break;
             case 'vat':

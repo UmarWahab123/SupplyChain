@@ -2,13 +2,14 @@
 
 namespace App\Exports;
 
+use App\Models\Common\PoGroupProductDetail;
+use Carbon\Carbon;
+use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithEvents;
-use Maatwebsite\Excel\Events\AfterSheet;
-use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
-use Carbon\Carbon;
+use Maatwebsite\Excel\Events\AfterSheet;
 
 class purchasingReportExport implements FromQuery, ShouldAutoSize, WithHeadings, WithMapping, WithEvents
 {
@@ -34,6 +35,7 @@ class purchasingReportExport implements FromQuery, ShouldAutoSize, WithHeadings,
 
     public function map($item) : array
     {
+        $po_group_product_detail = PoGroupProductDetail::where('status', 1)->where('po_group_id', @$item->PurchaseOrder->po_group_id)->where('supplier_id', @$item->PurchaseOrder->supplier_id)->where('product_id', $item->product_id)->first();
         $product_detail_section = $this->product_detail_section;
         if($item->PurchaseOrder->confirm_date !== null)
         {
@@ -61,7 +63,10 @@ class purchasingReportExport implements FromQuery, ShouldAutoSize, WithHeadings,
             $product_type_3 = @$item->product->productType3 != null ? @$item->product->productType3->title : 'N.A';
             $billing_unit = $item->product->units->title;
             $unit_mes_code = $item->product->sellingUnits->title;
-            if($item->product->supplier_products->where('supplier_id',$item->product->supplier_id)->first()->freight !== null)
+            if($po_group_product_detail){
+                    $fright = round(@$po_group_product_detail->freight,4) ?? 0;
+            }
+            else if($item->product->supplier_products->where('supplier_id',$item->product->supplier_id)->first()->freight !== null)
             {
                 $fright = number_format((float) $item->product->supplier_products->where('supplier_id',$item->product->supplier_id)->first()->freight, 3, '.', ',');
             }
@@ -69,8 +74,10 @@ class purchasingReportExport implements FromQuery, ShouldAutoSize, WithHeadings,
             {
                 $fright = '--';
             }
-
-            if($item->product->supplier_products->where('supplier_id',$item->product->supplier_id)->first()->landing !== null)
+            if($po_group_product_detail){
+                    $landing = round(@$po_group_product_detail->landing,4) ?? 0;
+            }
+            else if($item->product->supplier_products->where('supplier_id',$item->product->supplier_id)->first()->landing !== null)
             {
                 $landing = number_format((float) $item->product->supplier_products->where('supplier_id',$item->product->supplier_id)->first()->landing, 3, '.', ',');
             }
@@ -78,7 +85,10 @@ class purchasingReportExport implements FromQuery, ShouldAutoSize, WithHeadings,
             {
                 $landing = '--';
             }
-            if($item->product->supplier_products->where('supplier_id',$item->product->supplier_id)->first()->import_tax_actual !== null)
+            if($po_group_product_detail){
+                    $tax_actual = round(@$po_group_product_detail->actual_tax_percent,4) ?? 0;
+            }
+            else if($item->product->supplier_products->where('supplier_id',$item->product->supplier_id)->first()->import_tax_actual !== null)
             {
                 $tax_actual = number_format((float) $item->product->supplier_products->where('supplier_id',$item->product->supplier_id)->first()->import_tax_actual, 3, '.', ',');
             }
