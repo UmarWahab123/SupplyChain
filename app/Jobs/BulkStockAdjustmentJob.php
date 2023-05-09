@@ -123,7 +123,7 @@ class BulkStockAdjustmentJob implements ShouldQueue
                                         {
                                             if($adjust_1 < 0)
                                             {
-                                                $dummy_order = Order::createManualOrder($stock_out);
+                                                $dummy_order = Order::createManualOrder($stock_out, 'Created by doing stock adjustment bulk import', 'Created by doing stock adjustment bulk import');
                                             }else{
                                                 $dummy_order = PurchaseOrder::createManualPo($stock_out);
                                             }
@@ -173,7 +173,7 @@ class BulkStockAdjustmentJob implements ShouldQueue
                                         {
                                             if($adjust_1 < 0)
                                             {
-                                                $dummy_order = Order::createManualOrder($stock_out);
+                                                $dummy_order = Order::createManualOrder($stock_out, 'Created by doing stock adjustment bulk import', 'Created by doing stock adjustment bulk import');
                                             }else{
                                                 $dummy_order = PurchaseOrder::createManualPo($stock_out);
                                             }
@@ -236,7 +236,7 @@ class BulkStockAdjustmentJob implements ShouldQueue
                                         {
                                             if($adjust_2 < 0)
                                             {
-                                                $dummy_order = Order::createManualOrder($stock_out);
+                                                $dummy_order = Order::createManualOrder($stock_out, 'Created by doing stock adjustment bulk import', 'Created by doing stock adjustment bulk import');
                                             }else{
                                                 $dummy_order = PurchaseOrder::createManualPo($stock_out);
                                             }
@@ -286,7 +286,7 @@ class BulkStockAdjustmentJob implements ShouldQueue
                                         {
                                             if($adjust_2 < 0)
                                             {
-                                                $dummy_order = Order::createManualOrder($stock_out);
+                                                $dummy_order = Order::createManualOrder($stock_out, 'Created by doing stock adjustment bulk import', 'Created by doing stock adjustment bulk import');
                                             }else{
                                                 $dummy_order = PurchaseOrder::createManualPo($stock_out);
                                             }
@@ -350,7 +350,7 @@ class BulkStockAdjustmentJob implements ShouldQueue
                                         {
                                             if($adjust_3 < 0)
                                             {
-                                                $dummy_order = Order::createManualOrder($stock_out);
+                                                $dummy_order = Order::createManualOrder($stock_out, 'Created by doing stock adjustment bulk import', 'Created by doing stock adjustment bulk import');
                                             }else{
                                                 $dummy_order = PurchaseOrder::createManualPo($stock_out);
                                             }
@@ -400,7 +400,7 @@ class BulkStockAdjustmentJob implements ShouldQueue
                                         {
                                             if($adjust_3 < 0)
                                             {
-                                                $dummy_order = Order::createManualOrder($stock_out);
+                                                $dummy_order = Order::createManualOrder($stock_out, 'Created by doing stock adjustment bulk import', 'Created by doing stock adjustment bulk import');
                                             }else{
                                                 $dummy_order = PurchaseOrder::createManualPo($stock_out);
                                             }

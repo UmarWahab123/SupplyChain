@@ -2115,7 +2115,7 @@ class PurchaseOrderGroupsController extends Controller
 
 		                    if($quantity_received < 0)
 		                    {
-		                    	$dummy_order = Order::createManualOrder($stock_out);
+		                    	$dummy_order = Order::createManualOrder($stock_out,'Quantity received updated in Complete TD '.@$po_detail->po_id. ' by '.@Auth::user()->user_name. ' on '. Carbon::now(), 'Quantity received updated in Complete TD '.@$po_detail->po_id. ' by '.@Auth::user()->user_name. ' on '. Carbon::now());
 		                        //To find from which stock the order will be deducted
 		                            $find_stock = $stock->stock_out()->whereNotNull('quantity_in')->where('available_stock','>',0)->orderBy('id','asc')->get();
 		                            if($find_stock->count() > 0)
@@ -2219,7 +2219,7 @@ class PurchaseOrderGroupsController extends Controller
 
 		                    if($quantity_received < 0)
 		                    {
-		                    	$dummy_order = Order::createManualOrder($stock_out);
+		                    	$dummy_order = Order::createManualOrder($stock_out,'Quantity received updated in Complete TD '.@$po_detail->po_id. ' by '.@Auth::user()->user_name. ' on '. Carbon::now(), 'Quantity received updated in Complete TD '.@$po_detail->po_id. ' by '.@Auth::user()->user_name. ' on '. Carbon::now());
 		                      	//To find from which stock the order will be deducted
 		                            $find_stock = $stock->stock_out()->whereNotNull('quantity_in')->where('available_stock','>',0)->orderBy('id','asc')->get();
 		                            if($find_stock->count() > 0)
@@ -2387,7 +2387,7 @@ class PurchaseOrderGroupsController extends Controller
 
 		                    if($quantity_received_2 < 0)
 		                    {
-		                    	$dummy_order = Order::createManualOrder($stock_out);
+		                    	$dummy_order = Order::createManualOrder($stock_out,'Quantity received 2 updated in Complete TD '.@$po_detail->po_id. ' by '.@Auth::user()->user_name. ' on '. Carbon::now(), 'Quantity received 2 updated in Complete TD '.@$po_detail->po_id. ' by '.@Auth::user()->user_name. ' on '. Carbon::now());
 		                        //To find from which stock the order will be deducted
 		                            $find_stock = $stock->stock_out()->whereNotNull('quantity_in')->where('available_stock','>',0)->orderBy('id','asc')->get();
 		                            if($find_stock->count() > 0)
@@ -2491,7 +2491,7 @@ class PurchaseOrderGroupsController extends Controller
 
 		                    if($quantity_received_2 < 0)
 		                    {
-		                    	$dummy_order = Order::createManualOrder($stock_out);
+		                    	$dummy_order = Order::createManualOrder($stock_out,'Quantity received 2 updated in Complete TD '.@$po_detail->po_id. ' by '.@Auth::user()->user_name. ' on '. Carbon::now(), 'Quantity received 2 updated in Complete TD '.@$po_detail->po_id. ' by '.@Auth::user()->user_name. ' on '. Carbon::now());
 		                        //To find from which stock the order will be deducted
 		                            $find_stock = $stock->stock_out()->whereNotNull('quantity_in')->where('available_stock','>',0)->orderBy('id','asc')->get();
 		                            if($find_stock->count() > 0)
