@@ -3164,6 +3164,64 @@ $(document).ready(function(){
       // Show the modal
       $("#addNewStockModal").modal('show');
     });
+
+    $(document).on('click','.add-new-stock-btn',function(){
+      var stock_id = $(this).data('id');
+      if(stock_id == 'parent_stock')
+      {
+        var warehouse_id = $(".warehouses-tab li a.active").data("id");
+      }
+      else
+      {
+        var warehouse_id = $(this).data('warehouse_id');
+      }
+      var prod_id  = "{{ $id }}";
+      swal({
+        title: "Are you sure?",
+        text: "You want to Make Manual Stock Adjustment!!!",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: " #006400",
+        confirmButtonText: "Yes, do it!",
+        cancelButtonText: "Cancel",
+        closeOnConfirm: true,
+        closeOnCancel: false
+        },
+        function (isConfirm) {
+            if (isConfirm) {
+              $.ajax({
+                method:"get",
+                data:'prod_id='+prod_id+'&warehouse_id='+warehouse_id+'&stock_id='+stock_id,
+                url: "{{ route('make-manual-stock-adjustment') }}",
+                beforeSend:function(){
+                  $('#loader_modal').modal({
+                    backdrop: 'static',
+                    keyboard: false
+                  });
+                  $("#loader_modal").modal('show');
+                },
+                success: function(response){
+                  $("#loader_modal").modal('hide');
+                  if(response.parent_stock === true){
+                    window.location.reload();
+                  }
+                  if(response.success === true){
+                    $("#stock-detail-table"+stock_id+" tbody > tr:first").before(response.html_string);
+                    $('.table-product-history').DataTable().ajax.reload();
+
+                  }
+                },
+                error: function(request, status, error){
+                  $("#loader_modal").modal('hide');
+                }
+              });
+            }
+            else {
+                swal("Cancelled", "", "error");
+            }
+        });
+    });
+    
     $(document).on('click','.add-new-stock-save-btn',function(){
 
       var stock_id = $("#stock_id").val();
