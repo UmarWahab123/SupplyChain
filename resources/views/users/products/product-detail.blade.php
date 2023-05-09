@@ -2835,6 +2835,79 @@ span#product_notes{
     </div>
   </div>
 </div>
+<div class="modal fade" id="addNewStockModal">
+  <div class="modal-dialog modal-dialog-centered parcelpop">
+      <div class="modal-content">
+          <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">×</button>
+          </div>
+          <div class="modal-body text-center">
+              <h3 class="text-capitalize fontmed">Add New Stock</h3>
+              <ul class="nav nav-tabs">
+                <li class="nav-item">
+                  <a class="nav-link active" id="stockInTab" data-toggle="tab" href="#stockInForm">Stock In</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" id="stockOutTab" data-toggle="tab" href="#stockOutForm">Stock Out</a>
+                </li>
+              </ul>
+              <div class="tab-content mt-5">
+                <div class="tab-pane fade show active" id="stockInForm">
+                 <input type="hidden" id="stock_id" value="" name="stock_id" class="form-control-lg form-control">
+                  <input type="hidden" id="new_warehouse_id" value="" name="warehouse_id" class="form-control-lg form-control">
+                  <form class="add-new-stock-form">
+                    <div class="form-group">
+                      <label for="stock_supplier_id" class="font-weight-bold">Choose Supply From</label>
+                      <select id="stock_supplier_id" class="form-control-lg form-control" name="stock_supplier_id">
+                        <option value="" disabled="true" selected="true">Choose Supply From</option>
+                        <option value="{{@$default_or_last_supplier->supplier_id}}">{{@$default_or_last_supplier->supplier->reference_name}}</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="new_stock_quantity_in" class="font-weight-bold">Quantity</label>
+                      <input type="text" id="new_stock_quantity_in" name="new_stock_quantity_in" class="form-control-lg form-control" placeholder="Quantity In">
+                    </div>
+                    <div class="form-group">
+                      <label for="new_stok_in_cost" class="font-weight-bold">COGS</label>
+                      <input type="text" id="new_stok_in_cost" value="{{(@$product->selling_price!=null)?number_format((float)@$product->selling_price, 3, '.', ''):'N/A'}}" name="cost" class="form-control-lg form-control" placeholder="COGS">
+                    </div>
+                    <div class="form-submit">
+                      <input type="button" value="Add" class="btn btn-bg add-new-stock-save-btn">
+                      <input type="reset" value="Close" class="btn btn-danger close-btn">
+                    </div>
+                  </form>
+                </div>
+                <div class="tab-pane fade" id="stockOutForm">
+                <form class="out-stock-form">
+                    <div class="form-group">
+                      <label for="new_stock_customer_id" class="font-weight-bold">BILL TO</label>
+                      <select id="new_stock_customer_id" class="form-control-lg form-control" name="new_stock_customer_id">
+                        <option value="" disabled="true" selected="true">Choose Customer</option>
+                        @foreach($customers as $customer)
+                        <option value="{{$customer->id}}">{{$customer->reference_name}}</option>
+                        @endforeach
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="new_stock_quantity_out" class="font-weight-bold">Quantity</label>
+                      <input type="text" id="new_stock_quantity_out" name="quantity_out" class="form-control-lg form-control" placeholder="Quantity Out">
+                    </div>
+                    <div class="form-group">
+                      <label for="new_stok_out_cost" class="font-weight-bold">COGS</label>
+                      <input type="text" id="new_stok_out_cost" value="{{(@$product->selling_price!=null)?number_format((float)@$product->selling_price, 3, '.', ''):'N/A'}}" name="cost" class="form-control-lg form-control" placeholder="COGS">
+                    </div>
+                    <div class="form-submit">
+                      <input type="button" value="Add" class="btn btn-bg save-btn add-new-stock-save-btn">
+                      <input type="reset" value="Close" class="btn btn-danger close-btn">
+                    </div>
+                  </form>
+                </div>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
+
 @endsection
 
 @section('javascript')
@@ -3078,25 +3151,53 @@ $(document).ready(function(){
         text: $('i.buy_unit_cost_price_mark_for_supp').next('.tooltiptext')
       }
     });
-
     $(document).on('click','.add-bulk-suppliers',function(){
       $('#uploadExcel').modal('show');
     });
-
-    $(document).on('click','.add-new-stock-btn',function(){
+    $(document).on('click','.new-stock-add-button',function(e){
       var stock_id = $(this).data('id');
+      var warehouse_id = $(this).data('warehouse_id');
+      
+      // Set the values of the hidden input fields
+      $('#stock_id').val(stock_id);
+      $('#new_warehouse_id').val(warehouse_id);
+      // Show the modal
+      $("#addNewStockModal").modal('show');
+    });
+    $(document).on('click','.add-new-stock-save-btn',function(){
+
+      var stock_id = $("#stock_id").val();
+      var supplier_id, quantity, cogs, stock_for;
+
+      // when user in quantity
+      supplier_id = $('#stock_supplier_id').val();
+      quantity_in = $('#new_stock_quantity_in').val();
+
+      //when user out quantity
+      var customer_id = $('#new_stock_customer_id').val();
+      var quantity_out = $('#new_stock_quantity_out').val(); 
+
+      if ($('#stockInForm').hasClass('active')) {
+       stock_for = 'supplier'
+       cogs = $('#new_stok_in_cost').val();
+      $('.out-stock-form')[0].reset();
+      } else {
+       stock_for = 'customer'
+       cogs = $('#new_stok_out_cost').val();
+      $('.add-new-stock-form')[0].reset();
+      }
       if(stock_id == 'parent_stock')
       {
         var warehouse_id = $(".warehouses-tab li a.active").data("id");
       }
       else
       {
-        var warehouse_id = $(this).data('warehouse_id');
+        var warehouse_id = $("#new_warehouse_id").val();
       }
       var prod_id  = "{{ $id }}";
       swal({
         title: "Are you sure?",
-        text: "You want to Make Manual Stock Adjustment!!!",
+        text: "You want to Make New Stock Adjustment!!!",
         type: "warning",
         showCancelButton: true,
         confirmButtonColor: " #006400",
@@ -3109,7 +3210,7 @@ $(document).ready(function(){
             if (isConfirm) {
               $.ajax({
                 method:"get",
-                data:'prod_id='+prod_id+'&warehouse_id='+warehouse_id+'&stock_id='+stock_id,
+                data:'prod_id='+prod_id+'&warehouse_id='+warehouse_id+'&stock_id='+stock_id+'&supplier_id='+supplier_id+'&quantity_in='+quantity_in+'&cogs='+cogs+'&customer_id='+customer_id+'&quantity_out='+quantity_out+'&stock_for='+stock_for,
                 url: "{{ route('make-manual-stock-adjustment') }}",
                 beforeSend:function(){
                   $('#loader_modal').modal({
@@ -3126,7 +3227,9 @@ $(document).ready(function(){
                   if(response.success === true){
                     $("#stock-detail-table"+stock_id+" tbody > tr:first").before(response.html_string);
                     $('.table-product-history').DataTable().ajax.reload();
-
+                    $("#addNewStockModal").modal('hide');
+                     $('.out-stock-form')[0].reset();
+                    $('.add-new-stock-form')[0].reset();
                   }
                 },
                 error: function(request, status, error){
@@ -3139,7 +3242,6 @@ $(document).ready(function(){
             }
         });
     });
-
     $(document).on("change",".expiration_date_sc",function(e) {
       var old_value = $(this).prev().data('fieldvalue');
       if (e.keyCode === 27 && $(this).hasClass('active')) {

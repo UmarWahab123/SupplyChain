@@ -3308,7 +3308,7 @@ class ProductController extends Controller
 
     public function saveBulkTempProduct(Request $request)
     {
-        foreach ($request->temp_ids as $temp_id) {
+        foreach ($request->temp_ids as $temp_id) { 
             $temp_product = TempProduct::find($temp_id);
 
             if (isset($request['supplier_id_' . $temp_id])) {
@@ -6653,7 +6653,7 @@ class ProductController extends Controller
         $getProductUnit = Unit::select('id', 'title')->get();
 
         // $getSuppliers = Supplier::where('status',1)->orderBy('reference_name')->whereIn('id',SupplierProducts::select('supplier_id')->where('product_id',$id)->where('is_deleted',0)->where('supplier_id','!=',null)->pluck('supplier_id'))->get();
-        $customers = Customer::select('id', 'company')->where('status', 1)->get();
+        $customers = Customer::select('id', 'company','reference_name')->where('status', 1)->get();
 
         if ($total_buy_unit_calculation != NULL) {
             $IMPcalculation = 'Purchasing Price + (Import Tax Actual/100 * Purchasing Price) + Extra Cost + Import Tax + Frieght + Landing';
@@ -6807,13 +6807,11 @@ class ProductController extends Controller
             $redHighlighted = '';
             $tooltip = '';
         }
-
         return view('users.products.product-detail', compact('product_type', 'product', 'ProductCustomerFixedPrices', 'default_or_last_supplier', 'supplier_company', 'productImages', 'productImagesCount', 'id', 'product_brand', 'warehouses', 'stock_card', 'IMPcalculation', 'getProductUnit', 'customers', 'warehouse_products', 'product_parent_category', 'customerCategories', 'redHighlighted', 'checkItemPo', 'ecommerceconfig_status', 'ecommerceconfig_type', 'final_stock', 'tooltip', 'id', 'sys_color', 'global_terminologies', 'sys_name', 'sys_logos', 'sys_border_color', 'btn_hover_border', 'current_version', 'menus', 'global_counters', 'allow_custom_code_edit', 'hide_hs_description', 'allow_same_description', 'suppliers', 'extra_tax_percentage', 'import_tax_percentage', 'import_tax_actual_in_tbh', 'product_type_2', 'height', 'width', 'imported', 'product_type_3', 'default_supplier_detail_section'));
     }
 
     public function makeManualStockAdjustment(Request $request)
     {
-        // dd($request->all());
         if ($request->stock_id == 'parent_stock') {
             $stock_in               = new StockManagementIn;
             $stock_in->product_id   = $request->prod_id;
@@ -6822,11 +6820,16 @@ class ProductController extends Controller
             $stock_in->save();
             return response()->json(['parent_stock' => true]);
         }
-        $stock_out               = new StockManagementOut;
-        $stock_out->title        = 'Manual Adjustment';
-        $stock_out->smi_id       = $request->stock_id;
-        $stock_out->product_id   = $request->prod_id;
-        $stock_out->warehouse_id = $request->warehouse_id;
+        $stock_out                  = new StockManagementOut;
+        $stock_out->title           = 'Manual Adjustment';
+        $stock_out->smi_id          = $request->stock_id;
+        $stock_out->product_id      = $request->prod_id;
+        $stock_out->warehouse_id    = $request->warehouse_id;
+        $stock_out->supplier_id     = $request->supplier_id;
+        $stock_out->customer_id     = $request->customer_id;
+        $stock_out->quantity_in     = $request->quantity_in;
+        $stock_out->quantity_out    = $request->quantity_out;
+        $stock_out->cost            = $request->cogs;
         $stock_out->created_by   = Auth::user()->id;
         $stock_out->save();
 
@@ -6837,6 +6840,16 @@ class ProductController extends Controller
         $product_history->old_value   = '---';
         $product_history->new_value   = 'Manual Adjustment';
         $product_history->save();
+
+        if($request->stock_for == 'customer'){
+            $new_request = new \Illuminate\Http\Request();
+            $new_request->replace(['id' => $stock_out->id, 'quantity_out' => $request->quantity_out, 'old_value' => 0]);
+            $this->updateStockRecord($new_request);
+        }else{
+            $new_request = new \Illuminate\Http\Request();
+            $new_request->replace(['id' => $stock_out->id, 'quantity_in' => $request->quantity_in, 'old_value' => 0]);
+            $this->updateStockRecord($new_request);
+        }
         // dd($product_history);
 
         $stock_out_in = StockManagementOut::where('smi_id', $request->stock_id)->sum('quantity_in');
@@ -6906,7 +6919,6 @@ class ProductController extends Controller
 
             return response()->json(['expiration_date' => true]);
         }
-
         $stock_out = StockManagementOut::find($request->id);
         $stock_out->cost = $stock_out->cost == null ? ($stock_out->get_product != null ? round($stock_out->get_product->selling_price, 3) : null) : $stock_out->cost;
         foreach ($request->except('id', 'old_value') as $key => $value) {
@@ -7004,6 +7016,7 @@ class ProductController extends Controller
                                     $stock_out->parent_id_in .= $out->id . ',';
                                     $stock_out->available_stock = $out->available_stock - abs($stock_out->available_stock);
                                     $out->available_stock = 0;
+                                    // dd($out);
                                     $new_stock_out_history = (new StockOutHistory)->setHistoryForManualAdjustments($out, $stock_out, abs($qty_to_be_out));
                                 }
                                 $out->save();
