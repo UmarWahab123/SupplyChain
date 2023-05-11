@@ -6606,7 +6606,6 @@ class ProductController extends Controller
         $import_tax_percentage = 0;
         $import_tax_actual_in_tbh = 0;
         $imported = false;
-        $product_all_suppliers = SupplierProducts::with('supplier')->where('product_id', $id)->where('is_deleted',0)->get();
         if ($last_or_def_supp_id != 0) {
             $default_or_last_supplier = SupplierProducts::with('supplier')->where('product_id', $id)->where('supplier_id', $last_or_def_supp_id)->where('is_deleted',0)->first();
             $supplier_name = Supplier::select('company')->where('id', $last_or_def_supp_id)->first();
@@ -6808,9 +6807,19 @@ class ProductController extends Controller
             $redHighlighted = '';
             $tooltip = '';
         }
-        return view('users.products.product-detail', compact('product_type', 'product','product_all_suppliers', 'ProductCustomerFixedPrices', 'default_or_last_supplier', 'supplier_company', 'productImages', 'productImagesCount', 'id', 'product_brand', 'warehouses', 'stock_card', 'IMPcalculation', 'getProductUnit', 'customers', 'warehouse_products', 'product_parent_category', 'customerCategories', 'redHighlighted', 'checkItemPo', 'ecommerceconfig_status', 'ecommerceconfig_type', 'final_stock', 'tooltip', 'id', 'sys_color', 'global_terminologies', 'sys_name', 'sys_logos', 'sys_border_color', 'btn_hover_border', 'current_version', 'menus', 'global_counters', 'allow_custom_code_edit', 'hide_hs_description', 'allow_same_description', 'suppliers', 'extra_tax_percentage', 'import_tax_percentage', 'import_tax_actual_in_tbh', 'product_type_2', 'height', 'width', 'imported', 'product_type_3', 'default_supplier_detail_section'));
+        return view('users.products.product-detail', compact('product_type', 'product', 'ProductCustomerFixedPrices', 'default_or_last_supplier', 'supplier_company', 'productImages', 'productImagesCount', 'id', 'product_brand', 'warehouses', 'stock_card', 'IMPcalculation', 'getProductUnit', 'customers', 'warehouse_products', 'product_parent_category', 'customerCategories', 'redHighlighted', 'checkItemPo', 'ecommerceconfig_status', 'ecommerceconfig_type', 'final_stock', 'tooltip', 'id', 'sys_color', 'global_terminologies', 'sys_name', 'sys_logos', 'sys_border_color', 'btn_hover_border', 'current_version', 'menus', 'global_counters', 'allow_custom_code_edit', 'hide_hs_description', 'allow_same_description', 'suppliers', 'extra_tax_percentage', 'import_tax_percentage', 'import_tax_actual_in_tbh', 'product_type_2', 'height', 'width', 'imported', 'product_type_3', 'default_supplier_detail_section'));
     }
-
+    public function productSupplier(Request $request)
+    {
+        $product_id =$request->id;
+        $product_all_suppliers = SupplierProducts::with('supplier')->where('product_id', $product_id)->where('is_deleted',0)->get();
+        $option = '';
+        $option .='<option value="" disabled="true" selected="true">Choose Supply From</option>';
+        foreach($product_all_suppliers as $supplier){
+        $option .= '<option value="'.@$supplier->supplier->id.'">'.@$supplier->supplier->reference_name.'</option>';  
+        }
+        return response()->json(['success' => true, 'response' => $option]);
+    }
     public function makeManualStockAdjustment(Request $request)
     {
         if ($request->stock_id == 'parent_stock') {

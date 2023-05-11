@@ -2859,10 +2859,7 @@ span#product_notes{
                     <div class="form-group">
                       <label for="stock_supplier_id" class="font-weight-bold">Choose Supply From</label>
                       <select id="stock_supplier_id" class="form-control-lg form-control" name="stock_supplier_id">
-                        <option value="" disabled="true" selected="true">Choose Supply From</option>
-                        @foreach($product_all_suppliers as $supplier)
-                        <option value="{{@$supplier->supplier->id}}">{{@$supplier->supplier->reference_name}}</option>
-                        @endforeach
+                        <option value=""></option>
                       </select>
                     </div>
                     <div class="form-group">
@@ -2916,6 +2913,7 @@ span#product_notes{
 <script>
 
     $(document).ready(function(){
+      $("#new_stock_customer_id").select2();
         var rows = $(".table_cust_category tr");
 
         rows.eq(5).insertBefore(rows.eq(3));
@@ -3165,6 +3163,30 @@ $(document).ready(function(){
       $('#new_warehouse_id').val(warehouse_id);
       // Show the modal
       $("#addNewStockModal").modal('show');
+      var prod_id  = "{{ $id }}";
+        $.ajax({
+            url: "{{ url('product-suppliers') }}",
+            method: 'get',
+            data: {
+                id: prod_id
+            },
+            success: function(data) {
+                $('#stock_supplier_id').html(data.response);
+            },
+        })
+    });
+    $(document).on('click','#add-new-stock-btn',function(e){
+      var prod_id  = "{{ $id }}";
+        $.ajax({
+            url: "{{ url('product-suppliers') }}",
+            method: 'get',
+            data: {
+                id: prod_id
+            },
+            success: function(data) {
+                $('#stock_supplier_id').html(data.response);
+            },
+        })
     });
 
     $(document).on('click','.add-new-stock-btn',function(){
@@ -5614,6 +5636,7 @@ $(document).on('click', '#delete_sup', function(e){
               $("#loader_modal").modal('hide');
               if(response.success === true){
                 toastr.success('Success!', response.msg ,{"positionClass": "toast-bottom-right"});
+                $("#add-new-stock-btn" ).trigger( "click" );
                 $('.table-product-suppliers').DataTable().ajax.reload();
               } else {
                 toastr.error('Error!', response.msg ,{"positionClass": "toast-bottom-right"});
