@@ -6853,6 +6853,8 @@ class ProductController extends Controller
         }
         // dd($product_history);
 
+        $stock_out = StockManagementOut::find($stock_out->id);
+
         $stock_out_in = StockManagementOut::where('smi_id', $request->stock_id)->sum('quantity_in');
         $stock_out_out = StockManagementOut::where('smi_id', $request->stock_id)->sum('quantity_out');
         //dd($stock_out_in,$stock_out_out);
@@ -6866,6 +6868,20 @@ class ProductController extends Controller
                         <span class="m-l-15 selectDoubleClick" id="title" data-fieldvalue="' . $stock_out->title . '">
                           ' . $stock_out->title . '
                         </span>';
+        if($stock_out->order_id != null)
+        {
+            if(@$stock_out->stock_out_order->primary_status == 37)
+            {
+                $html_string .= '<a target="_blank" href="'.route('get-completed-draft-invoices', ['id' => $stock_out->stock_out_order->id]).'" title="View Detail" class="font-weight-bold ml-3">ORDER# '.@$stock_out->stock_out_order->full_inv_no.'</a>';
+            }
+        }
+        if($stock_out->po_id != null)
+        {
+            if(@$stock_out->stock_out_po->status == 40)
+            {
+                $html_string .= '<a target="_blank" href="'.url('get-purchase-order-detail',$stock_out->po_id).'" title="View Detail" class="font-weight-bold ml-3">PO# '.@$stock_out->stock_out_po->ref_id.'</a>';
+            }
+        }
 
         $html_string .= '
                          <select name="title" class="selectFocusStock form-control d-none" data-id="' . $stock_out->id . '">
@@ -6878,8 +6894,10 @@ class ProductController extends Controller
                           <option ' . (@$stock_out->title == 'Return' ? 'selected' : '') . ' value="">Return</option>
                           <option ' . (@$stock_out->title == 'Transfer' ? 'selected' : '') . ' value="">Transfer</option>
                         </select>
-                        <span id="manual_order_' . $stock_out->id . '"></span>
-                        </td>';
+                        <span id="manual_order_' . $stock_out->id . '"></span>';
+
+        
+        $html_string .='</td>';
         $html_string .= '<td>--</td>';
         $html_string .= '<td>
                       <span class="m-l-15 ' . $enable . ' disableDoubleInClick-' . $stock_out->id . ' " id="quantity_in_span_' . @$stock_out->id . '"  data-fieldvalue="' . $stock_out->quantity_in . '">' . ($stock_out->quantity_in != null ? $stock_out->quantity_in : '0') . '</span>
@@ -6890,7 +6908,27 @@ class ProductController extends Controller
                       <input type="number" min="0" style="width:100%;" name="quantity_out" data-type="out" id="quantity_out_' . $stock_out->id . '"  data-warehouse_id="' . $stock_out->warehouse_id . '" data-smi="' . $request->stock_id . '" class="fieldFocusStock d-none" value="' . $stock_out->quantity_out . '" data-id="' . $stock_out->id . '">
                     </td>';
         $html_string .= '<td>' . round($stock_out_in + $stock_out_out, 3) . '</td>';
-        $html_string .= '<td>--</td>';
+        $html_string .= '<td>';
+        if(($stock_out->title == 'Manual Adjustment' || $stock_out->title == 'Expired' || $stock_out->title == 'Spoilage' || $stock_out->title == 'Lost' || $stock_out->title == 'Marketing' || $stock_out->title == 'Return' || $stock_out->title == 'Transfer')){
+                          $html_string .= '<span class="m-l-15 inputDoubleClick" id="cost"  data-fieldvalue="'.$stock_out->cost.'">
+                            '.($stock_out->cost != null ? $stock_out->cost : '--').'
+                          </span>
+                          <input type="text" autocomplete="nope" name="cost" class="fieldFocusCost d-none form-control" data-id="'.$stock_out->id.'" value="'.(@$stock_out->cost!=null)?$stock_out->cost:''.'">';
+                          }
+                          else{
+                              if($stock_out->cost != null){
+                              $html_string .= $stock_out->cost != null ? round(($stock_out->cost),3) : '--';
+                              }
+                              elseif($stock_out->order_product_id != null && $stock_out->order_product){
+                              $html_string .= $stock_out->order_product->actual_cost != null ? number_format($stock_out->order_product->actual_cost,2,'.',',') : '--';
+                              }
+                              else
+                              {
+                                $html_string .= '<span>--</span>';
+                              }
+
+                          }
+        $html_string .= '</td>';
         $html_string .= '<td>
                       <span class="m-l-15 ' . $enable . '" id="note"  data-fieldvalue="' . $stock_out->note . '">' . ($stock_out->note != null ? $stock_out->note : '--') . '</span>
                       <input type="text" style="width:100%;" name="note" class="fieldFocusStock d-none" value="' . $stock_out->note . '" data-id="' . $stock_out->id . '">
