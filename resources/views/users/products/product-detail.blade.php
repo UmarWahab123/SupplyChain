@@ -2860,7 +2860,9 @@ span#product_notes{
                       <label for="stock_supplier_id" class="font-weight-bold">Choose Supply From</label>
                       <select id="stock_supplier_id" class="form-control-lg form-control" name="stock_supplier_id">
                         <option value="" disabled="true" selected="true">Choose Supply From</option>
-                        <option value="{{@$default_or_last_supplier->supplier_id}}">{{@$default_or_last_supplier->supplier->reference_name}}</option>
+                        @foreach($product_all_suppliers as $supplier)
+                        <option value="{{@$supplier->supplier->id}}">{{@$supplier->supplier->reference_name}}</option>
+                        @endforeach
                       </select>
                     </div>
                     <div class="form-group">
@@ -2872,7 +2874,7 @@ span#product_notes{
                       <input type="text" id="new_stok_in_cost" value="{{(@$product->selling_price!=null)?number_format((float)@$product->selling_price, 3, '.', ''):'N/A'}}" name="cost" class="form-control-lg form-control" placeholder="COGS">
                     </div>
                     <div class="form-submit">
-                      <input type="button" value="Add" class="btn btn-bg add-new-stock-save-btn">
+                      <input type="button" value="Add" id="stock_management_in" class="btn btn-bg add-new-stock-save-btn">
                       <input type="reset" value="Close" class="btn btn-danger close-btn">
                     </div>
                   </form>
@@ -2897,7 +2899,7 @@ span#product_notes{
                       <input type="text" id="new_stok_out_cost" value="{{(@$product->selling_price!=null)?number_format((float)@$product->selling_price, 3, '.', ''):'N/A'}}" name="cost" class="form-control-lg form-control" placeholder="COGS">
                     </div>
                     <div class="form-submit">
-                      <input type="button" value="Add" class="btn btn-bg save-btn add-new-stock-save-btn">
+                      <input type="button" value="Add" id="stock_management_out" class="btn btn-bg save-btn add-new-stock-save-btn">
                       <input type="reset" value="Close" class="btn btn-danger close-btn">
                     </div>
                   </form>
@@ -3266,6 +3268,8 @@ $(document).ready(function(){
         },
         function (isConfirm) {
             if (isConfirm) {
+              $("#stock_management_out").attr("disabled", true).val('Please Wait!');
+              $("#stock_management_in").attr("disabled", true).val('Please Wait!');
               $.ajax({
                 method:"get",
                 data:'prod_id='+prod_id+'&warehouse_id='+warehouse_id+'&stock_id='+stock_id+'&supplier_id='+supplier_id+'&quantity_in='+quantity_in+'&cogs='+cogs+'&customer_id='+customer_id+'&quantity_out='+quantity_out+'&stock_for='+stock_for,
@@ -3288,8 +3292,15 @@ $(document).ready(function(){
                     $("#addNewStockModal").modal('hide');
                      $('.out-stock-form')[0].reset();
                     $('.add-new-stock-form')[0].reset();
+                   $("#stock_management_out").attr("disabled", false).val('ADD');
+                   $("#stock_management_in").attr("disabled", false).val('ADD');
+                   toastr.success('Success!', 'New Stock Adjustment Done Successfully.',{"positionClass": "toast-bottom-right"});
+                  }else{
+                    toastr.error('Sorry!', 'Something Went Wrong !!!',{"positionClass": "toast-bottom-right"});
+                 
                   }
                 },
+
                 error: function(request, status, error){
                   $("#loader_modal").modal('hide');
                 }

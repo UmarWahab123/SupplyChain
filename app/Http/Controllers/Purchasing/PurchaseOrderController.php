@@ -8011,7 +8011,6 @@ class PurchaseOrderController extends Controller
     }
 
     public function getStockDataCard(Request $request){
-        
         $card = StockManagementIn::find($request->id);
         $product = Product::find($card->product_id);
         $wh = WarehouseProduct::where('warehouse_id',$card->warehouse_id)->where('product_id',$card->product_id)->first();
