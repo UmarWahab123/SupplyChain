@@ -1698,7 +1698,7 @@ class HomeController extends Controller
                     $order_product->save();
                 } else {
                     $order_product->$key = $value;
-                    $order_product->expiration_date = $value;
+                    // $order_product->expiration_date = $value;
                     $order_product->save();
                 }
             }
