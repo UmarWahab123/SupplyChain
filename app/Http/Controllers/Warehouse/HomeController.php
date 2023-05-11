@@ -1485,7 +1485,7 @@ class HomeController extends Controller
 
                         if($quantity_shipped < 0)
                         {
-                            $dummy_order = Order::createManualOrder($stock_out);
+                            $dummy_order = Order::createManualOrder($stock_out, null, 'quantity shipped updated in TD '.@$order_product->id);
                           //To find from which stock the order will be deducted
                                 $find_stock = $stock->stock_out()->whereNotNull('quantity_in')->where('available_stock','>',0)->orderBy('id','asc')->get();
                                 if($find_stock->count() > 0)
@@ -1590,7 +1590,7 @@ class HomeController extends Controller
 
                         if($quantity_shipped < 0)
                         {
-                            $dummy_order = Order::createManualOrder($stock_out);
+                            $dummy_order = Order::createManualOrder($stock_out, null, 'quantity shipped updated in TD '.@$order_product->id);
                           //To find from which stock the order will be deducted
                                 $find_stock = $stock->stock_out()->whereNotNull('quantity_in')->where('available_stock','>',0)->orderBy('id','asc')->get();
                                 if($find_stock->count() > 0)
@@ -1698,7 +1698,7 @@ class HomeController extends Controller
                     $order_product->save();
                 } else {
                     $order_product->$key = $value;
-                    $order_product->expiration_date = $value;
+                    // $order_product->expiration_date = $value;
                     $order_product->save();
                 }
             }
