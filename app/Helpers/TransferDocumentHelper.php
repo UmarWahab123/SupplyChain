@@ -582,6 +582,7 @@ class TransferDocumentHelper
                 $quantity_inv   = round($order_product->trasnfer_qty_shipped, 4);
             }
             if ($quantity_inv !== null) {
+                $quantity_full_transferred = $quantity_inv;
                 if ($order_product->trasnfer_expiration_date != null) {
                     $stock = StockManagementIn::where('product_id', $order_product->product_id)->where('warehouse_id', @$supply_from_id)->where('expiration_date', $order_product->trasnfer_expiration_date)->whereNotNull('expiration_date')->first();
                     if ($stock == null) {
@@ -866,7 +867,7 @@ class TransferDocumentHelper
                 // $warehouse_product->save();
 
                 $new_his = new QuantityReservedHistory;
-                $re      = $new_his->updateTDCurrentReservedQuantity($order_product->PurchaseOrder, $order_product, $quantity_inv, 'TD Confirmed By Warehouse Reserved Subtracted ', 'subtract', null);
+                $re      = $new_his->updateTDCurrentReservedQuantity($order_product->PurchaseOrder, $order_product, $quantity_full_transferred, 'TD Confirmed By Warehouse Reserved Subtracted ', 'subtract', null);
             }
 
             if ($order_product->order_product_id != null) {
