@@ -3261,17 +3261,22 @@ Route::get('/set-invoice-prices/{order_id}',function($id){
 
 	Route::get('/check-phuket-stock/{id}', function($id){
 		$warehouse = Warehouse::find($id);
-		$products = WarehouseProduct::where('warehouse_id', $id)->where('current_quantity', '<', 0)->with('getProduct:id,refrence_code')->get();
-		$html = '<h1 style="text-align: center;">Minus Stock In '.@$warehouse->warehouse_title.' Warehouse</h1><table style="width:100%;text-align:center;">
+		$products = WarehouseProduct::where('warehouse_id', $id)->where('current_quantity', '<', 0)->with('getProduct:id,refrence_code,short_desc')->get();
+		$html = '<h1 style="text-align: center;">Minus Stock In '.@$warehouse->warehouse_title.' Warehouse</h1><table style="width:60%;text-align:center;margin-left: 20%;">
 		      	<thead>
 		      		<tr>
-		      			<th>Product</th>
+		      			<th>Product Name</th>
+		      			<th>Product Code</th>
 		      			<th>Stock</th>
 		      		</tr>
 		      	</thead>
 		      	<tbody>';
-		foreach ($products as $product) {
-			$html .= '<tr><td>'.@$product->getProduct->refrence_code.'</td><td>'.round($product->current_quantity,3).'</td></tr>';
+		foreach ($products as $key => $product) {
+			if(++$key % 2 == 0){
+				$html .= '<tr><td style="padding: 5px 0px;text-align:left;">'.@$product->getProduct->short_desc.'</td><td style="padding: 5px 0px;text-align:left;">'.@$product->getProduct->refrence_code.'</td><td style="padding: 5px 0px;text-align:left;">'.round($product->current_quantity,3).'</td></tr>';
+			}else{
+				$html .= '<tr style="background-color: #eee;"><td style="padding: 5px 0px;text-align:left;">'.@$product->getProduct->short_desc.'</td><td style="padding: 5px 0px;text-align:left;">'.@$product->getProduct->refrence_code.'</td><td style="padding: 5px 0px;text-align:left;">'.round($product->current_quantity,3).'</td></tr>';
+			}
 		}
 		$html .= '</body></table>';
 		return $html;
