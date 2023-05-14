@@ -3258,4 +3258,22 @@ Route::get('/set-invoice-prices/{order_id}',function($id){
 		}
 		dd('updated');
 	});
+
+	Route::get('/check-phuket-stock/{id}', function($id){
+		$warehouse = Warehouse::find($id);
+		$products = WarehouseProduct::where('warehouse_id', $id)->where('current_quantity', '<', 0)->with('getProduct:id,refrence_code')->get();
+		$html = '<h1 style="text-align: center;">Minus Stock In '.@$warehouse->warehouse_title.' Warehouse</h1><table style="width:100%;text-align:center;">
+		      	<thead>
+		      		<tr>
+		      			<th>Product</th>
+		      			<th>Stock</th>
+		      		</tr>
+		      	</thead>
+		      	<tbody>';
+		foreach ($products as $product) {
+			$html .= '<tr><td>'.@$product->getProduct->refrence_code.'</td><td>'.round($product->current_quantity,3).'</td></tr>';
+		}
+		$html .= '</body></table>';
+		return $html;
+	});
 ?>
