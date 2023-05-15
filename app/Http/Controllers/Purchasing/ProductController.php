@@ -6943,7 +6943,7 @@ class ProductController extends Controller
                       <input type="text" style="width:100%;" name="note" class="fieldFocusStock d-none" value="' . $stock_out->note . '" data-id="' . $stock_out->id . '">
                     </td>
                   </tr>';
-        return response()->json(['success' => true, 'html_string' => $html_string, 'id' => @$stock_out->id]);
+        return response()->json(['success' => true, 'html_string' => $html_string, 'id' => @$request->stock_id]);
     }
 
     public function updateStockRecord(Request $request)
