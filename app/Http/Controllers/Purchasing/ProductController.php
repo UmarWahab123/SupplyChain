@@ -11027,7 +11027,7 @@ class ProductController extends Controller
     }
     public function getMarginReport10(Request $request)
     {
-        $products = StockOutHistory::with('supplier', 'get_order')->whereNotNull('supplier_id')->whereNotNull('order_id')->where('sales', '!=', 0)->groupBy('supplier_id')->selectRaw('stock_out_histories.*, sum(stock_out_histories.sales) as sales_total, sum(stock_out_histories.vat_in) as vat_in_total,sum(stock_out_histories.total_cost) as total_cost_c, sum(stock_out_histories.vat_out) as vat_out_total, (sum(stock_out_histories.sales) - sum(stock_out_histories.total_cost)) / sum(stock_out_histories.sales) as marg');
+        $products = StockOutHistory::with('supplier', 'get_order')->whereNotNull('supplier_id')->whereNotNull('order_id')->groupBy('supplier_id')->selectRaw('stock_out_histories.*, sum(stock_out_histories.sales) as sales_total, sum(stock_out_histories.vat_in) as vat_in_total,sum(stock_out_histories.total_cost) as total_cost_c, sum(stock_out_histories.vat_out) as vat_out_total, (sum(stock_out_histories.sales) - sum(stock_out_histories.total_cost)) / sum(stock_out_histories.sales) as marg');
 
         if ($request->from_date != null) {
             $from_date = str_replace("/", "-", $request->from_date);
