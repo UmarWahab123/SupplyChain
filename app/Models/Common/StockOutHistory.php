@@ -64,7 +64,7 @@ class StockOutHistory extends Model
         $new_stock_out_history->po_id = $out->po_id;
         $new_stock_out_history->pod_id = $out->p_o_d_id;
         $new_stock_out_history->save();
-        $new_stock_out_history->total_cost = $new_stock_out_history->quantity * $out->cost;
+        $new_stock_out_history->total_cost = $new_stock_out_history->quantity * floatval(trim($out->cost));
         $new_stock_out_history->save();
         return true;
     }
