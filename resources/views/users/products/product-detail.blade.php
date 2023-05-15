@@ -3309,15 +3309,44 @@ $(document).ready(function(){
                     window.location.reload();
                   }
                   if(response.success === true){
-                    ShowCardDetail(response.id);
+                    $.ajax({
+                        method:"get",
+                        data:{ id:response.id },
+                        url:"{{ route('get-html-of-stock-data-card') }}",
+                        beforeSend:function(){
+                        },
+                        success:function(data){
+                          if(data.success == true)
+                          {
+                            $('#stock-detail-table-body'+id).html(data.html);
+
+                            $(".expiration_date_sc").datepicker({
+                              format: "dd/mm/yyyy",
+                              autoHide: true,
+                            });
+
+                            $('.table-product-history').DataTable().ajax.reload();
+                          $("#addNewStockModal").modal('hide');
+                           $('.out-stock-form')[0].reset();
+                          $('.add-new-stock-form')[0].reset();
+                         $("#stock_management_out").attr("disabled", false).val('ADD');
+                         $("#stock_management_in").attr("disabled", false).val('ADD');
+                         toastr.success('Success!', 'New Stock Adjustment Done Successfully.',{"positionClass": "toast-bottom-right"});
+                   
+                          }
+                        },
+                        error: function(request, status, error){
+                          $("#loader_modal").modal('hide');
+                        }
+                      });
                     // $("#stock-detail-table"+stock_id+" tbody > tr:first").before(response.html_string);
-                    $('.table-product-history').DataTable().ajax.reload();
-                    $("#addNewStockModal").modal('hide');
-                     $('.out-stock-form')[0].reset();
-                    $('.add-new-stock-form')[0].reset();
-                   $("#stock_management_out").attr("disabled", false).val('ADD');
-                   $("#stock_management_in").attr("disabled", false).val('ADD');
-                   toastr.success('Success!', 'New Stock Adjustment Done Successfully.',{"positionClass": "toast-bottom-right"});
+                   //  $('.table-product-history').DataTable().ajax.reload();
+                   //  $("#addNewStockModal").modal('hide');
+                   //   $('.out-stock-form')[0].reset();
+                   //  $('.add-new-stock-form')[0].reset();
+                   // $("#stock_management_out").attr("disabled", false).val('ADD');
+                   // $("#stock_management_in").attr("disabled", false).val('ADD');
+                   // toastr.success('Success!', 'New Stock Adjustment Done Successfully.',{"positionClass": "toast-bottom-right"});
                   }else{
                     toastr.error('Sorry!', 'Something Went Wrong !!!',{"positionClass": "toast-bottom-right"});
                  
