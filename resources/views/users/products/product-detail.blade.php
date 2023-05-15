@@ -3309,16 +3309,17 @@ $(document).ready(function(){
                     window.location.reload();
                   }
                   if(response.success === true){
+                    var st_id = response.id;
                     $.ajax({
                         method:"get",
-                        data:{ id:response.id },
+                        data:{ id:st_id },
                         url:"{{ route('get-html-of-stock-data-card') }}",
                         beforeSend:function(){
                         },
                         success:function(data){
                           if(data.success == true)
                           {
-                            $('#stock-detail-table-body'+id).html(data.html);
+                            $('#stock-detail-table-body'+st_id).html(data.html);
 
                             $(".expiration_date_sc").datepicker({
                               format: "dd/mm/yyyy",
@@ -3332,7 +3333,7 @@ $(document).ready(function(){
                          $("#stock_management_out").attr("disabled", false).val('ADD');
                          $("#stock_management_in").attr("disabled", false).val('ADD');
                          toastr.success('Success!', 'New Stock Adjustment Done Successfully.',{"positionClass": "toast-bottom-right"});
-                   
+
                           }
                         },
                         error: function(request, status, error){
