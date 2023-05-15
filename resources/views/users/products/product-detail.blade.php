@@ -3309,7 +3309,8 @@ $(document).ready(function(){
                     window.location.reload();
                   }
                   if(response.success === true){
-                    $("#stock-detail-table"+stock_id+" tbody > tr:first").before(response.html_string);
+                    ShowCardDetail(response.id);
+                    // $("#stock-detail-table"+stock_id+" tbody > tr:first").before(response.html_string);
                     $('.table-product-history').DataTable().ajax.reload();
                     $("#addNewStockModal").modal('hide');
                      $('.out-stock-form')[0].reset();
@@ -6094,7 +6095,12 @@ wp = $(this).data('wp');
 
 });
 $(document).on('click','.show_card_detail',function(){
-var id = $(this).data('id');
+  var id = $(this).data('id');
+  ShowCardDetail(id);
+});
+
+function ShowCardDetail(id){
+
   $.ajax({
     method:"get",
     data:{ id:id },
@@ -6116,8 +6122,7 @@ var id = $(this).data('id');
       $("#loader_modal").modal('hide');
     }
   });
-
-});
+}
 
 function recusrsiveCallForStockCardJob() {
     $.ajax({
