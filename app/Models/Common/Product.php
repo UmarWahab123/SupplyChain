@@ -2648,8 +2648,12 @@ class Product extends Model
                 return @$item->min_stock != null ? @$item->min_stock : '--';
                 break;
 
-            case 'product_type_2':
-                return @$item->productType2 != null ? $item->productType2->title : '--';
+            // case 'product_type_2':
+            //     return @$item->productType2 != null ? $item->productType2->title : '--';
+            //     break;
+
+            case 'supplier_country':
+                return @$item->def_or_last_supplier->getcountry != null ? @$item->def_or_last_supplier->getcountry->name : '--';
                 break;
 
             case 'product_type_3':

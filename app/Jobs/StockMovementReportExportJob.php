@@ -149,7 +149,7 @@ class StockMovementReportExportJob implements ShouldQueue
                     'productType',
                     'productType2',
                     'def_or_last_supplier' => function($sup){
-                      $sup->select('id', 'reference_name');
+                      $sup->select('id', 'reference_name','country');
                     }
           ]);
 
@@ -185,9 +185,9 @@ class StockMovementReportExportJob implements ShouldQueue
           {
             $products = $products->where('products.type_id',$request['product_type_exp']);
           }
-          if($request['product_type_2_exp'] != null)
+          if($request['supplier_country_exp'] != null)
           {
-            $products = $products->where('products.type_id_2',$request['product_type_2_exp']);
+            $products = $products->where('products.supplier_country_exp',$request['supplier_country_exp']);
           }
           if($request['product_type_3_exp'] != null)
           {
@@ -294,10 +294,16 @@ class StockMovementReportExportJob implements ShouldQueue
       {
         $products->leftjoin('types as pt', 'pt.id', '=', 'products.type_id')->orderBy('pt.title', $sort_order);
       }
-      else if ($request['column_name'] == 'type_2')
-      {
-        $products->leftjoin('product_secondary_types as pt', 'pt.id', '=', 'products.type_id_2')->orderBy('pt.title', $sort_order);
+      if ($request['column_name'] == 'supplier_country') {
+        $products->leftJoin('suppliers as sup', 'products.supplier_id', '=', 'sup.id')
+            ->leftJoin('countries', 'sup.country', '=', 'countries.id')
+            ->where('products.status', 1) // Specify the table name or alias for the 'status' column
+            ->orderBy('countries.name', $sort_order);
       }
+      // else if ($request['column_name'] == 'type_2')
+      // {
+      //   $products->leftjoin('product_secondary_types as pt', 'pt.id', '=', 'products.type_id_2')->orderBy('pt.title', $sort_order);
+      // }
       else if ($request['column_name'] == 'unit')
       {
         $products->leftjoin('units as u', 'u.id', '=', 'products.selling_unit')->orderBy('u.title', $sort_order);

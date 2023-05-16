@@ -9375,6 +9375,7 @@ class ProductController extends Controller
     public function recursiveStatusCheckStockMovementReport()
     {
         $status = ExportStatus::where('type', 'stock_movement_report')->first();
+        // dd($status);
 
         return response()->json(['msg' => "File Created!", 'status' => $status->status, 'exception' => $status->exception]);
     }

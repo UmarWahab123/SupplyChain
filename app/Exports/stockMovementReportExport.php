@@ -103,15 +103,12 @@ class stockMovementReportExport implements ShouldAutoSize, WithEvents, FromQuery
             array_push($data_array, $data);
         }
 
-        if (in_array('product_type_2', $product_detail_section))
+        if(!in_array('5', $column_visiblity))
         {
-            if(!in_array('5', $column_visiblity))
-            {
-                $data = $item->productType2 != null ? $item->productType2->title : '--';
-                array_push($data_array, $data);
-            }
+            $data = $item->def_or_last_supplier->getcountry != null ? @$item->def_or_last_supplier->getcountry->name : '--';
+            array_push($data_array, $data);
         }
-
+    
         if (in_array('product_type_3', $product_detail_section))
         {
             if(!in_array('6', $column_visiblity))
@@ -278,19 +275,9 @@ class stockMovementReportExport implements ShouldAutoSize, WithEvents, FromQuery
             array_push($heading_array, $global_terminologies['type']);
         }
 
-        if (in_array('product_type_2', $product_detail_section))
+        if(!in_array('5', $column_visiblity))
         {
-            if(!in_array('5', $column_visiblity))
-            {
-                if(!array_key_exists('product_type_2', $global_terminologies))
-                {
-                    array_push($heading_array, 'Type 2');
-                }
-                else
-                {
-                    array_push($heading_array, $global_terminologies['product_type_2']);
-                }
-            }
+            array_push($heading_array, 'Supplier Country');
         }
 
         if (in_array('product_type_3', $product_detail_section))
