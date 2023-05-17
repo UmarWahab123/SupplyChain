@@ -108,7 +108,12 @@ class ProductSaleReportByMonthController extends Controller
 	  {
 	    $months[] = date("M", strtotime( date( 'Y-m-01' )." -$i months"));
 	  }
+   
 	  $months = array_reverse($months);
+   
+   
+    
+    
 	}
 	else if($year < $current_year)
 	{
@@ -517,10 +522,23 @@ class ProductSaleReportByMonthController extends Controller
 
     /*********************  Sorting code ************************/
     $products = Product::sortPSRByMonth($products, $request);
+    
 
     /*********************************************/
     if ($request->type == 'footer') {
     	$total_product_qty = (clone $products)->get();
+      $totalAllMonths = $total_product_qty->sum('jan_totalAmount')
+      + $total_product_qty->sum('feb_totalAmount')
+      + $total_product_qty->sum('mar_totalAmount')
+      + $total_product_qty->sum('apr_totalAmount')
+      + $total_product_qty->sum('may_totalAmount')
+      + $total_product_qty->sum('jun_totalAmount')
+      + $total_product_qty->sum('jul_totalAmount')
+      + $total_product_qty->sum('aug_totalAmount')
+      + $total_product_qty->sum('sep_totalAmount')
+      + $total_product_qty->sum('oct_totalAmount')
+      + $total_product_qty->sum('nov_totalAmount')
+      + $total_product_qty->sum('dec_totalAmount');
     	return response()->json([
     		'janTotal' => $total_product_qty->sum('jan_totalAmount'),
     		'febTotal' => $total_product_qty->sum('feb_totalAmount'),
@@ -533,7 +551,8 @@ class ProductSaleReportByMonthController extends Controller
     		'sepTotal' => $total_product_qty->sum('sep_totalAmount'),
     		'octTotal' => $total_product_qty->sum('oct_totalAmount'),
     		'novTotal' => $total_product_qty->sum('nov_totalAmount'),
-    		'decTotal' => $total_product_qty->sum('dec_totalAmount')
+    		'decTotal' => $total_product_qty->sum('dec_totalAmount'),
+        'mTotal'=>$totalAllMonths,
     	]);
     }
 
@@ -548,7 +567,7 @@ class ProductSaleReportByMonthController extends Controller
     }
 
     $dt = Datatables::of($products);
-    $add_columns = ['Jan', 'Dec', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'];
+    $add_columns = ['Jan', 'Dec', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov','total'];
     foreach ($add_columns as $column) {
         $dt->addColumn($column, function ($item) use ($column, $not_visible_arr) {
             return Product::returnAddColumnProductSaleReportByMonth($column, $item, $not_visible_arr);
@@ -562,7 +581,7 @@ class ProductSaleReportByMonthController extends Controller
         });
     }
 
-      $dt->rawColumns(['refrence_code', 'brand', 'short_desc', 'selling_unit', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']);
+      $dt->rawColumns(['refrence_code', 'brand', 'short_desc', 'selling_unit', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec','total']);
       return $dt->make(true);
   }
 

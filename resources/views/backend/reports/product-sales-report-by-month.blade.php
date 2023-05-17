@@ -281,6 +281,9 @@ table.dataTable thead .sorting_desc { background: url('../public/sort/sort_desc.
                 </span>
          </th>
            @endforeach
+           <th>Total</th>
+
+
           </tr>
         </thead>
 
@@ -293,6 +296,7 @@ table.dataTable thead .sorting_desc { background: url('../public/sort/sort_desc.
             @foreach($months as $key => $value)
               <th id="month_{{$key}}"></th>
             @endforeach
+            <th id="mTotal"></th>
           </tr>
         </tfoot>
       </table>
@@ -418,6 +422,7 @@ table.dataTable thead .sorting_desc { background: url('../public/sort/sort_desc.
         <?php foreach ($months as $mon): ?>
           {data: "{{$mon}}", name: "{{$mon}}", className: 'dt-body-right'},
         <?php endforeach ?>
+         {data:'total',name:'total'},
 
       ],
      initComplete: function () {
@@ -454,6 +459,7 @@ table.dataTable thead .sorting_desc { background: url('../public/sort/sort_desc.
         var octTotal = '';
         var novTotal = '';
         var decTotal = '';
+        var mTotal = '';
         // var yearTotal ='';
         // var overAllTotal='';
         // var count='';
@@ -477,6 +483,7 @@ table.dataTable thead .sorting_desc { background: url('../public/sort/sort_desc.
               type : 'footer'
             },
           success: function(result){
+            console.log(mTotal);
             janTotal = result.janTotal;
               febTotal = result.febTotal;
               marTotal = result.marTotal;
@@ -489,7 +496,9 @@ table.dataTable thead .sorting_desc { background: url('../public/sort/sort_desc.
               octTotal = result.octTotal;
               novTotal = result.novTotal;
               decTotal = result.decTotal;
+              mTotal = result.mTotal;
               yearTotal =result.yearTotal;
+
 
               janTotal = parseFloat(janTotal).toFixed(2);
               janTotal = janTotal.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
@@ -515,7 +524,12 @@ table.dataTable thead .sorting_desc { background: url('../public/sort/sort_desc.
               novTotal = novTotal.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
               decTotal = parseFloat(decTotal).toFixed(2);
               decTotal = decTotal.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+              mTotal = parseFloat(mTotal).toFixed(2);
+              mTotal = mTotal.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
 
+              var total_months_count = "{{count($months)}}";
+              total_months_count = parseInt(total_months_count) + 4;
+              //alert(total_months_count);
               $( api.column( 0 ).footer() ).html('Total');
               <?php foreach ($months as $key => $value): ?>
               if("{{$key}}" == 0)
@@ -577,7 +591,9 @@ table.dataTable thead .sorting_desc { background: url('../public/sort/sort_desc.
               {
                 $( api.column( 15 ).footer() ).html(decTotal);
               }
+              
               <?php endforeach ?>
+              $( api.column( total_months_count ).footer() ).html(mTotal);
               $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
 
             }
