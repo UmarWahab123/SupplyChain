@@ -2906,6 +2906,24 @@ class Product extends Model
                     return '--';
                 return $item->nov_totalAmount != null ? number_format($item->nov_totalAmount, 2, '.', ',') : '0.00';
                 break;
+            case 'total':
+                    if (in_array('15', $not_visible_arr))
+                        return '--';
+                        // calculate total by adding up all the month values
+                       $total = ($item->jan_totalAmount ?? 0) +
+                                 ($item->feb_totalAmount ?? 0) +
+                                 ($item->mar_totalAmount ?? 0) +
+                                 ($item->apr_totalAmount ?? 0) +
+                                 ($item->may_totalAmount ?? 0) +
+                                 ($item->jun_totalAmount ?? 0) +
+                                 ($item->jul_totalAmount ?? 0) +
+                                 ($item->aug_totalAmount ?? 0) +
+                                 ($item->sep_totalAmount ?? 0) +
+                                 ($item->oct_totalAmount ?? 0) +
+                                 ($item->nov_totalAmount ?? 0);
+            
+                        return number_format($total, 2, '.', ',');
+                        break;
         }
     }
 

@@ -33,6 +33,7 @@ class ProductSaleReportByMonthExport implements ShouldAutoSize, FromQuery, WithH
     	$months = $this->months;
     	$data_array = [];
     	$i = 4;
+		$total = 0;
 
     	if (!in_array('0', $not_visible_arr)) {
 		  array_push($data_array, @$item->product->refrence_code);
@@ -54,66 +55,108 @@ class ProductSaleReportByMonthExport implements ShouldAutoSize, FromQuery, WithH
 		{
 			if ($month == 'Jan') { 	
 				if (!in_array($i, $not_visible_arr)) {
-			  		array_push($data_array, $item->jan_totalAmount != null ? round($item->jan_totalAmount,2) : '0.00');
+					$amount = $item->jan_totalAmount != null ? round($item->jan_totalAmount,2) : 0.00;
+					array_push($data_array,$amount);
+					$total +=$amount;
+			  		//array_push($data_array, $item->jan_totalAmount != null ? round($item->jan_totalAmount,2) : '0.00');
+					
 			  	}
 			}
 			if ($month == 'Feb') {
 				if (!in_array($i, $not_visible_arr)) {
-			  		array_push($data_array, $item->feb_totalAmount != null ? round($item->feb_totalAmount,2) : '0.00');
-			  	}
+					$amount = $item->feb_totalAmount != null ? round($item->feb_totalAmount,2) : 0.00;
+					array_push($data_array, $amount);
+					$total += $amount;
+					//array_push($data_array, $item->feb_totalAmount != null ? round($item->feb_totalAmount,2) : '0.00');
+			  	
+				}
 			}
 			if ($month == 'Mar') {
 				if (!in_array($i, $not_visible_arr)) {
-			  		array_push($data_array, $item->mar_totalAmount != null ? round($item->mar_totalAmount,2) : '0.00');
+					$amount = $item->mar_totalAmount != null ? round($item->mar_totalAmount,2) : 0.00;
+                    array_push($data_array, $amount);
+                    $total += $amount;
+			  		//array_push($data_array, $item->mar_totalAmount != null ? round($item->mar_totalAmount,2) : '0.00');
 			  	}
 			}
 			if ($month == 'Apr') {
 				if (!in_array($i, $not_visible_arr)) {
-			  		array_push($data_array, $item->apr_totalAmount != null ? round($item->apr_totalAmount,2) : '0.00');
+					$amount = $item->apr_totalAmount != null ? round($item->apr_totalAmount,2) : 0.00;
+                    array_push($data_array, $amount);
+                    $total += $amount;
+
+			  		//array_push($data_array, $item->apr_totalAmount != null ? round($item->apr_totalAmount,2) : '0.00');
 			  	}
 			}
 			if ($month == 'May') {
 				if (!in_array($i, $not_visible_arr)) {
-			  		array_push($data_array, $item->may_totalAmount != null ? round($item->may_totalAmount,2) : '0.00');
+					$amount = $item->may_totalAmount != null ? round($item->may_totalAmount,2) : 0.00;
+					array_push($data_array, $amount);
+					$total += $amount;
+			  		//array_push($data_array, $item->may_totalAmount != null ? round($item->may_totalAmount,2) : '0.00');
 			  	}
 			}
 			if ($month == 'Jun') {
 				if (!in_array($i, $not_visible_arr)) {
-			  		array_push($data_array, $item->jun_totalAmount != null ? round($item->jun_totalAmount,2) : '0.00');
+					$amount = $item->jun_totalAmount != null ? round($item->jun_totalAmount,2) : 0.00;
+                    array_push($data_array, $amount);
+                    $total += $amount;
+			  		//array_push($data_array, $item->jun_totalAmount != null ? round($item->jun_totalAmount,2) : '0.00');
 			  	}
 			}
 			if ($month == 'Jul') {
 				if (!in_array($i, $not_visible_arr)) {
-			  		array_push($data_array, $item->jul_totalAmount != null ? round($item->jul_totalAmount,2) : '0.00');
+					$amount = $item->jul_totalAmount != null ? round($item->jul_totalAmount,2) : 0.00;
+                    array_push($data_array, $amount);
+                    $total += $amount;
+			  		//array_push($data_array, $item->jul_totalAmount != null ? round($item->jul_totalAmount,2) : '0.00');
 			  	} 	
 			}
 			if ($month == 'Aug') {
 				if (!in_array($i, $not_visible_arr)) {
-			  		array_push($data_array, $item->aug_totalAmount != null ? round($item->aug_totalAmount,2) : '0.00');
+					$amount = $item->aug_totalAmount != null ? round($item->aug_totalAmount,2) : 0.00;
+                    array_push($data_array, $amount);
+                    $total += $amount;
+			  		//array_push($data_array, $item->aug_totalAmount != null ? round($item->aug_totalAmount,2) : '0.00');
 			  	}
 			}
 			if ($month == 'Sep') {
 				if (!in_array($i, $not_visible_arr)) {
-			  		array_push($data_array, $item->sep_totalAmount != null ? round($item->sep_totalAmount,2) : '0.00');
+					$amount = $item->sep_totalAmount != null ? round($item->sep_totalAmount,2) : 0.00;
+                    array_push($data_array, $amount);
+                    $total += $amount;
+			  		//array_push($data_array, $item->sep_totalAmount != null ? round($item->sep_totalAmount,2) : '0.00');
 			  	}
 			}
 			if ($month == 'Oct') {
 				if (!in_array($i, $not_visible_arr)) {
-			  		array_push($data_array, $item->oct_totalAmount != null ? round($item->oct_totalAmount,2) : '0.00');
+					$amount = $item->oct_totalAmount != null ? round($item->oct_totalAmount,2) : 0.00;
+                    array_push($data_array, $amount);
+                    $total += $amount;
+			  		//array_push($data_array, $item->oct_totalAmount != null ? round($item->oct_totalAmount,2) : '0.00');
 			  	}
 			}
 			if ($month == 'Nov') {
 				if (!in_array($i, $not_visible_arr)) {
-			  		array_push($data_array, $item->nov_totalAmount != null ? round($item->nov_totalAmount,2) : '0.00');
+					$amount = $item->nov_totalAmount != null ? round($item->nov_totalAmount,2) : 0.00;
+                    array_push($data_array, $amount);
+                    $total += $amount;
+			  		//array_push($data_array, $item->nov_totalAmount != null ? round($item->nov_totalAmount,2) : '0.00');
 			  	}
 			}
 			if ($month == 'Dec') {
 				if (!in_array($i, $not_visible_arr)) {
-			  		array_push($data_array, $item->dec_totalAmount != null ? round($item->dec_totalAmount,2) : '0.00');
+					$amount = $item->dec_totalAmount != null ? round($item->dec_totalAmount,2) : 0.00;
+                    array_push($data_array, $amount);
+                    $total += $amount;
+			  		//array_push($data_array, $item->dec_totalAmount != null ? round($item->dec_totalAmount,2) : '0.00');
 			  	}
 			}
 			$i++;
 		}
+		if (!in_array($i, $not_visible_arr)) {
+			array_push($data_array, $total);
+			}
 
 		return $data_array;
     }
@@ -149,6 +192,8 @@ class ProductSaleReportByMonthExport implements ShouldAutoSize, FromQuery, WithH
 			}
 			$i++;
 		}
+		 // Add a Total column heading
+		 array_push($heading_array, 'Total');
 
 		return $heading_array;
 

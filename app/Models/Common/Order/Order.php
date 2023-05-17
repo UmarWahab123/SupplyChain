@@ -1347,7 +1347,7 @@ class Order extends Model
                 if ($item->order_products != null) {
                     $vat_total = $item->order_products_vat_2->sum('total_price');
                 }
-                $total = (@$item->primary_status == 25 ? '-' : '') . floatval(preg_replace('/[^\d.]/', '', $vat_total)) - @$item->non_vat_total_paid;
+                $total = ((@$item->primary_status == 25 ? '-' : '') . floatval(preg_replace('/[^\d.]/', '', $vat_total))) - @$item->non_vat_total_paid;
                 $total = round($total, 2);
                 $disabled = $total == 0 ? "disabled" : "";
                 $html = '<input type="number" class="form-control" name="oi_total_received" id="oi_total_received_non_vat_' . $item->id . '" value="' . $total . '" ' . $disabled . ' >';
@@ -1367,7 +1367,7 @@ class Order extends Model
                         $vat_amount = $vat_amount + $vat;
                     }
                 }
-                $total = (@$item->primary_status == 25 ? '-' : '') . (floatval(preg_replace('/[^\d.]/', '', $vat_total))) - @$item->vat_total_paid;
+                $total = ((@$item->primary_status == 25 ? '-' : '') . (floatval(preg_replace('/[^\d.]/', '', $vat_total)))) - @$item->vat_total_paid;
                 $total = round($total, 2);
                 $disabled = $total == 0 ? "disabled" : "";
                 $html = '<input type="number" class="form-control" name="oi_total_received" id="oi_total_received_' . $item->id . '" value="' . $total . '" ' . $disabled . '>';
