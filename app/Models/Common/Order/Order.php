@@ -770,7 +770,11 @@ class Order extends Model
 
     public static function createManualOrder($stock, $order_id = null, $msg = null )
     {
-        $customer = Customer::where('manual_customer', 1)->first();
+        if($stock->customer_id != null){
+            $customer = Customer::find($stock->customer_id);
+        }else{
+            $customer = Customer::where('manual_customer', 1)->first();
+        }
         if ($customer != null) {
             $address  = CustomerBillingDetail::where('customer_id', $customer->id)->first();
             $order                        = new Order;

@@ -7887,7 +7887,6 @@ class PurchaseOrderController extends Controller
 
     public function getStockData(Request $request)
     {
-
         // $job_status = ExportStatus::where('type', 'stock_card_job')->where('user_id', Auth::user()->id)->first();
         // if ($job_status == null)
         // {
@@ -7990,7 +7989,7 @@ class PurchaseOrderController extends Controller
                 </table>
                 </div>';
                 if(Auth::user()->role_id == 1 || Auth::user()->role_id == 2 || Auth::user()->role_id == 4 || Auth::user()->role_id == 9 || Auth::user()->role_id == 11){
-                $custom_table_data .= '<tr><td><a href="javascript:void(0)" class="btn btn-sale recived-button add-new-stock-btn" id="add-new-stock-btn'.$card->id.'" style="width: 40%; display: none;" data-warehouse_id="'.$card->warehouse_id.'" data-id="'.$card->id.'" title="Add Manual Stock">+</a></td></tr>';
+                $custom_table_data .= '<tr><td><a href="javascript:void(0)" class="btn btn-sale recived-button add-new-stock-btnnn new-stock-add-button" id="add-new-stock-btn'.$card->id.'" style="width: 40%; display: none;" data-warehouse_id="'.$card->warehouse_id.'" data-id="'.$card->id.'" title="Add Manual Stock">+</a></td>';
                  }
               $custom_table_data .= '</td>
               </tr>';

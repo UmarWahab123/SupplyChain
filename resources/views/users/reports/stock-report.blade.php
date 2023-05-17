@@ -151,19 +151,16 @@ use Carbon\Carbon;
           @endif
         </select>
       </div>
-      @if (in_array('product_type_2', $product_detail_section))
+      @if(Auth::user()->role_id != 9)
       <div class="col-md-2 col-6">
-        <select class="font-weight-bold form-control-lg form-control product_type_2 state-tags" name="product_type_2" >
-          <option value="" disabled="" selected="">Choose @if(!array_key_exists('product_type_2', $global_terminologies)) Product Type 2 @else {{$global_terminologies['product_type_2']}} @endif </option>
-          @if($product_types_2)
-          @foreach($product_types_2 as $pcat)
-              <option value="{{$pcat->id}}">{{$pcat->title}}</option>
+        <select class="font-weight-bold form-control-lg form-control supplier_country state-tags" name="supplier_country" >
+          <option value="" selected="">Choose Supplier Country</option>
+          @foreach($suppliers as $s)
+          <option value="{{$s->country}}">{{$s->getcountry->name}}</option>
           @endforeach
-          @endif
         </select>
       </div>
       @endif
-
       @if (in_array('product_type_3', $product_detail_section))
       <div class="col-md-2 col-6">
         <select class="font-weight-bold form-control-lg form-control product_type_3 state-tags" name="product_type_3" >
@@ -332,11 +329,11 @@ use Carbon\Carbon;
                 <img src="{{url('public/svg/down.svg')}}" alt="down" style="width:10px; height:10px; cursor: pointer;">
               </span>
             </th>
-            <th @if (!in_array('product_type_2', $product_detail_section)) class="noVis" @endif>@if(!array_key_exists('product_type_2', $global_terminologies)) Type 2 @else {{$global_terminologies['product_type_2']}} @endif
-              <span class="arrow_up sorting_filter_table" data-order="ASC" data-column_name="type_2">
+            <th>Supplier Country
+              <span class="arrow_up sorting_filter_table" data-order="ASC" data-column_name="supplier_country">
                 <img src="{{url('public/svg/up.svg')}}" alt="up" style="width:10px; height:10px; cursor: pointer;">
               </span>
-              <span class="arrow_down sorting_filter_table" data-order="DESC" data-column_name="type_2">
+              <span class="arrow_down sorting_filter_table" data-order="DESC" dtaa-column_name="supplier_country">
                 <img src="{{url('public/svg/down.svg')}}" alt="down" style="width:10px; height:10px; cursor: pointer;">
               </span>
             </th>
@@ -500,7 +497,7 @@ use Carbon\Carbon;
   <input type="hidden" name="unit_id_exp" id="unit_id_exp">
   <input type="hidden" name="all_movement_exp" id="all_movement_exp">
   <input type="hidden" name="product_type_exp" id="product_type_exp">
-  <input type="hidden" name="product_type_2_exp" id="product_type_2_exp">
+  <input type="hidden" name="supplier_country_exp" id="supplier_country_exp">
   <input type="hidden" name="product_type_3_exp" id="product_type_3_exp">
   {{-- <input type="hidden" name="tableSearchField" id="tableSearchField"> --}}
   <input type="hidden" name="apply_filter_btn" id="apply_filter_btn" value="0">
@@ -609,7 +606,7 @@ $('.sorting_filter_table').on('click',function(){
           data.unit_id = $('.unit_id option:selected').val(),
           data.all_movement = $('.all_movement option:selected').val(),
           data.product_type = $('.product_type option:selected').val(),
-          data.product_type_2 = $('.product_type_2 option:selected').val(),
+          data.supplier_country = $('.supplier_country option:selected').val(),
           data.product_type_3 = $('.product_type_3 option:selected').val(),
           data.column_name = column_name,
           data.sort_order = sort_order
@@ -639,7 +636,7 @@ $('.sorting_filter_table').on('click',function(){
         { data: 'brand', name: 'brand' },
         { data: 'supplier', name: 'supplier' },
         { data: 'product_type', name: 'product_type' },
-        { data: 'product_type_2', name: 'product_type_2' @if (!in_array('product_type_2', $product_detail_section)) ,searchable: false, orderable: false, visible: false @endif},
+        { data: 'supplier_country', name: 'supplier_country' },
         { data: 'product_type_3', name: 'product_type_3' @if (!in_array('product_type_3', $product_detail_section)) ,searchable: false, orderable: false, visible: false @endif},
         { data: 'min_stock', name: 'min_stock' },
         { data: 'selling_unit', name: 'selling_unit' },
@@ -808,7 +805,7 @@ $('.sorting_filter_table').on('click',function(){
   $(document).on('change','.product_type',function(){
     $("#apply_filter_btn").val("1");
   });
-  $(document).on('change','.product_type_2',function(){
+  $(document).on('change','.supplier_country',function(){
     $("#apply_filter_btn").val("1");
   });
   $(document).on('change','.product_type_3',function(){
@@ -911,7 +908,7 @@ $('.sorting_filter_table').on('click',function(){
     $('.warehouse_id').val('');
     $('.all_movement').val('');
     $('.product_type').val('');
-    $('.product_type_2').val('');
+    $('.supplier_country').val('');
     $('.product_type_3').val('');
     $('.prod_category').val('');
     $('.unit_id').val('');
@@ -950,7 +947,7 @@ $('.sorting_filter_table').on('click',function(){
     $("#prod_category_exp").val($('.prod_category option:selected').val());
     $("#all_movement_exp").val($('.all_movement option:selected').val());
     $("#product_type_exp").val($('.product_type option:selected').val());
-    $("#product_type_2_exp").val($('.product_type_2 option:selected').val());
+    $("#supplier_country_exp").val($('.supplier_country_exp option:selected').val());
     $("#product_type_3_exp").val($('.product_type_3 option:selected').val());
     $("#unit_id_exp").val($('.unit_id option:selected').val());
 
