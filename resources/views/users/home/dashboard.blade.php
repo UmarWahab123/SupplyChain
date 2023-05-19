@@ -162,12 +162,16 @@
       </div>
     </div>
 
-    <div class="pull-right col-lg col-md-6 col-6 reset-date-btn" style="margin-bottom: 20px;">
+    <div class="pull-right col-lg col-md-3 col-3 reset-date-btn" style="margin-bottom: 20px;">
 
       <span class="vertical-icons export_btn" title="Export">
       <img src="{{asset('public/icons/export_icon.png')}}" width="27px">
       </span>
-
+    </div>
+    <div class ="pull-right selected-eitem col-lg col-md-3 col-3 "style="margin-bottom: 20px;">
+      <span class="vertical-icons  bulk_export_btn" id="bbulk_export_btn" title="Bulk-Export">
+      <img src="{{asset('public/icons/export_icon.png')}}" width="27px">
+      </span>
     </div>
 
   </div>
@@ -184,9 +188,20 @@
   <div class="alert alert-success export-alert-success d-none"  role="alert">
     <i class=" fa fa-check "></i>
     <b>Export file is ready to download.
+      <!-- <a class = "clickhere exp_download" href="#" target="_blank" id="export"><u>Click Here</u></a> -->
     <a class="exp_download" href="{{ url('get-download-xslx','waiting_confirmation.xlsx')}}" target="_blank" id=""><u>Click Here</u></a>
     </b>
   </div>
+
+  <!-- success msg for exporting po details -->
+  <div class="alert alert-success export-alert-success-po-details d-none"  role="alert">
+    <i class=" fa fa-check "></i>
+    <b>Export file is ready to download.
+      <!-- <a class = "clickhere exp_download" href="#" target="_blank" id="export"><u>Click Here</u></a> -->
+    <a class="exp_download" href="{{ url('get-download-xslx','Purchase_orders_details.xlsx')}}" target="_blank" id=""><u>Click Here</u></a>
+    </b>
+  </div>
+
   <div class="alert alert-primary export-alert-another-user d-none"  role="alert">
     <i class="  fa fa-spinner fa-spin"></i>
     <b> Export file is already being prepared by another user! Please wait.. </b>
@@ -532,7 +547,7 @@
 @section('javascript')
 <script type="text/javascript">
 
-  $('.export_btn').on('click',function(){
+$('.export_btn').on('click',function(){
 
 $('#_from_date').val($('#from_date').val());
 $('#_to_date').val($('#to_date').val());
@@ -555,6 +570,7 @@ $.ajax({
   beforeSend:function(){
     $('.export_btn').attr('title','Please Wait...');
     $('.export_btn').prop('disabled',true);
+    $('.export-alert-success-po-details').addClass('d-none');
   },
   success:function(data){
     if(data.status==1)
@@ -563,6 +579,7 @@ $.ajax({
       $('.export-alert').removeClass('d-none');
       $('.export_btn').attr('title','EXPORT is being Prepared');
       $('.export_btn').prop('disabled',true);
+     
       console.log("Calling Function from first part");
       checkStatusForReceivedIntoStock();
     }
@@ -581,6 +598,109 @@ $.ajax({
   }
 });
 });
+
+$('.bulk_export_btn').on('click', function() {
+  // Get the IDs of the selected checkboxes
+  var selectedIds = [];
+  console.log(selectedIds);
+  $('.check:checked').each(function() {
+    selectedIds.push($(this).val());
+  });
+  // Check if any checkboxes are selected
+  if (selectedIds.length === 0) {
+    toastr.error('Error!', 'Please Select POs To Export. Please Try Again' ,{"positionClass": "toast-bottom-right"});
+
+   // alert('Please Select CheckBox');
+    return;
+  }
+
+  var exportData = {
+    selectedIds: selectedIds,
+    // Add any other necessary data for processing the export
+  };
+  console.log(exportData);
+  
+  $.ajaxSetup({
+    headers: {
+      'X-CSRF-TOKEN': $('meta[name="_token"]').attr('content')
+    }
+  });
+
+  $.ajax({
+    method: "GET",
+    url: "{{ route('bulk-export-received-into-stock') }}",
+    data: exportData,
+    beforeSend: function() {
+      $('.bulk_export_btn').attr('title', 'Please Wait...');
+      $('.bulk_export_btn').prop('disabled', true);
+      $('.export-alert-success').addClass('d-none');
+    },
+    success: function(data) {
+      if (data.status == 1) {
+        $('.export-alert-success-po-details').addClass('d-none');
+        $('.export-alert').removeClass('d-none');
+        $('.bulk_export_btn').attr('title', 'EXPORT is being Prepared');
+        $('.bulk_export_btn').prop('disabled', true);
+        console.log("Calling Function from first part");
+        checkBulkStatusForReceivedIntoStock();
+        
+      } else if (data.status == 2) {
+        $('.export-alert-another-user').removeClass('d-none');
+        $('.export-alert').addClass('d-none');
+        $('.bulk_export_btn').prop('disabled', true);
+        $('.bulk_export_btn').attr('title', 'EXPORT is being Prepared');
+        checkBulkStatusForReceivedIntoStock();
+      
+      }
+    },
+    error: function() {
+      $('.bulk_export_btn').attr('title', 'Create New Export');
+      $('.bulk_export_btn').prop('disabled', false);
+    }
+  });
+});
+
+function checkBulkStatusForReceivedIntoStock(){
+  $.ajax({
+    method:'get',
+    url:"{{route('bulk-recursive-export-status-recieved-into-stock')}}",
+    success:function(data){
+      if(data.status==1)
+    {
+      console.log("Status " +data.status);
+      setTimeout(
+        function(){
+          console.log("Calling Function Again");
+          checkBulkStatusForReceivedIntoStock();
+        }, 5000);
+
+    }else if(data.status==0)
+    {
+      $('.export-alert-success-po-details').removeClass('d-none');
+      $('.export-alert').addClass('d-none');
+      $('.export-alert-another-user').addClass('d-none');
+     // $('.export_btn').attr('title','Create New Export');
+      //$('.export_btn').prop('disabled',false);
+      $('.bulk_export_btn').attr('title','Po Details Export');
+      $('.bulk_export_btn').prop('disabled',false);
+      $('.download-btn').removeClass('d-none');
+    }
+    else if(data.status==2)
+    {
+      $('.export-alert-success-po-details').addClass('d-none');
+      $('.export-alert').addClass('d-none');
+      $('.export-alert-another-user').addClass('d-none');
+      //$('.export_btn').attr('title','Create New Export');
+      //$('.export_btn').prop('disabled',false);
+      $('.bulk_export_btn').attr('title','Po Details Export');
+      $('.bulk_export_btn').prop('disabled',false);
+      toastr.error('Error!', 'Something went wrong. Please Try Again' ,{"positionClass": "toast-bottom-right"});
+      console.log(data.exception);
+    }
+    }
+  });
+
+ }
 
 function checkStatusForReceivedIntoStock()
 {
@@ -605,6 +725,8 @@ $.ajax({
       $('.export-alert-another-user').addClass('d-none');
       $('.export_btn').attr('title','Create New Export');
       $('.export_btn').prop('disabled',false);
+      $('.bulk_export_btn').attr('title','Create New Export');
+      $('.bulk_export_btn').prop('disabled',false);
       $('.download-btn').removeClass('d-none');
     }
     else if(data.status==2)
@@ -614,6 +736,8 @@ $.ajax({
       $('.export-alert-another-user').addClass('d-none');
       $('.export_btn').attr('title','Create New Export');
       $('.export_btn').prop('disabled',false);
+      $('.bulk_export_btn').attr('title','Create New Export');
+      $('.bulk_export_btn').prop('disabled',false);
       toastr.error('Error!', 'Something went wrong. Please Try Again' ,{"positionClass": "toast-bottom-right"});
       console.log(data.exception);
     }
@@ -843,6 +967,7 @@ $.ajax({
       if(cb_length > 0)
       {
         $('.selected-item').removeClass('d-none');
+        $('.selected-eitem').removeClass('d-none');
       }
     }
     else
@@ -850,6 +975,7 @@ $.ajax({
       $('.check1').prop('checked', false);
       $('.check1').parents('tr').removeClass('selected');
       $('.selected-item').addClass('d-none');
+      $('.selected-eitem').addClass('d-none');
     }
   });
 
@@ -860,6 +986,7 @@ $.ajax({
     if(this.checked == true)
     {
       $('.selected-item').removeClass('d-none');
+      $('.selected-eitem').removeClass('d-none');
       $(this).parents('tr').addClass('selected');
     }
     else
@@ -868,6 +995,7 @@ $.ajax({
       if(cb_length == 0)
       {
         $('.selected-item').addClass('d-none');
+        $('.selected-eitem').addClass('d-none');
       }
     }
   });
@@ -985,6 +1113,7 @@ $( document ).ready(function() {
         }
     });
 
+  
   $(document).on('click', '.check-all', function () {
     if(this.checked == true)
     {

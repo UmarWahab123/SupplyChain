@@ -46,6 +46,7 @@ use App\Models\Common\PurchaseOrders\PurchaseOrder;
 use App\Models\Common\PurchaseOrders\DraftPurchaseOrder;
 use App\Models\Common\PurchaseOrders\PurchaseOrderDetail;
 use App\Models\Common\PurchaseOrders\PoGroupStatusHistory;
+use App\Jobs\BulkReceivedIntoStockJob;
 // use App\QuotationConfig;
 
 class HomeController extends Controller
@@ -825,7 +826,7 @@ class HomeController extends Controller
       //               }
       //               },'productType','productType2'
       //           ]);
-        $products = Product::select('products.id', 'products.short_desc', 'products.brand', 'products.refrence_code', 'products.min_stock', 'products.selling_unit', 'products.type_id', 'products.type_id_2', 'products.type_id_3', 'products.supplier_id', 'products.unit_conversion_rate', 'products.total_buy_unit_cost_price')->where('status', 1);
+        $products = Product::select('products.id', 'products.short_desc', 'products.brand', 'products.refrence_code', 'products.min_stock', 'products.selling_unit', 'products.type_id', 'products.type_id_2', 'products.type_id_3', 'products.supplier_id', 'products.unit_conversion_rate', 'products.total_buy_unit_cost_price')->where('products.status', 1);
         if($product_id != null){
             $products = $products->where('id', $product_id);
         }
@@ -847,11 +848,11 @@ class HomeController extends Controller
                 'productType',
                 'productType2',
                 'def_or_last_supplier' => function($sup){
-                    $sup->select('id', 'reference_name');
+                    $sup->select('id', 'reference_name','country');
                 }
             ]);
 
-      // dd($products->get());
+    //   dd($products->get()->take(1));
       if($warehouse_id != null)
       {
         //dd($warehouse_id);
@@ -885,11 +886,12 @@ class HomeController extends Controller
       {
         $products->where('products.type_id',$request->product_type);
       }
-      if($request->product_type_2 != null)
+      if($request->supplier_country != null)
       {
-        $products->where('products.type_id_2',$request->product_type_2);
+        $products->whereHas('def_or_last_supplier', function ($query) use ($request) {
+            $query->where('country', $request->supplier_country);
+        });
       }
-
       if($request->product_type_3 != null)
       {
         $products->where('products.type_id_3',$request->product_type_3);
@@ -983,17 +985,21 @@ class HomeController extends Controller
 
       if ($request->column_name == 'supplier')
       {
-        $products->leftjoin('suppliers as sup', 'sup.id', '=', 'products.supplier_id')->orderBy('sup.reference_name', $sort_order);
+        $products->leftjoin('suppliers as sup', 'sup.id', '=', 'products.supplier_id')
+        ->where('products.status', 1)
+        ->orderBy('sup.reference_name', $sort_order);
       }
-
+      if ($request->column_name == 'supplier_country') {
+        $products->leftJoin('suppliers as sup', 'products.supplier_id', '=', 'sup.id')
+            ->leftJoin('countries', 'sup.country', '=', 'countries.id')
+            ->where('products.status', 1) // Specify the table name or alias for the 'status' column
+            ->orderBy('countries.name', $sort_order);
+      }
       if ($request->column_name == 'type')
       {
         $products->leftjoin('types as pt', 'pt.id', '=', 'products.type_id')->orderBy('pt.title', $sort_order);
       }
-      else if ($request->column_name == 'type_2')
-      {
-        $products->leftjoin('product_secondary_types as pt', 'pt.id', '=', 'products.type_id_2')->orderBy('pt.title', $sort_order);
-      }
+     
       else if ($request->column_name == 'type_3')
       {
         $products->leftjoin('product_type_tertiaries as pt', 'pt.id', '=', 'products.type_id_3')->orderBy('pt.title', $sort_order);
@@ -1038,7 +1044,7 @@ class HomeController extends Controller
       }
 
       $dt =  Datatables::of($products);
-      $add_columns = ['history', 'cogs', 'stock_balance', 'stock_out', 'out_transfer_document', 'out_manual_adjustment', 'out_order', 'stock_in', 'in_orderUpdate', 'in_transferDocument', 'in_manualAdjusment', 'in_purchase', 'start_count', 'selling_unit', 'min_stock', 'product_type_2','product_type_3', 'product_type', 'brand', 'supplier'];
+      $add_columns = ['history', 'cogs', 'stock_balance', 'stock_out', 'out_transfer_document', 'out_manual_adjustment', 'out_order', 'stock_in', 'in_orderUpdate', 'in_transferDocument', 'in_manualAdjusment', 'in_purchase', 'start_count', 'selling_unit', 'min_stock', 'supplier_country','product_type_3', 'product_type', 'brand', 'supplier'];
 
       foreach ($add_columns as $column) {
         $dt->addColumn($column, function ($item) use ($column, $from_date, $to_date, $warehouse_id) {
@@ -1054,7 +1060,7 @@ class HomeController extends Controller
         });
       }
 
-        $dt->rawColumns(['refrence_code','history','in_purchase','in_manualAdjusment','in_transferDocument','in_orderUpdate', 'out_order','out_manual_adjustment','out_transfer_document','product_type','product_type_2', 'supplier']);
+        $dt->rawColumns(['refrence_code','history','in_purchase','in_manualAdjusment','in_transferDocument','in_orderUpdate', 'out_order','out_manual_adjustment','out_transfer_document','product_type','supplier_country', 'supplier']);
         $dt->with(['title' => $unit_title,'total_unit' => number_format(floatval($total_unit),2,'.',','),'stock_items' => $stock_items, 'stock_min_current' => $stock_min_current]);
         return $dt->make(true);
     }
@@ -2319,9 +2325,37 @@ class HomeController extends Controller
             return response()->json(['msg'=>"File is now getting prepared",'status'=>1,'exception'=>null]);
         }
     }
+    public function bulkexportReceivedIntoStock(Request $request){
+        $selectedIds = $request->input('selectedIds');
+        // dd($selectedIds);
+        $type = 'waiting_confirmation_po_details';
+        $status = ExportStatus::where('user_id', auth()->user()->id)->where('type', $type)->first();
+        if($status==null){
+            $new = new ExportStatus();
+            $new->user_id=Auth::user()->id;
+            $new->type=$type;
+            $new->status=1;
+            $new->save();
+            BulkReceivedIntoStockJob::dispatch($selectedIds,Auth::user()->id);
+            return response()->json(['msg'=>"File is now getting prepared",'status'=>1,'recursive'=>true]);
+        }elseif($status->status == 1)
+        {
+            return response()->json(['msg'=>"File is already being prepared",'status'=>2]);
+        }
+        elseif($status->status==0 || $status->status==2)
+        {
+            ExportStatus::where('type',$type)->where('user_id', auth()->user()->id)->update(['status'=>1,'exception'=>null,'user_id'=>Auth::user()->id]);
+            BulkReceivedIntoStockJob::dispatch($selectedIds,Auth::user()->id);
+            return response()->json(['msg'=>"File is now getting prepared",'status'=>1,'exception'=>null]);
+        }
+    }
 
     public function recursiveExportStatusReceivedIntoStock(Request $request) {
         $status=ExportStatus::where('type', $request->type)->first();
+        return response()->json(['msg'=>"File Created!",'status'=>$status->status,'exception'=>$status->exception]);
+    }
+    public function bulkrecursiveExportsStatusReceivedIntoStock(){
+        $status = ExportStatus::where('user_id', auth()->user()->id)->where('type','waiting_confirmation_po_details')->first();
         return response()->json(['msg'=>"File Created!",'status'=>$status->status,'exception'=>$status->exception]);
     }
 
