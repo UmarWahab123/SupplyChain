@@ -49,7 +49,7 @@ class BulkReceivedIntoStockJob implements ShouldQueue
             $query = PurchaseOrderDetail::with('customer','product','getOrder', 'PurchaseOrder:id,ref_id')->whereIn('purchase_order_details.po_id',$selectedIds)->select('purchase_order_details.*')->orderBy('po_id', 'desc');
             $filename = 'Purchase_orders_details.xlsx';
 
-            $return=\Excel::store(new bulkReceivedIntoStockExport($query), $filename);
+            $return=\Excel::store(new BulkReceivedIntoStockExport($query), $filename);
             if($return)
             {
                 ExportStatus::where('type','waiting_confirmation_po_details')->where('user_id', $user_id)->update(['status'=>0,'last_downloaded'=>date('Y-m-d H:i:s')]);

@@ -11,7 +11,7 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Events\AfterSheet;
 
-class bulkReceivedIntoStockExport  implements FromQuery, ShouldAutoSize, WithHeadings, WithMapping, WithEvents
+class BulkReceivedIntoStockExport  implements FromQuery, ShouldAutoSize, WithHeadings, WithMapping, WithEvents
 {
     protected $query = null;
 

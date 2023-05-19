@@ -167,12 +167,17 @@
       <span class="vertical-icons export_btn" title="Export">
       <img src="{{asset('public/icons/export_icon.png')}}" width="27px">
       </span>
-    </div>
-    <div class ="pull-right selected-eitem col-lg col-md-3 col-3 "style="margin-bottom: 20px;">
-      <span class="vertical-icons  bulk_export_btn" id="bbulk_export_btn" title="Bulk-Export">
+
+      <span class="vertical-icons  bulk_export_btn ml-3" id="bbulk_export_btn" title="Po Details Export">
       <img src="{{asset('public/icons/export_icon.png')}}" width="27px">
       </span>
+
     </div>
+    <!-- <div class ="pull-right selected-eitem col-lg col-md-3 col-3 "style="margin-bottom: 20px;">
+      <span class="vertical-icons  bulk_export_btn" id="bbulk_export_btn" title="Po Details Export">
+      <img src="{{asset('public/icons/export_icon.png')}}" width="27px">
+      </span>
+    </div> -->
 
   </div>
 </div>
