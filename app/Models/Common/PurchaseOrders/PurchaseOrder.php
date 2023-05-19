@@ -79,7 +79,11 @@ class PurchaseOrder extends Model
     }
     public static function createManualPo($stock_out)
     {
-        $supplier = Supplier::where('manual_supplier',1)->first();
+        if($stock_out->supplier_id != null){
+            $supplier = Supplier::find($stock_out->supplier_id);
+        }else{
+            $supplier = Supplier::where('manual_supplier',1)->first();
+        }
         if($supplier != null)
         {
             $purchaseOrder = PurchaseOrder::create([
