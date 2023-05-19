@@ -46,6 +46,7 @@ use App\Models\Common\PurchaseOrders\PurchaseOrder;
 use App\Models\Common\PurchaseOrders\DraftPurchaseOrder;
 use App\Models\Common\PurchaseOrders\PurchaseOrderDetail;
 use App\Models\Common\PurchaseOrders\PoGroupStatusHistory;
+use App\Jobs\BulkReceivedIntoStockJob;
 // use App\QuotationConfig;
 
 class HomeController extends Controller
@@ -2319,9 +2320,37 @@ class HomeController extends Controller
             return response()->json(['msg'=>"File is now getting prepared",'status'=>1,'exception'=>null]);
         }
     }
+    public function bulkexportReceivedIntoStock(Request $request){
+        $selectedIds = $request->input('selectedIds');
+        // dd($selectedIds);
+        $type = 'waiting_confirmation_po_details';
+        $status = ExportStatus::where('user_id', auth()->user()->id)->where('type', $type)->first();
+        if($status==null){
+            $new = new ExportStatus();
+            $new->user_id=Auth::user()->id;
+            $new->type=$type;
+            $new->status=1;
+            $new->save();
+            BulkReceivedIntoStockJob::dispatch($selectedIds,Auth::user()->id);
+            return response()->json(['msg'=>"File is now getting prepared",'status'=>1,'recursive'=>true]);
+        }elseif($status->status == 1)
+        {
+            return response()->json(['msg'=>"File is already being prepared",'status'=>2]);
+        }
+        elseif($status->status==0 || $status->status==2)
+        {
+            ExportStatus::where('type',$type)->where('user_id', auth()->user()->id)->update(['status'=>1,'exception'=>null,'user_id'=>Auth::user()->id]);
+            BulkReceivedIntoStockJob::dispatch($selectedIds,Auth::user()->id);
+            return response()->json(['msg'=>"File is now getting prepared",'status'=>1,'exception'=>null]);
+        }
+    }
 
     public function recursiveExportStatusReceivedIntoStock(Request $request) {
         $status=ExportStatus::where('type', $request->type)->first();
+        return response()->json(['msg'=>"File Created!",'status'=>$status->status,'exception'=>$status->exception]);
+    }
+    public function bulkrecursiveExportsStatusReceivedIntoStock(){
+        $status = ExportStatus::where('user_id', auth()->user()->id)->where('type','waiting_confirmation_po_details')->first();
         return response()->json(['msg'=>"File Created!",'status'=>$status->status,'exception'=>$status->exception]);
     }
 

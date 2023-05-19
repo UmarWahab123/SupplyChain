@@ -237,7 +237,9 @@ Route::group(['namespace' => 'Purchasing', 'middleware' => 'purchasing'], functi
     Route::post('save-purchase-list-column-toggle', 'HomeController@savePurchaseListTableColumnDisplay')->name('save-purchase-list-column-toggle');
 
     Route::get('/export-received-into-stock', 'HomeController@exportReceivedIntoStock')->name('export-received-into-stock');
+    Route::get('/bulk-export-received-into-stock','HomeController@bulkexportReceivedIntoStock')->name('bulk-export-received-into-stock');
     Route::get('recursive-export-status-recieved-into-stock', 'HomeController@recursiveExportStatusReceivedIntoStock')->name('recursive-export-status-recieved-into-stock');
+    Route::get('bulk-recursive-export-status-recieved-into-stock', 'HomeController@bulkrecursiveExportsStatusReceivedIntoStock')->name('bulk-recursive-export-status-recieved-into-stock');
     Route::get('check-status-for-first-time-received-into-stock', 'HomeController@checkStatusForFirstTimeReceivedIntoStock')->name('check-status-for-first-time-received-into-stock');
 
     // Route::post('check-old-password','HomeController@checkOldPassword');
