@@ -704,6 +704,13 @@ $(function(e){
         {
           if(data.success == true)
           {
+            var qty_inv = $('#qty_inv_'+pod_id).html();
+            var qty_received = $('#quantity_received_'+pod_id).val();
+            if(parseFloat(qty_inv) == parseFloat(qty_received)){
+              $('#'+pod_id).removeClass('yellowRow');
+            }else{
+              $('#'+pod_id).addClass('yellowRow');
+            }
             //$(".product_table").DataTable().ajax.reload(null, false );
             toastr.success('Success!', 'Information updated successfully.',{"positionClass": "toast-bottom-right"});
             return true;
