@@ -12233,63 +12233,32 @@ class ProductController extends Controller
     return response()->json(['success' => false, 'errorMsg' => "Something went Wrong!"]);
 }
  public function suppliersAvailableStock(Request $request){
-    $suppliers_available_stock = StockManagementOut::where('product_id', $request->product_id)
-      ->where('warehouse_id', $request->from_warehouse_id)
-      ->orderBy('supplier_id')
-      ->get();
-        $supplierStockSum = [];
-        $nonSupplierStockSum = 0;
-        $html = '
-        <table id="suppliers_available_stock_list" class="table text-center table-bordered">
-            <thead class="thead-light">
-                <tr>
-                    <th>S.No</th>
-                    <th>Supplier Name</th>
-                    <th>Non Supplier</th>
-                    <th>Total Available Stock</th>
-                </tr>
-            </thead>
-            <tbody>';
-        foreach ($suppliers_available_stock as $key => $available_stock) {
-            $supplierName = @$available_stock->def_or_last_supplier->reference_name;
-            $availableStock = @$available_stock->available_stock;
 
-            if (!empty($available_stock->supplier_id)) {
-                // Supplier available stock
-                if (!isset($supplierStockSum[$supplierName])) {
-                    $supplierStockSum[$supplierName] = 0;
-                }
-                $supplierStockSum[$supplierName] += $availableStock;
-            } else {
-                // Non-supplier available stock
-                $nonSupplierStockSum += $availableStock;
-            }
+    $stocks = DB::table('stock_management_outs')
+    ->select(
+        DB::raw('IFNULL(suppliers.reference_name, "Non supplier") as reference_name'),
+        DB::raw('SUM(stock_management_outs.available_stock) as total_stock')
+    )
+    ->leftJoin('suppliers', 'stock_management_outs.supplier_id', '=', 'suppliers.id')
+    ->whereNull('quantity_out')
+    ->where('product_id',$request->product_id)
+    ->where('warehouse_id', $request->from_warehouse_id)
+    ->groupBy('supplier_id')
+    ->get();
+    
+// Display the results in a table
+  $html = '<table class="table text-center table-bordered">';
+  $html .= '<tr><th>Supplier Name</th>';
+  $html .='<th>Total Stock</th></tr>';
 
-            $html .= '
-                <tr>
-                    <td>' . ($key + 1) . '</td>
-                    <td>' . $supplierName . '</td>
-                    <td>' . $availableStock . '</td>
-                </tr>';
-        }
-        // Output supplier stock sums
-        foreach ($supplierStockSum as $supplierName => $totalStock) {
-            $html .= '
-                <tr>
-                    <td colspan="2">Total for Supplier: ' . $supplierName . '</td>
-                    <td colspan="2">' . $totalStock . '</td>
-                </tr>';
-        }
-        // Output non-supplier stock sum
-        $html .= '
-                <tr>
-                    <td colspan="2">Total for Non-Supplier</td>
-                    <td colspan="2">' . $nonSupplierStockSum . '</td>
-                </tr>';
+    foreach ($stocks as $stock) {
+        $html .= '<tr>';
+        $html .= '<td>' . $stock->reference_name . '</td>';
+        $html .= '<td>' . $stock->total_stock . '</td>';
+        $html .= '</tr>';
+    }
 
-        $html .= '</tbody></table>';
-
-        return $html;
-        dd($html);
+    $html .= '</table>';
+    return $html;
  }
 }
