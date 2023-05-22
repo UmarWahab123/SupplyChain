@@ -3215,6 +3215,7 @@ $(document).ready(function(){
       var warehouse_id = $(this).data('warehouse_id');
       // Set the values of the hidden input fields
       $('#smi_id').val($(this).attr('data-id'));
+      $('#stock_id').val(stock_id);
       // aler
       $('#new_warehouse_id').val(warehouse_id);
       // Show the modal
