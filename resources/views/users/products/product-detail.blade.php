@@ -2905,6 +2905,7 @@ span#product_notes{
                   </form>
                 </div>
                 <div class="tab-pane fade" id="stockTransferForm">
+                <div class="supplier-available-stock-list"></div>
                 <form class="transfer-stock-form">
                  @csrf
                 <input type="hidden" id="smi_id" name="smi_id" value="" class="form-control-lg form-control">
@@ -2941,8 +2942,7 @@ span#product_notes{
                     <div class="form-submit">
                       <input type="button" value="Add" id="stock_management_transfer" class="btn btn-bg save-btn add-new-stock-transfer-save-btn">
                       <input type="reset" value="Close" class="btn btn-danger close-btn">
-                    </div><br>
-                    <span><span id="available-stock-message" class="text-danger"></span><br><a href="javascript:void(0)" class="see-supplier-available-stock d-none text-info">click here to see</a></span>
+                    </div>
                   </form>
                 </div>
               </div>
@@ -2950,19 +2950,7 @@ span#product_notes{
       </div>
   </div>
 </div>
-<div class="modal fade" id="supplierTotalAvailableStock">
-  <div class="modal-dialog modal-dialog-centered parcelpop">
-      <div class="modal-content">
-          <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal">×</button>
-          </div>
-          <div class="modal-body text-center">
-              <h3 class="text-capitalize fontmed">Add New Stock</h3>
-              <div class="supplier-available-stock-list"></div>
-        </div>   
-      </div>
-  </div>
-</div>
+
 @endsection
 
 @section('javascript')
@@ -3231,6 +3219,7 @@ $(document).ready(function(){
                 $('#stock_supplier_id').html(data.response);
                 $(".transfer_stock_supplier_id").html(data.response);
                get_warehouses();
+               suppliers_available_stock();
             },
         })
     });
@@ -3402,8 +3391,7 @@ $(document).ready(function(){
                 else if(result.success == false)
                 {
                     $('#stock_management_transfer').prop('disabled',false);
-                    $("#available-stock-message").html(result.stockerrorMsg);
-                    $(".see-supplier-available-stock").removeClass('d-none');
+                    toastr.error('Error!', result.stockerrorMsg ,{"positionClass": "toast-bottom-right"});
                 }else if(result.success == false){
                     toastr.error('Error!', result.errorMsg ,{"positionClass": "toast-bottom-right"});
 
@@ -3417,11 +3405,10 @@ $(document).ready(function(){
     }
 
   });
-  $(document).on('click','.see-supplier-available-stock',function(e){
+  
+  function suppliers_available_stock(){
       var prod_id  = "{{ $id }}";
-      // alert(prod_id);
-      var from_warehouse = $("#from_warehouse :selected").val();
-      $('#supplierTotalAvailableStock').modal('show');
+      var from_warehouse = $(".warehouses-tab li a.active").data("id");
         $.ajax({
             url: "{{ url('suppliers-available-stock') }}",
             method: 'get',
@@ -3433,7 +3420,7 @@ $(document).ready(function(){
                 $('.supplier-available-stock-list').html(data);
             },
         })
-    });
+    }
     $(document).on('click','.add-new-stock-save-btn',function(){
 
       var stock_id = $("#stock_id").val();
