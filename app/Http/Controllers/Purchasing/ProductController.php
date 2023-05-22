@@ -110,6 +110,9 @@ use App\Models\Common\PurchaseOrders\PurchaseOrder;
 use App\Jobs\SoldProductsSupplierMarginDetailExportJob;
 use App\Models\Common\PurchaseOrders\PurchaseOrderDetail;
 use App\Helpers\ProductConfigurationHelper;
+use App\Models\Common\Status;
+use App\Models\Common\PurchaseOrders\PurchaseOrderStatusHistory;
+use App\Helpers\TransferDocumentHelper;
 
 class ProductController extends Controller
 {
@@ -6820,6 +6823,19 @@ class ProductController extends Controller
         }
         return response()->json(['success' => true, 'response' => $option]);
     }
+    public function getWarehouse(Request $request)
+    {
+        $selectedWarehouses = Warehouse::where('status',1)->where('id',$request->id)->first();
+        $selectedoption = '';
+        $selectedoption .= '<option value="'.@$selectedWarehouses->id.'">'.@$selectedWarehouses->warehouse_title.'</option>';  
+        $warehouses = Warehouse::where('status',1)->where('id','!=',$request->id)->get();
+        $option = '';
+        $option .='<option value="" disabled="true" selected="true">Choose Warehouse</option>';
+        foreach($warehouses as $warehouse){
+        $option .= '<option value="'.@$warehouse->id.'">'.@$warehouse->warehouse_title.'</option>';  
+        }
+        return response()->json(['success' => true, 'response' => $option,'currentwarehouse' =>$selectedoption]);
+    }
     public function makeManualStockAdjustment(Request $request)
     {
         if ($request->stock_id == 'parent_stock') {
@@ -12067,4 +12083,213 @@ class ProductController extends Controller
         $dt->rawColumns(['ref_id', 'warehouse', 'customer', 'refrence_code', 'short_desc', 'unit', 'sum_qty', 'cost_unit', 'total_cost', 'vat', 'supply_from', 'created_date', 'delivery_date', 'target_ship_date', 'brand', 'cogs', 'item_cogs', 'vat_thb', 'vintage', 'available_stock', 'status', 'sale_person', 'ref_po_no', 'discount_value', 'note', 'sum_piece', 'primary_sub_cat']);
         return $dt->make(true);
     }
+    public function manualStockAdjacementTD(Request $request){
+     $quantity = abs($request->quantity_transfer);  
+     $total_stock = StockManagementOut::where('product_id',$request->prod_id)->where('supplier_id', $request->transfer_stock_supplier_id)->where('warehouse_id',$request->from_warehouse)->where('available_stock', '>', 0)->sum('available_stock');
+     if($total_stock >= $quantity ){
+        $td_status = Status::where('id', 19)->first();
+        $counter_formula = $td_status->counter_formula;
+        $counter_formula = explode('-', $counter_formula);
+        $counter_length  = strlen($counter_formula[1]) != null ? strlen($counter_formula[1]) : 4;
+
+        $year = Carbon::now()->year;
+        $month = Carbon::now()->month;
+
+        $year = substr($year, -2);
+        $month = sprintf("%02d", $month);
+        $date = $year . $month;
+
+        $c_p_ref = PurchaseOrder::where('ref_id', 'LIKE', "$date%")->orderby('id', 'DESC')->first();
+        $str = @$c_p_ref->ref_id;
+        $onlyIncrementGet = substr($str, 4);
+        if ($str == NULL) {
+            // $str = $date.'0';
+            $onlyIncrementGet = 0;
+        }
+        $system_gen_no = $date . str_pad(@$onlyIncrementGet + 1, $counter_length, 0, STR_PAD_LEFT);
+        $date = date('y-m-d');
+        $currentDate = Carbon::now()->format('Y-m-d');
+        $purchaseOrder = PurchaseOrder::create([
+            'ref_id'              => $system_gen_no,
+            'status'              => 22,
+            'total'               => NULL,
+            'total_quantity'      => $quantity,
+            'total_gross_weight'  => Null,
+            'total_import_tax_book' => Null,
+            'total_import_tax_book_price' => NULL,
+            'supplier_id'         => $request->transfer_stock_supplier_id,
+            'from_warehouse_id'   => $request->from_warehouse,
+            'created_by'          => Auth::user()->id,
+            'memo'                => "TD created from product details page.",
+            'payment_terms_id'    => NULL,
+            'payment_due_date'    => NULL,
+            'target_receive_date' => $currentDate,
+            'transfer_date'       => $currentDate,
+            'confirm_date'        => NULL,
+            'to_warehouse_id'     => $request->to_warehouse,
+        ]);
+         // PO status history maintaining
+        //  $page_status = Status::select('title')->whereIn('id', [20])->pluck('title')->toArray();
+         $poStatusHistory = new PurchaseOrderStatusHistory;
+         $poStatusHistory->user_id    = Auth::user()->id;
+         $poStatusHistory->po_id      = $purchaseOrder->id;
+         $poStatusHistory->status     = 'Created';
+         $poStatusHistory->new_status = 'Complete Transfer';
+         $poStatusHistory->save();
+
+         $new_purchase_order_detail = PurchaseOrderDetail::create([
+            'po_id'            => $purchaseOrder->id,
+            'order_id'         => NULL,
+            'customer_id'      => NULL,
+            'order_product_id' => NULL,
+            'product_id'       => $request->prod_id,
+            'pod_import_tax_book' => Null,
+            'pod_unit_price'   => Null,
+            'pod_gross_weight' => NULL,
+            'quantity'         => $quantity,
+            'pod_total_gross_weight' => NULL,
+            'pod_total_unit_price' => Null,
+            'discount' => NULL,
+            'pod_import_tax_book_price' => Null,
+            'warehouse_id'     => $request->to_warehouse,
+            'temperature_c'    => Null,
+            'good_type'        => Null,
+            'supplier_packaging' => NULL,
+            'billed_unit_per_package' => NULL,
+            'supplier_invoice_number' => NULL,
+            'custom_invoice_number' => Null,
+            'custom_line_number' => Null,
+        ]);
+        $expirationDate = date('Y-m-d', strtotime($request->expiration_date));
+        //handling stock management for From warehouse
+        if($request->expiration_date == '' || $request->expiration_date == null){
+            $stock_in = StockManagementIn::where('product_id', $request->prod_id)->whereNull('expiration_date')
+                    ->where('warehouse_id', $request->from_warehouse)->first();
+            $expirationDate = null;
+        }else{
+            $stock_in = StockManagementIn::where('product_id', $request->prod_id)->whereDate('expiration_date', $expirationDate)
+                    ->where('warehouse_id', $request->from_warehouse)->first();
+        }
+    
+        if(!$stock_in){
+            $stock_in = new StockManagementIn;
+            $stock_in->title = 'Adjustment';
+            $stock_in->product_id = $request->prod_id;
+            $stock_in->warehouse_id = $request->from_warehouse;
+            $stock_in->expiration_date = $expirationDate;
+            $stock_in->save();
+        }
+
+        //making stock entry
+        $stock = TransferDocumentHelper::stockManagement($stock_in, $new_purchase_order_detail, '-'.$quantity, 
+        $purchaseOrder, null, $request->transfer_stock_supplier_id, $request->from_warehouse);
+        $out_available_stock = abs($stock->available_stock);
+        
+        $from_which_stock_it_will_deduct = StockManagementOut::where('supplier_id', $request->transfer_stock_supplier_id)->whereNull('quantity_out')
+        ->where('available_stock', '>', 0)->where('product_id', $request->prod_id)->where('warehouse_id', $request->from_warehouse)->get();
+        
+        $find_stock_from_which_order_deducted = StockManagementOut::findStockFromWhicOrderIsDeducted('-'.$quantity, $stock_in, $stock, NULL,$from_which_stock_it_will_deduct);
+        
+        $warehouse_product = WarehouseProduct::where('product_id', $request->prod_id)->where('warehouse_id', $request->from_warehouse)->first();
+        $warehouse_product->current_quantity -= $quantity;
+        $warehouse_product->available_quantity -= $quantity;
+        $warehouse_product->save();
+        $stock_in = StockManagementIn::find($request->smi_id);   
+        //handling stock management for To warehouse
+        // if($request->expiration_date == '' || $request->expiration_date == null){
+        //     $stock_in = StockManagementIn::where('product_id', $request->prod_id)->whereNull('expiration_date')
+        //             ->where('warehouse_id', $request->to_warehouse)->first();
+        //     $expirationDate = null;
+        // }else{
+        //     $stock_in = StockManagementIn::where('product_id', $request->prod_id)->whereDate('expiration_date', $expirationDate)
+        //             ->where('warehouse_id', $request->to_warehouse)->first();
+        // }
+        if(!$stock_in){
+            $stock_in = new StockManagementIn;
+            $stock_in->title = 'Adjustment';
+            $stock_in->product_id = $request->prod_id;
+            $stock_in->warehouse_id = $request->to_warehouse;
+            $stock_in->expiration_date = $expirationDate;
+            $stock_in->save();
+        }
+
+        //making stock entry
+        $stock = TransferDocumentHelper::stockManagement($stock_in, $new_purchase_order_detail,$quantity, 
+        $purchaseOrder, null, $request->transfer_stock_supplier_id, $request->to_warehouse);
+        $in_available_stock= abs($stock->available_stock);
+        $from_which_stock_it_will_filled = StockManagementOut::whereNull('quantity_in')
+            ->where('available_stock', '<', 0)->where('product_id', $request->prod_id)->where('warehouse_id', $request->to_warehouse)->get();
+
+       $find_stock_from_which_order_deducted = StockManagementOut::findStockFromWhicOrderIsDeducted($quantity, $stock_in, $stock, NULL,$from_which_stock_it_will_filled);
+
+        $warehouse_product = WarehouseProduct::where('product_id', $request->prod_id)->where('warehouse_id', $request->to_warehouse)->first();
+        $warehouse_product->current_quantity += $quantity;
+        $warehouse_product->available_quantity += $quantity;
+        $warehouse_product->save();
+       return response()->json(['success' => true, 'successMsg' => "Manual Transfer Document Created Successfully."]);
+    }else{
+        return response()->json(['success' => false, 'stockerrorMsg' => "Available Stock of this Supplier is less than the Transfer Stock"]);
+    }
+    return response()->json(['success' => false, 'errorMsg' => "Something went Wrong!"]);
+}
+ public function suppliersAvailableStock(Request $request){
+    $suppliers_available_stock = StockManagementOut::where('product_id', $request->product_id)
+      ->where('warehouse_id', $request->from_warehouse_id)
+      ->orderBy('supplier_id')
+      ->get();
+        $supplierStockSum = [];
+        $nonSupplierStockSum = 0;
+        $html = '
+        <table id="suppliers_available_stock_list" class="table text-center table-bordered">
+            <thead class="thead-light">
+                <tr>
+                    <th>S.No</th>
+                    <th>Supplier Name</th>
+                    <th>Non Supplier</th>
+                    <th>Total Available Stock</th>
+                </tr>
+            </thead>
+            <tbody>';
+        foreach ($suppliers_available_stock as $key => $available_stock) {
+            $supplierName = @$available_stock->def_or_last_supplier->reference_name;
+            $availableStock = @$available_stock->available_stock;
+
+            if (!empty($available_stock->supplier_id)) {
+                // Supplier available stock
+                if (!isset($supplierStockSum[$supplierName])) {
+                    $supplierStockSum[$supplierName] = 0;
+                }
+                $supplierStockSum[$supplierName] += $availableStock;
+            } else {
+                // Non-supplier available stock
+                $nonSupplierStockSum += $availableStock;
+            }
+
+            $html .= '
+                <tr>
+                    <td>' . ($key + 1) . '</td>
+                    <td>' . $supplierName . '</td>
+                    <td>' . $availableStock . '</td>
+                </tr>';
+        }
+        // Output supplier stock sums
+        foreach ($supplierStockSum as $supplierName => $totalStock) {
+            $html .= '
+                <tr>
+                    <td colspan="2">Total for Supplier: ' . $supplierName . '</td>
+                    <td colspan="2">' . $totalStock . '</td>
+                </tr>';
+        }
+        // Output non-supplier stock sum
+        $html .= '
+                <tr>
+                    <td colspan="2">Total for Non-Supplier</td>
+                    <td colspan="2">' . $nonSupplierStockSum . '</td>
+                </tr>';
+
+        $html .= '</tbody></table>';
+
+        return $html;
+        dd($html);
+ }
 }

@@ -2850,6 +2850,9 @@ span#product_notes{
                 <li class="nav-item">
                   <a class="nav-link" id="stockOutTab" data-toggle="tab" href="#stockOutForm">Stock Out</a>
                 </li>
+                <li class="nav-item">
+                  <a class="nav-link" id="stockTransferTab" data-toggle="tab" href="#stockTransferForm">Transfer</a>
+                </li>
               </ul>
               <div class="tab-content mt-5">
                 <div class="tab-pane fade show active" id="stockInForm">
@@ -2901,12 +2904,65 @@ span#product_notes{
                     </div>
                   </form>
                 </div>
+                <div class="tab-pane fade" id="stockTransferForm">
+                <form class="transfer-stock-form">
+                 @csrf
+                <input type="hidden" id="smi_id" name="smi_id" value="" class="form-control-lg form-control">
+                <input type="hidden" id="prod_id" name="prod_id" value="{{$id}}" class="form-control-lg form-control">
+                    <div class="form-group">
+                      <label for="from_warehouse" class="font-weight-bold">SUPPLY FROM</label>
+                      <select id="from_warehouse" class="form-control-lg form-control" name="from_warehouse">
+                        <option value="" disabled="true" selected="true">Select Supply From Warehouse</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="to_warehouse" class="font-weight-bold">To Warehouse</label>
+                      <select id="to_warehouse" class="form-control-lg form-control" name="to_warehouse">
+                        <option value="" disabled="true" selected="true">Select To Warehouse</option>
+                        <option value=""></option>
+
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="transfer_stock_supplier_id" class="font-weight-bold">Choose Supply From</label>
+                      <select id="transfer_stock_supplier_id" class="form-control-lg form-control transfer_stock_supplier_id" name="transfer_stock_supplier_id">
+                        <option value=""></option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="new_stock_quantity_transfer" class="font-weight-bold">Quantity</label>
+                      <input type="text" id="new_stock_quantity_transfer" name="quantity_transfer" class="form-control-lg form-control" placeholder="Quantity Transfer">
+                    </div>
+                    <div class="form-group">
+                      <label for="new_stok_transfer_cost" class="font-weight-bold">COGS</label>
+                      <input type="text" id="new_stok_transfer_cost" value="{{(@$product->selling_price!=null)?number_format((float)@$product->selling_price, 3, '.', ''):'N/A'}}" name="cost" class="form-control-lg form-control" placeholder="COGS">
+                    </div>
+                    <br>
+                    <div class="form-submit">
+                      <input type="button" value="Add" id="stock_management_transfer" class="btn btn-bg save-btn add-new-stock-transfer-save-btn">
+                      <input type="reset" value="Close" class="btn btn-danger close-btn">
+                    </div><br>
+                    <span><span id="available-stock-message" class="text-danger"></span><br><a href="javascript:void(0)" class="see-supplier-available-stock d-none text-info">click here to see</a></span>
+                  </form>
+                </div>
               </div>
           </div>
       </div>
   </div>
 </div>
-
+<div class="modal fade" id="supplierTotalAvailableStock">
+  <div class="modal-dialog modal-dialog-centered parcelpop">
+      <div class="modal-content">
+          <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">×</button>
+          </div>
+          <div class="modal-body text-center">
+              <h3 class="text-capitalize fontmed">Add New Stock</h3>
+              <div class="supplier-available-stock-list"></div>
+        </div>   
+      </div>
+  </div>
+</div>
 @endsection
 
 @section('javascript')
@@ -3157,9 +3213,9 @@ $(document).ready(function(){
     $(document).on('click','.new-stock-add-button',function(e){
       var stock_id = $(this).data('id');
       var warehouse_id = $(this).data('warehouse_id');
-      
       // Set the values of the hidden input fields
-      $('#stock_id').val(stock_id);
+      $('#smi_id').val($(this).attr('data-id'));
+      // aler
       $('#new_warehouse_id').val(warehouse_id);
       // Show the modal
       $("#addNewStockModal").modal('show');
@@ -3172,9 +3228,26 @@ $(document).ready(function(){
             },
             success: function(data) {
                 $('#stock_supplier_id').html(data.response);
+                $(".transfer_stock_supplier_id").html(data.response);
+               get_warehouses();
             },
         })
     });
+    function get_warehouses(){
+      var warehouse_id = $(".warehouses-tab li a.active").data("id");
+        $.ajax({
+            url: "{{ url('get-warehouses') }}",
+            method: 'get',
+            data: {
+                id: warehouse_id
+            },
+            success: function(data) {
+              // console.log("dresponse",data.response);
+                $('#from_warehouse').html(data.currentwarehouse);
+                $('#to_warehouse').html(data.response);
+            },
+        })
+    }
     $(document).on('click','#add-new-stock-btn',function(e){
       var prod_id  = "{{ $id }}";
         $.ajax({
@@ -3188,7 +3261,6 @@ $(document).ready(function(){
             },
         })
     });
-
     $(document).on('click','.add-new-stock-btn',function(){
       var stock_id = $(this).data('id');
       if(stock_id == 'parent_stock')
@@ -3246,6 +3318,121 @@ $(document).ready(function(){
         });
     });
     
+   //transfer document call 
+   $('#stock_management_transfer').on('click',function (e) {
+    var inverror = false;
+    var supplier = $("#transfer_stock_supplier_id :selected").val();
+    var from_warehouse = $("#from_warehouse :selected").val();
+    var to_warehouse = $('#to_warehouse :selected').val();
+    if(from_warehouse == '')
+    {
+      swal({ html:true, title:'Alert !!!', text:'<b>Please Select Supply From Warehouse First!!!</b>'});
+      inverror = true;
+    }
+    else if(to_warehouse == '')
+    {
+      swal({ html:true, title:'Alert !!!', text:'<b>Must Select Warehouse For Ordered Items!!!</b>'});
+      inverror = true;
+    }
+    else if(supplier == '')
+    {
+      swal({ html:true, title:'Alert !!!', text:'<b>Must Select Supplier!!!</b>'});
+      inverror = true;
+    }
+    else if(from_warehouse != '' && to_warehouse != '' )
+    {
+      if( from_warehouse == to_warehouse )
+      {
+        swal({ html:true, title:'Alert !!!', text:'<b>Supply From & To Warehouse Cannot Be Same!!!</b>'});
+        inverror = true;
+      }
+    }
+
+    else
+    {
+      inverror = false;
+    }
+
+    if(inverror == true)
+    {
+      e.preventDefault();
+      return false;
+    }
+    else
+    {
+      e.preventDefault();
+      $.ajaxSetup({
+        headers:
+        {
+          'X-CSRF-TOKEN': $('meta[name="_token"]').attr('content')
+        }
+      });
+      swal({
+        title: "Alert!",
+        text: "Are you sure you want to Manual Stock Transfer Document Adjacement?",
+        type: "info",
+        showCancelButton: true,
+        confirmButtonClass: "btn-danger",
+        confirmButtonText: "Yes!",
+        cancelButtonText: "No!",
+        closeOnConfirm: true,
+        closeOnCancel: false
+      },
+      function(isConfirm) {
+        if (isConfirm){
+            $.ajax({
+                url: "{{ route('manual-stock-adjacement-td') }}",
+                method: 'post',
+                data: $('.transfer-stock-form').serialize(),
+                context: this,
+                beforeSend: function(){
+                // $('#stock_management_transfer').prop('disabled',true);
+                },
+                success: function(result)
+                {
+                // $("#loader_modal").modal('hide');
+                if(result.success == true)
+                {
+                    toastr.success('Success!', result.successMsg ,{"positionClass": "toast-bottom-right"});
+                    $("#addNewStockModal").modal('hide');
+                    $('.transfer-stock-form')[0].reset();
+                    $('#stock_management_transfer').prop('disabled',false);
+                }
+                else if(result.success == false)
+                {
+                    $('#stock_management_transfer').prop('disabled',false);
+                    $("#available-stock-message").html(result.stockerrorMsg);
+                    $(".see-supplier-available-stock").removeClass('d-none');
+                }else if(result.success == false){
+                    toastr.error('Error!', result.errorMsg ,{"positionClass": "toast-bottom-right"});
+
+                }
+                },
+              
+            });
+      }
+     });
+
+    }
+
+  });
+  $(document).on('click','.see-supplier-available-stock',function(e){
+      var prod_id  = "{{ $id }}";
+      // alert(prod_id);
+      var from_warehouse = $("#from_warehouse :selected").val();
+      $('#supplierTotalAvailableStock').modal('show');
+        $.ajax({
+            url: "{{ url('suppliers-available-stock') }}",
+            method: 'get',
+            data: {
+                product_id : prod_id,
+                from_warehouse_id:from_warehouse
+            },
+            success: function(data) {
+                $('.supplier-available-stock-list').html(data);
+            },
+        })
+    });
     $(document).on('click','.add-new-stock-save-btn',function(){
 
       var stock_id = $("#stock_id").val();

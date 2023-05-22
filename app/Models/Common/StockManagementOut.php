@@ -219,12 +219,12 @@ class StockManagementOut extends Model
       return $stock_out;
     }
 
-    public static function findStockFromWhicOrderIsDeducted($quantity_diff, $stock, $stock_out, $order_product = null)
+    public static function findStockFromWhicOrderIsDeducted($quantity_diff, $stock, $stock_out, $order_product = null, $from_which_stock_it_will_deduct = null)
     {
       if($quantity_diff < 0)
       {
         //To find from which stock the order will be deducted
-              $find_stock = $stock->stock_out()->whereNotNull('quantity_in')->where('available_stock','>',0)->orderBy('id','asc')->get();
+              $find_stock = $from_which_stock_it_will_deduct != null ? $from_which_stock_it_will_deduct : $stock->stock_out()->whereNotNull('quantity_in')->where('available_stock','>',0)->orderBy('id','asc')->get();
               if($find_stock->count() > 0)
               {
                   foreach ($find_stock as $out)
@@ -237,8 +237,9 @@ class StockManagementOut extends Model
                                   $stock_out->parent_id_in .= $out->id.',';
                                   $out->available_stock = $out->available_stock - abs($stock_out->available_stock);
                                   $stock_out->available_stock = 0;
-
-                                  $new_stock_out_history = (new StockOutHistory)->setHistory($out,$stock_out,$order_product,abs($stock_out->available_stock));
+                                  if($from_which_stock_it_will_deduct == null){
+                                    $new_stock_out_history = (new StockOutHistory)->setHistory($out,$stock_out,$order_product,abs($stock_out->available_stock));
+                                  }
                               }
                               else
                               {
@@ -246,9 +247,10 @@ class StockManagementOut extends Model
                                   $stock_out->parent_id_in .= $out->id.',';
                                   $stock_out->available_stock = $out->available_stock - abs($stock_out->available_stock);
                                   $out->available_stock = 0;
-
-                                  $new_stock_out_history = (new StockOutHistory)->setHistory($out,$stock_out,$order_product,round(abs($history_quantity),4));
-                              }
+                                  if($from_which_stock_it_will_deduct == null){
+                                    $new_stock_out_history = (new StockOutHistory)->setHistory($out,$stock_out,$order_product,round(abs($history_quantity),4));
+                                  }
+                                }
                               $out->save();
                               $stock_out->save();
                       }
@@ -257,7 +259,7 @@ class StockManagementOut extends Model
       }
       else
       {
-        $find_stock = StockManagementOut::where('smi_id',$stock_out->smi_id)->whereNotNull('quantity_out')->where('available_stock','<',0)->get();
+        $find_stock = $from_which_stock_it_will_deduct != null ? $from_which_stock_it_will_deduct : StockManagementOut::where('smi_id',$stock_out->smi_id)->whereNotNull('quantity_out')->where('available_stock','<',0)->get();
         if($find_stock->count() > 0)
         {
             foreach ($find_stock as $out) {
