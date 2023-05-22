@@ -487,6 +487,9 @@ Route::group(['namespace' => 'Purchasing', 'middleware' => 'purchasing'], functi
     Route::post('delete-stock-record', 'ProductController@deleteStockRecord')->name('delete-stock-record');
     Route::post('update-stock-card-cogs', 'ProductController@updateStockRecordCost')->name('update-stock-card-cogs');
     Route::get('product-suppliers', 'ProductController@productSupplier')->name('product-suppliers');
+    Route::get('get-warehouses', 'ProductController@getWarehouse')->name('get-all-warehouses');
+    Route::post('manual-stock-adjacement-td', 'ProductController@manualStockAdjacementTD')->name('manual-stock-adjacement-td');
+    Route::get('suppliers-available-stock','ProductController@suppliersAvailableStock')->name('suppliers-available-stock');
     // saving product details page fields route
     Route::post('save-prod-data-prod-detail-page', 'ProductController@saveProdDataProdDetailPage')->name('save-prod-data-prod-detail-page');
     Route::get('get-product-history', 'ProductController@getProductHistory')->name('get-product-history');

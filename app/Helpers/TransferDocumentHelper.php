@@ -1154,7 +1154,7 @@ class TransferDocumentHelper
         $stock_out->created_by   = Auth::user()->id;
         $stock_out->warehouse_id = $warehouse_id != null ? @$warehouse_id : $PO->to_warehouse_id;
         $stock_out->supplier_id = @$res_stock->stock_m_out->supplier_id != null ? @$res_stock->stock_m_out->supplier_id : $manual_supplier_id;
-        $stock_out->cost = @$p_o_d->product->selling_price;
+        $stock_out->cost = @$p_o_d->proudct->selling_price;
         $stock_out->save();
 
         return $stock_out;
