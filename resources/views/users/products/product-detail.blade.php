@@ -3200,10 +3200,10 @@ $(document).ready(function(){
     });
     $(document).on('click','.new-stock-add-button',function(e){
       var stock_id = $(this).data('id');
+      $('#stock_id').val(stock_id);
       var warehouse_id = $(this).data('warehouse_id');
       // Set the values of the hidden input fields
       $('#smi_id').val($(this).attr('data-id'));
-      $('#stock_id').val(stock_id);
       // aler
       $('#new_warehouse_id').val(warehouse_id);
       // Show the modal
@@ -3219,7 +3219,7 @@ $(document).ready(function(){
                 $('#stock_supplier_id').html(data.response);
                 $(".transfer_stock_supplier_id").html(data.response);
                get_warehouses();
-               // suppliers_available_stock();
+              //  suppliers_available_stock();
             },
         })
     });
@@ -3376,21 +3376,21 @@ $(document).ready(function(){
                 data: $('.transfer-stock-form').serialize(),
                 context: this,
                 beforeSend: function(){
-                // $('#stock_management_transfer').prop('disabled',true);
+                $('#stock_management_transfer').prop('disabled',true).val('Please Wait!');
                 },
                 success: function(result)
                 {
-                // $("#loader_modal").modal('hide');
                 if(result.success == true)
                 {
+                    var st_id = result.id;
+                    getStockDataCard(st_id);
                     toastr.success('Success!', result.successMsg ,{"positionClass": "toast-bottom-right"});
-                    $("#addNewStockModal").modal('hide');
                     $('.transfer-stock-form')[0].reset();
-                    $('#stock_management_transfer').prop('disabled',false);
+                    $('#stock_management_transfer').prop('disabled',false).val('ADD');
                 }
                 else if(result.success == false)
                 {
-                    $('#stock_management_transfer').prop('disabled',false);
+                    $('#stock_management_transfer').prop('disabled',false).val('ADD');
                     toastr.error('Error!', result.stockerrorMsg ,{"positionClass": "toast-bottom-right"});
                 }else if(result.success == false){
                     toastr.error('Error!', result.errorMsg ,{"positionClass": "toast-bottom-right"});
@@ -3485,44 +3485,12 @@ $(document).ready(function(){
                   }
                   if(response.success === true){
                     var st_id = response.id;
-                    $.ajax({
-                        method:"get",
-                        data:{ id:st_id },
-                        url:"{{ route('get-html-of-stock-data-card') }}",
-                        beforeSend:function(){
-                        },
-                        success:function(data){
-                          if(data.success == true)
-                          {
-                            $('#stock-detail-table-body'+st_id).html(data.html);
-
-                            $(".expiration_date_sc").datepicker({
-                              format: "dd/mm/yyyy",
-                              autoHide: true,
-                            });
-
-                            $('.table-product-history').DataTable().ajax.reload();
-                          $("#addNewStockModal").modal('hide');
-                           $('.out-stock-form')[0].reset();
-                          $('.add-new-stock-form')[0].reset();
-                         $("#stock_management_out").attr("disabled", false).val('ADD');
-                         $("#stock_management_in").attr("disabled", false).val('ADD');
-                         toastr.success('Success!', 'New Stock Adjustment Done Successfully.',{"positionClass": "toast-bottom-right"});
-
-                          }
-                        },
-                        error: function(request, status, error){
-                          $("#loader_modal").modal('hide');
-                        }
-                      });
-                    // $("#stock-detail-table"+stock_id+" tbody > tr:first").before(response.html_string);
-                   //  $('.table-product-history').DataTable().ajax.reload();
-                   //  $("#addNewStockModal").modal('hide');
-                   //   $('.out-stock-form')[0].reset();
-                   //  $('.add-new-stock-form')[0].reset();
-                   // $("#stock_management_out").attr("disabled", false).val('ADD');
-                   // $("#stock_management_in").attr("disabled", false).val('ADD');
-                   // toastr.success('Success!', 'New Stock Adjustment Done Successfully.',{"positionClass": "toast-bottom-right"});
+                    getStockDataCard(st_id);
+                    $('.out-stock-form')[0].reset();
+                    $('.add-new-stock-form')[0].reset();
+                    $("#stock_management_out").attr("disabled", false).val('ADD');
+                    $("#stock_management_in").attr("disabled", false).val('ADD');
+                toastr.success('Success!', 'New Stock Adjustment Done Successfully.', {"positionClass": "toast-bottom-right"});
                   }else{
                     toastr.error('Sorry!', 'Something Went Wrong !!!',{"positionClass": "toast-bottom-right"});
                  
@@ -3539,6 +3507,33 @@ $(document).ready(function(){
             }
         });
     });
+  function getStockDataCard(st_id) {
+    $.ajax({
+        method: "get",
+        data: { id: st_id },
+        url: "{{ route('get-html-of-stock-data-card') }}",
+        beforeSend: function() {
+            // Add any necessary pre-request actions here
+        },
+        success: function(data) {
+            if (data.success == true) {
+                $('#stock-detail-table-body' + st_id).html(data.html);
+
+                $(".expiration_date_sc").datepicker({
+                    format: "dd/mm/yyyy",
+                    autoHide: true,
+                });
+
+                $('.table-product-history').DataTable().ajax.reload();
+                $("#addNewStockModal").modal('hide');
+            }
+        },
+        error: function(request, status, error) {
+            $("#loader_modal").modal('hide');
+            // Handle the error condition here
+        }
+    });
+}
     $(document).on("change",".expiration_date_sc",function(e) {
       var old_value = $(this).prev().data('fieldvalue');
       if (e.keyCode === 27 && $(this).hasClass('active')) {

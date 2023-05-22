@@ -12248,7 +12248,7 @@ class ProductController extends Controller
         $warehouse_product->available_quantity += $quantity;
         $warehouse_product->save();
 
-       return response()->json(['success' => true, 'successMsg' => "Manual Transfer Document Created Successfully."]);
+       return response()->json(['success' => true,'id' => @$request->smi_id, 'successMsg' => "Manual Transfer Document Created Successfully."]);
 }
  public function suppliersAvailableStock(Request $request){
 
@@ -12264,10 +12264,10 @@ class ProductController extends Controller
     ->groupBy('supplier_id')
     ->get();
     
-// Display the results in a table
-  $html = '<table class="table text-center table-bordered">';
-  $html .= '<tr><th>Supplier Name</th>';
-  $html .='<th>Total Stock</th></tr>';
+    // Display the results in a table
+    $html = '<table class="table text-center table-bordered">';
+    $html .= '<tr><th>Supplier Name</th>';
+    $html .='<th>Total Stock</th></tr>';
 
     foreach ($stocks as $stock) {
         $html .= '<tr>';
