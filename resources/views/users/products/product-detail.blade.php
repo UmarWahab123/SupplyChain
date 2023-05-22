@@ -3219,7 +3219,7 @@ $(document).ready(function(){
                 $('#stock_supplier_id').html(data.response);
                 $(".transfer_stock_supplier_id").html(data.response);
                get_warehouses();
-               suppliers_available_stock();
+               // suppliers_available_stock();
             },
         })
     });

@@ -12084,9 +12084,8 @@ class ProductController extends Controller
         return $dt->make(true);
     }
     public function manualStockAdjacementTD(Request $request){
-     $quantity = abs($request->quantity_transfer);  
-     $total_stock = StockManagementOut::where('product_id',$request->prod_id)->where('supplier_id', $request->transfer_stock_supplier_id)->where('warehouse_id',$request->from_warehouse)->where('available_stock', '>', 0)->sum('available_stock');
-     if($total_stock >= $quantity ){
+        $quantity = abs($request->quantity_transfer);  
+        $st_supplier = Supplier::find(@$request->transfer_stock_supplier_id);
         $td_status = Status::where('id', 19)->first();
         $counter_formula = $td_status->counter_formula;
         $counter_formula = explode('-', $counter_formula);
@@ -12117,10 +12116,10 @@ class ProductController extends Controller
             'total_gross_weight'  => Null,
             'total_import_tax_book' => Null,
             'total_import_tax_book_price' => NULL,
-            'supplier_id'         => $request->transfer_stock_supplier_id,
+            // 'supplier_id'         => $request->transfer_stock_supplier_id,
             'from_warehouse_id'   => $request->from_warehouse,
             'created_by'          => Auth::user()->id,
-            'memo'                => "TD created from product details page.",
+            'memo'                => "TD created from product details page against supplier ".@$st_supplier->reference_name,
             'payment_terms_id'    => NULL,
             'payment_due_date'    => NULL,
             'target_receive_date' => $currentDate,
@@ -12162,13 +12161,18 @@ class ProductController extends Controller
         ]);
         $expirationDate = date('Y-m-d', strtotime($request->expiration_date));
         //handling stock management for From warehouse
-        if($request->expiration_date == '' || $request->expiration_date == null){
-            $stock_in = StockManagementIn::where('product_id', $request->prod_id)->whereNull('expiration_date')
-                    ->where('warehouse_id', $request->from_warehouse)->first();
-            $expirationDate = null;
-        }else{
-            $stock_in = StockManagementIn::where('product_id', $request->prod_id)->whereDate('expiration_date', $expirationDate)
-                    ->where('warehouse_id', $request->from_warehouse)->first();
+        // if($request->expiration_date == '' || $request->expiration_date == null){
+        //     $stock_in = StockManagementIn::where('product_id', $request->prod_id)->whereNull('expiration_date')
+        //             ->where('warehouse_id', $request->from_warehouse)->first();
+        //     $expirationDate = null;
+        // }else{
+        //     $stock_in = StockManagementIn::where('product_id', $request->prod_id)->whereDate('expiration_date', $expirationDate)
+        //             ->where('warehouse_id', $request->from_warehouse)->first();
+        // }
+
+        $stock_in = StockManagementIn::find($request->smi_id);
+        if(!$stock_in){
+            return response()->json(['success' => false, 'stockerrorMsg' => "Expiry Not Found"]);
         }
     
         if(!$stock_in){
@@ -12180,13 +12184,27 @@ class ProductController extends Controller
             $stock_in->save();
         }
 
+        $first_w_stock_in = $stock_in;
+
         //making stock entry
         $stock = TransferDocumentHelper::stockManagement($stock_in, $new_purchase_order_detail, '-'.$quantity, 
         $purchaseOrder, null, $request->transfer_stock_supplier_id, $request->from_warehouse);
         $out_available_stock = abs($stock->available_stock);
         
+        // $from_which_stock_it_will_deduct = StockManagementOut::where('supplier_id', $request->transfer_stock_supplier_id)->whereNull('quantity_out')
+        // ->where('available_stock', '>', 0)->where('product_id', $request->prod_id)->where('warehouse_id', $request->from_warehouse)->get();
+
+        $supplierId = $request->transfer_stock_supplier_id;
+
         $from_which_stock_it_will_deduct = StockManagementOut::where('supplier_id', $request->transfer_stock_supplier_id)->whereNull('quantity_out')
-        ->where('available_stock', '>', 0)->where('product_id', $request->prod_id)->where('warehouse_id', $request->from_warehouse)->get();
+            ->where('available_stock', '>', 0)->where('product_id', $request->prod_id)->where('warehouse_id', $request->from_warehouse)
+            ->with('supplier')
+            ->when($supplierId, function ($query) use ($supplierId) {
+                $query->orderByRaw("supplier_id = $supplierId desc");
+            })
+            ->orderBy('supplier_id')
+            ->get();
+
         
         $find_stock_from_which_order_deducted = StockManagementOut::findStockFromWhicOrderIsDeducted('-'.$quantity, $stock_in, $stock, NULL,$from_which_stock_it_will_deduct);
         
@@ -12194,7 +12212,8 @@ class ProductController extends Controller
         $warehouse_product->current_quantity -= $quantity;
         $warehouse_product->available_quantity -= $quantity;
         $warehouse_product->save();
-        $stock_in = StockManagementIn::find($request->smi_id);   
+        // $stock_in = StockManagementIn::find($request->smi_id);   
+
         //handling stock management for To warehouse
         // if($request->expiration_date == '' || $request->expiration_date == null){
         //     $stock_in = StockManagementIn::where('product_id', $request->prod_id)->whereNull('expiration_date')
@@ -12204,12 +12223,14 @@ class ProductController extends Controller
         //     $stock_in = StockManagementIn::where('product_id', $request->prod_id)->whereDate('expiration_date', $expirationDate)
         //             ->where('warehouse_id', $request->to_warehouse)->first();
         // }
+        $stock_in = StockManagementIn::where('product_id', $request->prod_id)->where('expiration_date', @$first_w_stock_in->expiration_date)
+                    ->where('warehouse_id', $request->to_warehouse)->first();
         if(!$stock_in){
             $stock_in = new StockManagementIn;
             $stock_in->title = 'Adjustment';
             $stock_in->product_id = $request->prod_id;
             $stock_in->warehouse_id = $request->to_warehouse;
-            $stock_in->expiration_date = $expirationDate;
+            $stock_in->expiration_date = @$first_w_stock_in->expiration_date;
             $stock_in->save();
         }
 
@@ -12220,17 +12241,14 @@ class ProductController extends Controller
         $from_which_stock_it_will_filled = StockManagementOut::whereNull('quantity_in')
             ->where('available_stock', '<', 0)->where('product_id', $request->prod_id)->where('warehouse_id', $request->to_warehouse)->get();
 
-       $find_stock_from_which_order_deducted = StockManagementOut::findStockFromWhicOrderIsDeducted($quantity, $stock_in, $stock, NULL,$from_which_stock_it_will_filled);
+        $find_stock_from_which_order_deducted = StockManagementOut::findStockFromWhicOrderIsDeducted($quantity, $stock_in, $stock, NULL,$from_which_stock_it_will_filled);
 
         $warehouse_product = WarehouseProduct::where('product_id', $request->prod_id)->where('warehouse_id', $request->to_warehouse)->first();
         $warehouse_product->current_quantity += $quantity;
         $warehouse_product->available_quantity += $quantity;
         $warehouse_product->save();
+
        return response()->json(['success' => true, 'successMsg' => "Manual Transfer Document Created Successfully."]);
-    }else{
-        return response()->json(['success' => false, 'stockerrorMsg' => "Available Stock of this Supplier is less than the Transfer Stock"]);
-    }
-    return response()->json(['success' => false, 'errorMsg' => "Something went Wrong!"]);
 }
  public function suppliersAvailableStock(Request $request){
 
