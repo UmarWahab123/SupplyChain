@@ -6851,10 +6851,13 @@ class ProductController extends Controller
         $stock_out->smi_id          = $request->stock_id;
         $stock_out->product_id      = $request->prod_id;
         $stock_out->warehouse_id    = $request->warehouse_id;
-        $stock_out->supplier_id     = $request->supplier_id;
-        $stock_out->customer_id     = $request->customer_id;
-        $stock_out->quantity_in     = $request->quantity_in;
-        $stock_out->quantity_out    = $request->quantity_out;
+        if($request->stock_for == 'customer'){
+            $stock_out->quantity_out    = '-'.$request->quantity_out;
+            $stock_out->customer_id     = $request->customer_id;
+        }else if($request->stock_for == 'supplier'){
+            $stock_out->quantity_in     = $request->quantity_in;
+            $stock_out->supplier_id     = $request->supplier_id;
+        }
         $stock_out->cost            = $request->cogs;
         $stock_out->created_by   = Auth::user()->id;
         $stock_out->save();
