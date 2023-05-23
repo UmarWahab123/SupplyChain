@@ -21,6 +21,7 @@ use App\Models\Common\ProductCategory;
 use App\Models\Common\TableHideColumn;
 use Illuminate\Queue\SerializesModels;
 use App\Models\Common\CustomerCategory;
+use App\Models\Common\Configuration;
 use App\Models\Common\SupplierProducts;
 use App\Models\Common\WarehouseProduct;
 use Illuminate\Queue\InteractsWithQueue;
@@ -261,7 +262,7 @@ class SoldProductsExportJob implements ShouldQueue
          }
 
           }
-
+          $config = Configuration::first();
           if($request['order_type_exp'] != null)
           {
             if($request['order_type_exp'] == 0 || $request['order_type_exp'] == 1)
@@ -286,8 +287,11 @@ class SoldProductsExportJob implements ShouldQueue
             else
             {
               // $query = $query->whereIn('order_products.order_id', Order::where('primary_status',$request['order_type_exp'])->pluck('id') );
-              $query = $query->whereHas('get_order',function($or) use ($request){
+              $query = $query->whereHas('get_order',function($or) use ($request,$config){
                 $or->where('primary_status',$request['order_type_exp']);
+                if(@$config->server == 'lucilla'){
+                  $or->where('is_vat', 0);
+                }
               });
             }
           }
