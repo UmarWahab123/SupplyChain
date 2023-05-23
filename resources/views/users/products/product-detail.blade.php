@@ -167,6 +167,16 @@ span#product_notes{
 {
   cursor: pointer;
 }
+.quantity-common-style {
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+}
+
+/* Apply the class to the input elements */
+.quantity-common-style::-webkit-inner-spin-button,
+.quantity-common-style::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
 </style>
 
 <div class="row">
@@ -2839,7 +2849,7 @@ span#product_notes{
   <div class="modal-dialog modal-dialog-centered parcelpop">
       <div class="modal-content">
           <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal">×</button>
+              <button type="button" class="close reset-all-form" data-dismiss="modal">×</button>
           </div>
           <div class="modal-body text-center">
               <h3 class="text-capitalize fontmed">Add New Stock</h3>
@@ -2867,7 +2877,7 @@ span#product_notes{
                     </div>
                     <div class="form-group">
                       <label for="new_stock_quantity_in" class="font-weight-bold">Quantity</label>
-                      <input type="text" id="new_stock_quantity_in" name="new_stock_quantity_in" class="form-control-lg form-control" placeholder="Quantity In">
+                      <input type="number" id="new_stock_quantity_in" name="new_stock_quantity_in" class="form-control-lg form-control quantity-common-style" placeholder="Quantity In">
                     </div>
                     <div class="form-group">
                       <label for="new_stok_in_cost" class="font-weight-bold">COGS</label>
@@ -2875,7 +2885,7 @@ span#product_notes{
                     </div>
                     <div class="form-submit">
                       <input type="button" value="Add" id="stock_management_in" class="btn btn-bg stock_in_form_btn add-new-stock-save-btn">
-                      <input type="reset" value="Close" class="btn btn-danger close-btn">
+                      <input type="reset" value="Close" class="btn btn-danger reset-all-form close-btn">
                     </div>
                   </form>
                 </div>
@@ -2884,7 +2894,7 @@ span#product_notes{
                     <div class="form-group">
                       <label for="new_stock_customer_id" class="font-weight-bold">BILL TO</label>
                       <select id="new_stock_customer_id" class="form-control-lg form-control" name="new_stock_customer_id">
-                        <option value="" disabled="true" selected="true">Choose Customer</option>
+                        <option id="default_customer_option" value="" disabled="true" selected="true">Choose Customer</option>
                         @foreach($customers as $customer)
                         <option value="{{$customer->id}}">{{$customer->reference_name}}</option>
                         @endforeach
@@ -2892,7 +2902,7 @@ span#product_notes{
                     </div>
                     <div class="form-group">
                       <label for="new_stock_quantity_out" class="font-weight-bold">Quantity</label>
-                      <input type="text" id="new_stock_quantity_out" name="quantity_out" class="form-control-lg form-control" placeholder="Quantity Out">
+                      <input type="number" id="new_stock_quantity_out" name="quantity_out" class="form-control-lg form-control quantity-common-style" placeholder="Quantity Out">
                     </div>
                     <div class="form-group">
                       <label for="new_stok_out_cost" class="font-weight-bold">COGS</label>
@@ -2900,51 +2910,51 @@ span#product_notes{
                     </div>
                     <div class="form-submit">
                       <input type="button" value="Add" id="stock_management_out" class="btn btn-bg save-btn stock_out_form_btn add-new-stock-save-btn">
-                      <input type="reset" value="Close" class="btn btn-danger close-btn">
+                      <input type="reset" value="Close" class="btn btn-danger close-btn reset-all-form">
                     </div>
                   </form>
                 </div>
                 <div class="tab-pane fade" id="stockTransferForm">
-                <div class="supplier-available-stock-list"></div>
-                <form class="transfer-stock-form">
-                 @csrf
-                <input type="hidden" id="smi_id" name="smi_id" value="" class="form-control-lg form-control">
-                <input type="hidden" id="prod_id" name="prod_id" value="{{$id}}" class="form-control-lg form-control">
-                    <div class="form-group">
-                      <label for="from_warehouse" class="font-weight-bold">SUPPLY FROM</label>
-                      <select id="from_warehouse" class="form-control-lg form-control" name="from_warehouse">
-                        <option value="" disabled="true" selected="true">Select Supply From Warehouse</option>
-                      </select>
-                    </div>
-                    <div class="form-group">
-                      <label for="to_warehouse" class="font-weight-bold">To Warehouse</label>
-                      <select id="to_warehouse" class="form-control-lg form-control" name="to_warehouse">
-                        <option value="" disabled="true" selected="true">Select To Warehouse</option>
-                        <option value=""></option>
+                  <div class="supplier-available-stock-list"></div>
+                  <form class="transfer-stock-form">
+                  @csrf
+                  <input type="hidden" id="smi_id" name="smi_id" value="" class="form-control-lg form-control">
+                  <input type="hidden" id="prod_id" name="prod_id" value="{{$id}}" class="form-control-lg form-control">
+                      <div class="form-group">
+                        <label for="from_warehouse" class="font-weight-bold">SUPPLY FROM</label>
+                        <select id="from_warehouse" class="form-control-lg form-control" name="from_warehouse">
+                          <option value="" disabled="true" selected="true">Select Supply From Warehouse</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label for="to_warehouse" class="font-weight-bold">To Warehouse</label>
+                        <select id="to_warehouse" class="form-control-lg form-control" name="to_warehouse">
+                          <option value="" disabled="true" selected="true">Select To Warehouse</option>
+                          <option value=""></option>
 
-                      </select>
-                    </div>
-                    <div class="form-group">
-                      <label for="transfer_stock_supplier_id" class="font-weight-bold">Choose Supply From</label>
-                      <select id="transfer_stock_supplier_id" class="form-control-lg form-control transfer_stock_supplier_id" name="transfer_stock_supplier_id">
-                        <option value=""></option>
-                      </select>
-                    </div>
-                    <div class="form-group">
-                      <label for="new_stock_quantity_transfer" class="font-weight-bold">Quantity</label>
-                      <input type="text" id="new_stock_quantity_transfer" name="quantity_transfer" class="form-control-lg form-control" placeholder="Quantity Transfer">
-                    </div>
-                    <div class="form-group">
-                      <label for="new_stok_transfer_cost" class="font-weight-bold">COGS</label>
-                      <input type="text" id="new_stok_transfer_cost" value="{{(@$product->selling_price!=null)?number_format((float)@$product->selling_price, 3, '.', ''):'N/A'}}" name="cost" class="form-control-lg form-control" placeholder="COGS">
-                    </div>
-                    <br>
-                    <div class="form-submit">
-                      <input type="button" value="Add" id="stock_management_transfer" class="btn btn-bg save-btn add-new-stock-transfer-save-btn">
-                      <input type="reset" value="Close" class="btn btn-danger close-btn">
-                    </div>
-                  </form>
-                </div>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label for="transfer_stock_supplier_id" class="font-weight-bold">Choose Supply From</label>
+                        <select id="transfer_stock_supplier_id" class="form-control-lg form-control transfer_stock_supplier_id" name="transfer_stock_supplier_id">
+                          <option value=""></option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label for="new_stock_quantity_transfer" class="font-weight-bold">Quantity</label>
+                        <input type="number" id="new_stock_quantity_transfer" name="quantity_transfer" class="form-control-lg form-control quantity-common-style" placeholder="Quantity Transfer">
+                      </div>
+                      <div class="form-group">
+                        <label for="new_stok_transfer_cost" class="font-weight-bold">COGS</label>
+                        <input type="text" id="new_stok_transfer_cost" value="{{(@$product->selling_price!=null)?number_format((float)@$product->selling_price, 3, '.', ''):'N/A'}}" name="cost" class="form-control-lg form-control" placeholder="COGS">
+                      </div>
+                      <br>
+                      <div class="form-submit">
+                        <input type="button" value="Add" id="stock_management_transfer" class="btn btn-bg save-btn add-new-stock-transfer-save-btn">
+                        <input type="reset" value="Close" class="btn btn-danger reset-all-form close-btn">
+                      </div>
+                    </form>
+                  </div>
               </div>
           </div>
       </div>
@@ -3251,9 +3261,17 @@ $(document).ready(function(){
             },
         })
     });
+    $(document).on('click','.reset-all-form',function(e){
+      $('.transfer-stock-form')[0].reset();
+      $('.out-stock-form')[0].reset();
+      $('.add-new-stock-form')[0].reset();
+      $('#new_stock_customer_id').val(null).trigger('change');
+    });
     $(document).on('click','#stockInTab',function(e){
       $('.transfer-stock-form')[0].reset();
       $('.out-stock-form')[0].reset();
+      $('#new_stock_customer_id').val(null).trigger('change');
+
     });
     $(document).on('click','#stockOutTab ',function(e){
       $('.add-new-stock-form')[0].reset();
@@ -3262,6 +3280,7 @@ $(document).ready(function(){
     $(document).on('click','#stockTransferTab ',function(e){
       $('.add-new-stock-form')[0].reset();
       $('.out-stock-form')[0].reset();
+      $('#new_stock_customer_id').val(null).trigger('change');
     });
     $(document).on('click','.add-new-stock-btn',function(){
       var stock_id = $(this).data('id');
