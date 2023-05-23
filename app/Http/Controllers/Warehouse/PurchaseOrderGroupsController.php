@@ -746,13 +746,13 @@ class PurchaseOrderGroupsController extends Controller
 		    })
 
 		    ->addColumn('qty_inv',function($item){
-		    	return $item->trasnfer_qty_shipped !== null ? $item->trasnfer_qty_shipped : "--" ;
+		    	return $item->trasnfer_qty_shipped !== null ? '<span id="qty_inv_'.$item->id.'">'.$item->trasnfer_qty_shipped.'</span>' : "--" ;
 		    })
 
 		    ->addColumn('qty_receive',function($item){
 		    	$quantity_received = $item->quantity_received != null ? $item->quantity_received : 0 ;
 
-				$html_string = '<input type="number"  name="quantity_received" data-id="'.$item->id.'" data-fieldvalue="'.$quantity_received.'" class="fieldFocus" value="'. $quantity_received.'" readonly disabled style="width:100%">';
+				$html_string = '<input type="number"  name="quantity_received" id="quantity_received_'.$item->id.'" data-id="'.$item->id.'" data-fieldvalue="'.$quantity_received.'" class="fieldFocus" value="'. $quantity_received.'" readonly disabled style="width:100%">';
 		    	return $html_string;
 		    })
 
@@ -861,7 +861,17 @@ class PurchaseOrderGroupsController extends Controller
             $html_string = '<input type="text"  name="custom_invoice_number" data-id="'.$item->id.'" data-fieldvalue="'.@$item->custom_invoice_number.'" class="fieldFocus" value="'.@$item->custom_invoice_number.'" readonly disabled style="width:100%">';
             return $html_string;
         	})
+			->setRowClass(function($item){
+				$qtyInvoice = $item->trasnfer_qty_shipped;
+				$qtyReceived = $item->quantity_received;
+				if($qtyInvoice !== $qtyReceived){
+					return 'yellowRow';
+				}
 
+			})
+			->setRowId(function($item){
+				return $item->id;
+			})
 		    ->rawColumns(['po_number','supplier','reference_number','prod_reference_number','desc','kg','qty_inv','qty_receive','quantity_received_2','goods_condition','results','goods_type','goods_temp','checker','problem_found','solution','changes','order_id','expiration_date','expiration_date_2','custom_line_number','custom_invoice_number'])
 
 		    ->make(true);
@@ -953,13 +963,13 @@ class PurchaseOrderGroupsController extends Controller
 		    })
 
 		    ->addColumn('qty_inv',function($item){
-		    	return $item->trasnfer_qty_shipped !== null ? $item->trasnfer_qty_shipped : "--" ;
+		    	return $item->trasnfer_qty_shipped !== null ? '<span id ="qty_inv_'.$item->id.'">'.$item->trasnfer_qty_shipped.'</span>' : "--" ;
+				
 		    })
 
 		    ->addColumn('qty_receive',function($item){
-		    	$quantity_received = $item->quantity_received != null ? $item->quantity_received : 0 ;
-
-				$html_string = '<input type="number"  name="quantity_received" data-id="'.$item->id.'" data-fieldvalue="'.$quantity_received.'" class="fieldFocus" value="'. $quantity_received.'" readonly disabled style="width:100%">';
+		    	$quantity_received = $item->quantity_received != null ? $item->quantity_received: 0 ;
+				$html_string = '<input type="number"  name="quantity_received" id="quantity_received_'.$item->id.'" data-id="'.$item->id.'" data-fieldvalue="'.$quantity_received.'" class="fieldFocus" value="'. $quantity_received.'" readonly disabled style="width:100%">';
 		    	return $html_string;
 		    })
 
@@ -1042,6 +1052,14 @@ class PurchaseOrderGroupsController extends Controller
 			->addColumn('changes',function($item){
 				$authorized_changes = $item->authorized_changes != null ? $item->authorized_changes :'N.A';
 		    	return $authorized_changes;
+			})
+			->setRowClass(function($item){
+				if($item->trasnfer_qty_shipped !== $item->quantity_received){
+					return "yellowRow";
+				}
+			})
+			->setRowId(function($item){
+				return $item->id;
 			})
 
 		    ->rawColumns(['po_number','supplier','reference_number','prod_reference_number','desc','kg','qty_inv','qty_receive','quantity_received_2','goods_condition','results','goods_type','goods_temp','checker','problem_found','solution','changes','order_id','expiration_date','expiration_date_2'])
