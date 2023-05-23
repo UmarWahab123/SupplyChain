@@ -2874,7 +2874,7 @@ span#product_notes{
                       <input type="text" id="new_stok_in_cost" value="{{(@$product->selling_price!=null)?number_format((float)@$product->selling_price, 3, '.', ''):'N/A'}}" name="cost" class="form-control-lg form-control" placeholder="COGS">
                     </div>
                     <div class="form-submit">
-                      <input type="button" value="Add" id="stock_management_in" class="btn btn-bg add-new-stock-save-btn">
+                      <input type="button" value="Add" id="stock_management_in" class="btn btn-bg stock_in_form_btn add-new-stock-save-btn">
                       <input type="reset" value="Close" class="btn btn-danger close-btn">
                     </div>
                   </form>
@@ -2899,7 +2899,7 @@ span#product_notes{
                       <input type="text" id="new_stok_out_cost" value="{{(@$product->selling_price!=null)?number_format((float)@$product->selling_price, 3, '.', ''):'N/A'}}" name="cost" class="form-control-lg form-control" placeholder="COGS">
                     </div>
                     <div class="form-submit">
-                      <input type="button" value="Add" id="stock_management_out" class="btn btn-bg save-btn add-new-stock-save-btn">
+                      <input type="button" value="Add" id="stock_management_out" class="btn btn-bg save-btn stock_out_form_btn add-new-stock-save-btn">
                       <input type="reset" value="Close" class="btn btn-danger close-btn">
                     </div>
                   </form>
@@ -3251,6 +3251,18 @@ $(document).ready(function(){
             },
         })
     });
+    $(document).on('click','#stockInTab',function(e){
+      $('.transfer-stock-form')[0].reset();
+      $('.out-stock-form')[0].reset();
+    });
+    $(document).on('click','#stockOutTab ',function(e){
+      $('.add-new-stock-form')[0].reset();
+      $('.transfer-stock-form')[0].reset();
+    });
+    $(document).on('click','#stockTransferTab ',function(e){
+      $('.add-new-stock-form')[0].reset();
+      $('.out-stock-form')[0].reset();
+    });
     $(document).on('click','.add-new-stock-btn',function(){
       var stock_id = $(this).data('id');
       if(stock_id == 'parent_stock')
@@ -3313,7 +3325,8 @@ $(document).ready(function(){
     var inverror = false;
     var supplier = $("#transfer_stock_supplier_id :selected").val();
     var from_warehouse = $("#from_warehouse :selected").val();
-    var to_warehouse = $('#to_warehouse :selected').val();
+    var to_warehouse = $('#to_warehouse :selected').val()
+    var new_stock_transfer_quantity = $("#new_stock_quantity_transfer").val();
     if(from_warehouse == '')
     {
       swal({ html:true, title:'Alert !!!', text:'<b>Please Select Supply From Warehouse First!!!</b>'});
@@ -3327,6 +3340,11 @@ $(document).ready(function(){
     else if(supplier == '')
     {
       swal({ html:true, title:'Alert !!!', text:'<b>Must Select Supplier!!!</b>'});
+      inverror = true;
+    }
+    else if(new_stock_transfer_quantity == '')
+    {
+      swal({ html:true, title:'Alert !!!', text:'<b>Must Enter Quantity!!!</b>'});
       inverror = true;
     }
     else if(from_warehouse != '' && to_warehouse != '' )
@@ -3394,7 +3412,6 @@ $(document).ready(function(){
                     toastr.error('Error!', result.stockerrorMsg ,{"positionClass": "toast-bottom-right"});
                 }else if(result.success == false){
                     toastr.error('Error!', result.errorMsg ,{"positionClass": "toast-bottom-right"});
-
                 }
                 },
               
@@ -3422,27 +3439,53 @@ $(document).ready(function(){
         })
     }
     $(document).on('click','.add-new-stock-save-btn',function(){
-
+      var inverror = false;
       var stock_id = $("#stock_id").val();
-      var supplier_id, quantity, cogs, stock_for;
+      var supplier_id, quantity, cogs, stock_for = null;
+      var customer_id = null;
+      var quantity_out = null; 
+      var quantity_in = null;
+      // when user in 
+      if ($(this).hasClass('stock_in_form_btn')) {
 
-      // when user in quantity
-      supplier_id = $('#stock_supplier_id').val();
-      quantity_in = $('#new_stock_quantity_in').val();
-
-      //when user out quantity
+        supplier_id = $('#stock_supplier_id option:selected').val();
+        quantity_in = $('#new_stock_quantity_in').val();
+        
+        if(supplier_id == '')
+        {
+          swal({ html:true, title:'Alert !!!', text:'<b>Please Select Supplier First!!!</b>'});
+          return false;
+        }
+        if(quantity_in == ''){
+          swal({ html:true, title:'Alert !!!', text:'<b>Please Enter Quantity!!!</b>'});
+          return false;
+        }
+     }
+     if($(this).hasClass('stock_out_form_btn')){
       var customer_id = $('#new_stock_customer_id').val();
-      var quantity_out = $('#new_stock_quantity_out').val(); 
+      var quantity_out = $('#new_stock_quantity_out').val();
 
-      if ($('#stockInForm').hasClass('active')) {
-       stock_for = 'supplier'
-       cogs = $('#new_stok_in_cost').val();
-      $('.out-stock-form')[0].reset();
-      } else {
-       stock_for = 'customer'
-       cogs = $('#new_stok_out_cost').val();
-      $('.add-new-stock-form')[0].reset();
+      if(customer_id == '' || customer_id == null || customer_id == 'null')
+      {
+        swal({ html:true, title:'Alert !!!', text:'<b>Please Select Customer First!!!</b>'});
+        return false;
       }
+      if(quantity_out == ''){
+        swal({ html:true, title:'Alert !!!', text:'<b>Please Enter Quantity!!!</b>'});
+        return false;
+      }
+     }
+      
+      if($(this).hasClass('stock_in_form_btn')) {
+        stock_for = 'supplier'
+        cogs = $('#new_stok_in_cost').val();
+        // $('.out-stock-form')[0].reset();
+      } else {
+        stock_for = 'customer'
+        cogs = $('#new_stok_out_cost').val();
+        // $('.add-new-stock-form')[0].reset();
+      }
+
       if(stock_id == 'parent_stock')
       {
         var warehouse_id = $(".warehouses-tab li a.active").data("id");
@@ -3506,6 +3549,8 @@ $(document).ready(function(){
                 swal("Cancelled", "", "error");
             }
         });
+      //when user out quantity
+      
     });
   function getStockDataCard(st_id) {
     $.ajax({
