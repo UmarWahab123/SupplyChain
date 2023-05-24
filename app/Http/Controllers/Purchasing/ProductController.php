@@ -6857,6 +6857,11 @@ class ProductController extends Controller
         }else if($request->stock_for == 'supplier'){
             $stock_out->quantity_in     = $request->quantity_in;
             $stock_out->supplier_id     = $request->supplier_id;
+        }else if($request->stock_for == 'spoilage'){
+           $spoilage_customer = Customer::where('manual_customer',2)->first();
+            $stock_out->quantity_out     = $request->quantity_out;
+            $stock_out->supplier_id     = $request->supplier_id;
+            $stock_out->customer_id     = $spoilage_customer->id;
         }
         $stock_out->cost            = $request->cogs;
         $stock_out->created_by   = Auth::user()->id;
@@ -6867,10 +6872,14 @@ class ProductController extends Controller
         $product_history->product_id  = $request->prod_id;
         $product_history->column_name = $stock_out->get_warehouse->warehouse_title . ' Expiration Date: ' . ($stock_out->get_stock_in->expiration_date != null ? $stock_out->get_stock_in->expiration_date : '---');
         $product_history->old_value   = '---';
+        if($request->stock_for == 'spoilage'){
+        $product_history->new_value   = 'Spoilage Adjustment';
+        }else{
         $product_history->new_value   = 'Manual Adjustment';
+        }
         $product_history->save();
 
-        if($request->stock_for == 'customer'){
+        if($request->stock_for == 'customer' || $request->stock_for == 'spoilage' ){
             $new_request = new \Illuminate\Http\Request();
             $new_request->replace(['id' => $stock_out->id, 'quantity_out' => $request->quantity_out, 'old_value' => 0]);
             $this->updateStockRecord($new_request);
