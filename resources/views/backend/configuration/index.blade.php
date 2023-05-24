@@ -281,6 +281,13 @@
           </td>
         </tr>
 
+        <tr>
+          <td class="fontbold text-nowrap">Server<b style="color: red;">*</b></td>
+          <td class="text-nowrap">
+            {{@$configuration->server != null ? @$configuration->server : '--'}}
+          </td>
+        </tr>
+
       </tbody>
     </table>
   </div>

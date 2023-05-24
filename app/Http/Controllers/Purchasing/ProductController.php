@@ -874,6 +874,7 @@ class ProductController extends Controller
                 });
             }
         }
+        $config = Configuration::first();
         if ($request->order_type != null) {
             if ($request->order_type == 0 || $request->order_type == 1) {
                 $query = $query->whereHas('get_order', function ($or) use ($request) {
@@ -888,8 +889,11 @@ class ProductController extends Controller
                     $or->whereIn('primary_status', [3, 37]);
                 });
             } else {
-                $query = $query->whereHas('get_order', function ($or) use ($request) {
+                $query = $query->whereHas('get_order', function ($or) use ($request, $config) {
                     $or->where('primary_status', $request->order_type);
+                    if(@$config->server == 'lucilla'){
+                        $or->where('is_vat', 0);
+                    }
                 });
             }
         }
