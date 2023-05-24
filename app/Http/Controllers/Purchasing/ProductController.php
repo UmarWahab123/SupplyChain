@@ -6829,11 +6829,21 @@ class ProductController extends Controller
         $selectedoption = '';
         $selectedoption .= '<option value="'.@$selectedWarehouses->id.'">'.@$selectedWarehouses->warehouse_title.'</option>';  
         $warehouses = Warehouse::where('status',1)->where('id','!=',$request->id)->get();
+        $products = Product::where('status', 1)->select('id', 'refrence_code', 'short_desc')->get();
         $option = '';
-        $option .='<option value="" disabled="true" selected="true">Choose Warehouse</option>';
+        $option .='<option value="" disabled="true" selected="true">Choose One</option>';
+        $option .= '<optgroup label="Warehouses">';
         foreach($warehouses as $warehouse){
-        $option .= '<option value="'.@$warehouse->id.'">'.@$warehouse->warehouse_title.'</option>';  
+            $option .= '<option value="w-'.@$warehouse->id.'">'.@$warehouse->warehouse_title.'</option>';  
         }
+        $option .= '</optgroup>';
+
+        $option .= '<optgroup label="Products">';
+        foreach($products as $product){
+            $option .= '<option value="p-'.@$product->id.'">'.@$product->refrence_code.' - '.@$product->short_desc.'</option>';  
+        }
+        $option .= '</optgroup>';
+
         return response()->json(['success' => true, 'response' => $option,'currentwarehouse' =>$selectedoption]);
     }
     public function makeManualStockAdjustment(Request $request)
@@ -6859,6 +6869,13 @@ class ProductController extends Controller
             $stock_out->supplier_id     = $request->supplier_id;
         }else if($request->stock_for == 'spoilage'){
            $spoilage_customer = Customer::where('manual_customer',2)->first();
+           if(!$spoilage_customer){
+            $spoilage_customer = Customer::create([
+                'company'   => 'Spoilage',
+                'reference_name'    => 'Spoilage',
+                'manual_customer'   => 2
+            ]);
+           }
             $stock_out->quantity_out     = $request->quantity_out;
             $stock_out->supplier_id     = $request->supplier_id;
             $stock_out->customer_id     = $spoilage_customer->id;
@@ -7015,19 +7032,29 @@ class ProductController extends Controller
                 $warehouse_products->available_quantity = $warehouse_products->current_quantity - ($warehouse_products->reserved_quantity + $warehouse_products->ecommerce_reserved_quantity);
                 $stock_out->save();
                 if ($stock_out->quantity_in != null && (abs($stock_out->available_stock) == abs($stock_out->quantity_in))) {
-                    $find_stock = StockManagementOut::where('smi_id', $stock_out->smi_id)->whereNotNull('quantity_out')->where('available_stock', '<', 0)->get();
+                    $find_stock = StockManagementOut::where('smi_id', $stock_out->smi_id)->whereNotNull('quantity_out')->where('available_stock', '<', 0)->with('order_product')->get();
                     if ($find_stock->count() > 0) {
                         foreach ($find_stock as $out) {
 
                             if ($stock_out->quantity_in > 0 && abs($stock_out->available_stock) > 0) {
                                 if ($stock_out->available_stock >= abs($out->available_stock)) {
+                                    $qty = abs($out->available_stock);
                                     $out->parent_id_in .= $stock_out->id . ',';
                                     $stock_out->available_stock = $stock_out->available_stock - abs($out->available_stock);
                                     $out->available_stock = 0;
+                                    if($out->order_product_id != null){
+                                        $new_stock_out_history = (new StockOutHistory)->setHistory($stock_out,$out,$out->order_product,round(abs($qty),4));
+                                    }
+
                                 } else {
+                                    $qty = $stock_out->available_stock;
                                     $out->parent_id_in .= $stock_out->id . ',';
                                     $out->available_stock = $stock_out->available_stock - abs($out->available_stock);
                                     $stock_out->available_stock = 0;
+
+                                    if($out->order_product_id != null){
+                                        $new_stock_out_history = (new StockOutHistory)->setHistory($stock_out,$out,$out->order_product,round(abs($qty),4));
+                                    }
                                 }
                                 $out->save();
                                 $stock_out->save();
@@ -7074,9 +7101,37 @@ class ProductController extends Controller
                 $stock_out->available_stock = $final_available;
                 $stock_out->save();
                 $warehouse_products->save();
+
+                if ($stock_out->order_id == null) {
+                    $dummy_order = Order::createManualOrder($stock_out, 'Adjustment has been placed by ' . Auth::user()->user_name . ' on Product detail page ' . Carbon::now(), 'Adjustment has been placed by ' . Auth::user()->user_name . ' on Product detail page ' . Carbon::now());
+                     //picked again because some fields gets updated while creating dummy order
+                    $stock_out = StockManagementOut::find($stock_out->id);
+                } else {
+                    $order = OrderProduct::find($stock_out->order_product_id);
+                    if ($order) {
+                        $order->quantity = abs($stock_out->quantity_out);
+                        $order->qty_shipped = abs($stock_out->quantity_out);
+                        $order->save();
+                    }
+                }
+
                 if ($stock_out->quantity_out != null && (abs($stock_out->available_stock) > 0)) {
-                    $find_stock = StockManagementOut::where('smi_id', $stock_out->smi_id)->whereNotNull('quantity_in')
+                    
+                    $supplierId = $stock_out->supplier_id;
+                    if($supplierId){
+                        $find_stock = StockManagementOut::where('smi_id', $stock_out->smi_id)->whereNotNull('quantity_in')
+                        ->where('available_stock', '>', 0)
+                        ->with('supplier')
+                        ->when($supplierId, function ($query) use ($supplierId) {
+                            $query->orderByRaw("supplier_id = $supplierId desc");
+                        })
+                        ->get();
+                    }else{
+                        $find_stock = StockManagementOut::where('smi_id', $stock_out->smi_id)->whereNotNull('quantity_in')
                         ->where('available_stock', '>', 0)->get();
+                    }
+                    
+
                     if ($find_stock->count() > 0) {
                         foreach ($find_stock as $out) {
 
@@ -7086,14 +7141,20 @@ class ProductController extends Controller
                                     $stock_out->parent_id_in .= $out->id . ',';
                                     $out->available_stock = $out->available_stock - abs($stock_out->available_stock);
                                     $stock_out->available_stock = 0;
-                                    $new_stock_out_history = (new StockOutHistory)->setHistoryForManualAdjustments($out, $stock_out, abs($qty_to_be_out));
+                                    // $new_stock_out_history = (new StockOutHistory)->setHistoryForManualAdjustments($out, $stock_out, abs($qty_to_be_out));
+                                    if($stock_out->order_product_id != null){
+                                        $new_stock_out_history = (new StockOutHistory)->setHistory($out,$stock_out,$stock_out->order_product,round(abs($qty_to_be_out),4));
+                                    }
                                 } else {
                                     $qty_to_be_out = $out->available_stock;
                                     $stock_out->parent_id_in .= $out->id . ',';
                                     $stock_out->available_stock = $out->available_stock - abs($stock_out->available_stock);
                                     $out->available_stock = 0;
                                     // dd($out);
-                                    $new_stock_out_history = (new StockOutHistory)->setHistoryForManualAdjustments($out, $stock_out, abs($qty_to_be_out));
+                                    // $new_stock_out_history = (new StockOutHistory)->setHistoryForManualAdjustments($out, $stock_out, abs($qty_to_be_out));
+                                    if($stock_out->order_product_id != null){
+                                        $new_stock_out_history = (new StockOutHistory)->setHistory($out,$stock_out,$stock_out->order_product,round(abs($qty_to_be_out),4));
+                                    }
                                 }
                                 $out->save();
                                 $stock_out->save();
@@ -7102,16 +7163,7 @@ class ProductController extends Controller
                     }
                 }
 
-                if ($stock_out->order_id == null) {
-                    $dummy_order = Order::createManualOrder($stock_out, 'Adjustment has been placed by ' . Auth::user()->user_name . ' on Product detail page ' . Carbon::now(), 'Adjustment has been placed by ' . Auth::user()->user_name . ' on Product detail page ' . Carbon::now());
-                } else {
-                    $order = OrderProduct::find($stock_out->order_product_id);
-                    if ($order) {
-                        $order->quantity = abs($stock_out->quantity_out);
-                        $order->qty_shipped = abs($stock_out->quantity_out);
-                        $order->save();
-                    }
-                }
+                
             } elseif ($key == 'title') {
                 $stock_out->$key = $value;
             } elseif ($key == 'note') {
@@ -12096,6 +12148,15 @@ class ProductController extends Controller
         return $dt->make(true);
     }
     public function manualStockAdjacementTD(Request $request){
+        $to_w = explode('-', $request->to_warehouse);
+        $to_product_id = null;
+        if($to_w[0] == 'p'){
+            $request['to_warehouse'] = $request->from_warehouse;
+            $to_product_id = $to_w[1];
+        }else{
+            $request['to_warehouse'] = $to_w[1];
+        }
+        // dd($request->all());
         $quantity = abs($request->quantity_transfer);  
         $st_supplier = Supplier::find(@$request->transfer_stock_supplier_id);
         $td_status = Status::where('id', 19)->first();
@@ -12120,6 +12181,9 @@ class ProductController extends Controller
         $system_gen_no = $date . str_pad(@$onlyIncrementGet + 1, $counter_length, 0, STR_PAD_LEFT);
         $date = date('y-m-d');
         $currentDate = Carbon::now()->format('Y-m-d');
+        $from_product = Product::find($request->prod_id);
+        $to_product = Product::find($to_product_id);
+        $td_msg = @$to_product_id == null ? ("TD created from product details page against supplier ".@$st_supplier->reference_name) : ("TD created from product details page against supplier ".@$st_supplier->reference_name." to transfer stock from product ".@$request->prod_id." to ".@$to_product_id);
         $purchaseOrder = PurchaseOrder::create([
             'ref_id'              => $system_gen_no,
             'status'              => 22,
@@ -12131,7 +12195,7 @@ class ProductController extends Controller
             // 'supplier_id'         => $request->transfer_stock_supplier_id,
             'from_warehouse_id'   => $request->from_warehouse,
             'created_by'          => Auth::user()->id,
-            'memo'                => "TD created from product details page against supplier ".@$st_supplier->reference_name,
+            'memo'                => $td_msg,
             'payment_terms_id'    => NULL,
             'payment_due_date'    => NULL,
             'target_receive_date' => $currentDate,
@@ -12147,30 +12211,33 @@ class ProductController extends Controller
          $poStatusHistory->status     = 'Created';
          $poStatusHistory->new_status = 'Complete Transfer';
          $poStatusHistory->save();
+         $new_purchase_order_detail = null;
+        if(@$to_product_id == null){
 
-         $new_purchase_order_detail = PurchaseOrderDetail::create([
-            'po_id'            => $purchaseOrder->id,
-            'order_id'         => NULL,
-            'customer_id'      => NULL,
-            'order_product_id' => NULL,
-            'product_id'       => $request->prod_id,
-            'pod_import_tax_book' => Null,
-            'pod_unit_price'   => Null,
-            'pod_gross_weight' => NULL,
-            'quantity'         => $quantity,
-            'pod_total_gross_weight' => NULL,
-            'pod_total_unit_price' => Null,
-            'discount' => NULL,
-            'pod_import_tax_book_price' => Null,
-            'warehouse_id'     => $request->to_warehouse,
-            'temperature_c'    => Null,
-            'good_type'        => Null,
-            'supplier_packaging' => NULL,
-            'billed_unit_per_package' => NULL,
-            'supplier_invoice_number' => NULL,
-            'custom_invoice_number' => Null,
-            'custom_line_number' => Null,
-        ]);
+             $new_purchase_order_detail = PurchaseOrderDetail::create([
+                'po_id'            => $purchaseOrder->id,
+                'order_id'         => NULL,
+                'customer_id'      => NULL,
+                'order_product_id' => NULL,
+                'product_id'       => $request->prod_id,
+                'pod_import_tax_book' => Null,
+                'pod_unit_price'   => Null,
+                'pod_gross_weight' => NULL,
+                'quantity'         => $quantity,
+                'pod_total_gross_weight' => NULL,
+                'pod_total_unit_price' => Null,
+                'discount' => NULL,
+                'pod_import_tax_book_price' => Null,
+                'warehouse_id'     => $request->to_warehouse,
+                'temperature_c'    => Null,
+                'good_type'        => Null,
+                'supplier_packaging' => NULL,
+                'billed_unit_per_package' => NULL,
+                'supplier_invoice_number' => NULL,
+                'custom_invoice_number' => Null,
+                'custom_line_number' => Null,
+            ]);
+        }
         $expirationDate = date('Y-m-d', strtotime($request->expiration_date));
         //handling stock management for From warehouse
         // if($request->expiration_date == '' || $request->expiration_date == null){
@@ -12181,6 +12248,8 @@ class ProductController extends Controller
         //     $stock_in = StockManagementIn::where('product_id', $request->prod_id)->whereDate('expiration_date', $expirationDate)
         //             ->where('warehouse_id', $request->from_warehouse)->first();
         // }
+
+        $stock_msg = $to_product_id ? 'TD created to transfer stock from '.@$from_product->refrence_code.' to '.@$to_product->refrence_code : null;
 
         $stock_in = StockManagementIn::find($request->smi_id);
         if(!$stock_in){
@@ -12197,10 +12266,11 @@ class ProductController extends Controller
         }
 
         $first_w_stock_in = $stock_in;
+        $productId = $to_product_id == null ? $request->prod_id : $to_product_id;
 
         //making stock entry
         $stock = TransferDocumentHelper::stockManagement($stock_in, $new_purchase_order_detail, '-'.$quantity, 
-        $purchaseOrder, null, $request->transfer_stock_supplier_id, $request->from_warehouse);
+        $purchaseOrder, null, $request->transfer_stock_supplier_id, $request->from_warehouse, $request->cost, $request->prod_id, $stock_msg);
         $out_available_stock = abs($stock->available_stock);
         
         // $from_which_stock_it_will_deduct = StockManagementOut::where('supplier_id', $request->transfer_stock_supplier_id)->whereNull('quantity_out')
@@ -12235,12 +12305,13 @@ class ProductController extends Controller
         //     $stock_in = StockManagementIn::where('product_id', $request->prod_id)->whereDate('expiration_date', $expirationDate)
         //             ->where('warehouse_id', $request->to_warehouse)->first();
         // }
-        $stock_in = StockManagementIn::where('product_id', $request->prod_id)->where('expiration_date', @$first_w_stock_in->expiration_date)
+        
+        $stock_in = StockManagementIn::where('product_id', $productId)->where('expiration_date', @$first_w_stock_in->expiration_date)
                     ->where('warehouse_id', $request->to_warehouse)->first();
         if(!$stock_in){
             $stock_in = new StockManagementIn;
             $stock_in->title = 'Adjustment';
-            $stock_in->product_id = $request->prod_id;
+            $stock_in->product_id = $productId;
             $stock_in->warehouse_id = $request->to_warehouse;
             $stock_in->expiration_date = @$first_w_stock_in->expiration_date;
             $stock_in->save();
@@ -12248,14 +12319,14 @@ class ProductController extends Controller
 
         //making stock entry
         $stock = TransferDocumentHelper::stockManagement($stock_in, $new_purchase_order_detail,$quantity, 
-        $purchaseOrder, null, $request->transfer_stock_supplier_id, $request->to_warehouse);
+        $purchaseOrder, null, $request->transfer_stock_supplier_id, $request->to_warehouse, $request->cost, $productId, $stock_msg);
         $in_available_stock= abs($stock->available_stock);
         $from_which_stock_it_will_filled = StockManagementOut::whereNull('quantity_in')
-            ->where('available_stock', '<', 0)->where('product_id', $request->prod_id)->where('warehouse_id', $request->to_warehouse)->get();
+            ->where('available_stock', '<', 0)->where('product_id', $productId)->where('warehouse_id', $request->to_warehouse)->get();
 
         $find_stock_from_which_order_deducted = StockManagementOut::findStockFromWhicOrderIsDeducted($quantity, $stock_in, $stock, NULL,$from_which_stock_it_will_filled);
 
-        $warehouse_product = WarehouseProduct::where('product_id', $request->prod_id)->where('warehouse_id', $request->to_warehouse)->first();
+        $warehouse_product = WarehouseProduct::where('product_id', $productId)->where('warehouse_id', $request->to_warehouse)->first();
         $warehouse_product->current_quantity += $quantity;
         $warehouse_product->available_quantity += $quantity;
         $warehouse_product->save();

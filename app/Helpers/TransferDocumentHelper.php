@@ -1138,12 +1138,13 @@ class TransferDocumentHelper
         return response()->json(['success' => true]);
     }
 
-    public static function stockManagement($stock, $p_o_d, $reserved_quantity, $PO, $res_stock, $manual_supplier_id, $warehouse_id = null){
+    public static function stockManagement($stock, $p_o_d, $reserved_quantity, $PO, $res_stock, $manual_supplier_id, $warehouse_id = null, $cost = false, $product_id = null, $msg = null){
         $stock_out               = new StockManagementOut;
-        $stock_out->title        = 'TD';
+        $stock_out->title        = $msg ?? 'TD';
         $stock_out->smi_id       = $stock->id;
-        $stock_out->p_o_d_id     = $p_o_d->id;
-        $stock_out->product_id   = $p_o_d->product_id;
+        $stock_out->po_id        = $PO->id;
+        $stock_out->p_o_d_id     = @$p_o_d->id;
+        $stock_out->product_id   = @$product_id != null ? $product_id : @$p_o_d->product_id;
         if ($reserved_quantity < 0) {
             $stock_out->quantity_out = $reserved_quantity;
             $stock_out->available_stock = $reserved_quantity;
@@ -1154,7 +1155,7 @@ class TransferDocumentHelper
         $stock_out->created_by   = Auth::user()->id;
         $stock_out->warehouse_id = $warehouse_id != null ? @$warehouse_id : $PO->to_warehouse_id;
         $stock_out->supplier_id = @$res_stock->stock_m_out->supplier_id != null ? @$res_stock->stock_m_out->supplier_id : $manual_supplier_id;
-        $stock_out->cost = @$p_o_d->proudct->selling_price;
+        $stock_out->cost = $cost ?? @$p_o_d->proudct->selling_price;
         $stock_out->save();
 
         return $stock_out;
