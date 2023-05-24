@@ -2863,6 +2863,9 @@ span#product_notes{
                 <li class="nav-item">
                   <a class="nav-link" id="stockTransferTab" data-toggle="tab" href="#stockTransferForm">Transfer</a>
                 </li>
+                <li class="nav-item">
+                  <a class="nav-link" id="stockSpoilageTab" data-toggle="tab" href="#stockSpoilageForm">Spoilage</a>
+                </li>
               </ul>
               <div class="tab-content mt-5">
                 <div class="tab-pane fade show active" id="stockInForm">
@@ -2955,6 +2958,29 @@ span#product_notes{
                       </div>
                     </form>
                   </div>
+                 <div class="tab-pane fade" id="stockSpoilageForm">
+                 <h5><b>Customer</b> : <span>Spoilage</span></h5><br>
+                  <form class="new-spoilage-stock-form">
+                    <div class="form-group">
+                      <label for="spoilage_supplier_id" class="font-weight-bold">Choose Supply From</label>
+                      <select id="spoilage_supplier_id" class="form-control-lg form-control" name="spoilage_supplier_id">
+                        <option value=""></option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="new_stock_quantity_spoilage" class="font-weight-bold">Quantity</label>
+                      <input type="number" id="new_stock_quantity_spoilage" name="new_stock_quantity_spoilage" class="form-control-lg form-control quantity-common-style" placeholder="Quantity Out">
+                    </div>
+                    <div class="form-group">
+                      <label for="new_stok_in_cost" class="font-weight-bold">COGS</label>
+                      <input type="text" id="new_stok_spoilage_cost" value="{{(@$product->selling_price!=null)?number_format((float)@$product->selling_price, 3, '.', ''):'N/A'}}" name="cost" class="form-control-lg form-control" placeholder="COGS">
+                    </div>
+                    <div class="form-submit">
+                      <input type="button" value="Add" id="stock_management_spoilage" class="btn btn-bg stock_spoilage_form_btn add-new-stock-save-btn">
+                      <input type="reset" value="Close" class="btn btn-danger reset-all-form close-btn">
+                    </div>
+                  </form>
+                </div>
               </div>
           </div>
       </div>
@@ -3211,11 +3237,13 @@ $(document).ready(function(){
     $(document).on('click','.new-stock-add-button',function(e){
       var stock_id = $(this).data('id');
       $('#stock_id').val(stock_id);
+      // $("spoilage_stock_id").val(stock_id);
       var warehouse_id = $(this).data('warehouse_id');
       // Set the values of the hidden input fields
       $('#smi_id').val($(this).attr('data-id'));
       // aler
       $('#new_warehouse_id').val(warehouse_id);
+      // $('#spoilage_warehouse_id').val(warehouse_id);
       // Show the modal
       $("#addNewStockModal").modal('show');
       var prod_id  = "{{ $id }}";
@@ -3228,6 +3256,7 @@ $(document).ready(function(){
             success: function(data) {
                 $('#stock_supplier_id').html(data.response);
                 $(".transfer_stock_supplier_id").html(data.response);
+                $("#spoilage_supplier_id").html(data.response);
                get_warehouses();
               //  suppliers_available_stock();
             },
@@ -3265,21 +3294,32 @@ $(document).ready(function(){
       $('.transfer-stock-form')[0].reset();
       $('.out-stock-form')[0].reset();
       $('.add-new-stock-form')[0].reset();
+      $('.new-spoilage-stock-form')[0].reset();
       $('#new_stock_customer_id').val(null).trigger('change');
     });
     $(document).on('click','#stockInTab',function(e){
       $('.transfer-stock-form')[0].reset();
       $('.out-stock-form')[0].reset();
       $('#new_stock_customer_id').val(null).trigger('change');
-
+      $('.new-spoilage-stock-form')[0].reset();
+      
     });
     $(document).on('click','#stockOutTab ',function(e){
       $('.add-new-stock-form')[0].reset();
       $('.transfer-stock-form')[0].reset();
+      $('.new-spoilage-stock-form')[0].reset();
+
     });
     $(document).on('click','#stockTransferTab ',function(e){
       $('.add-new-stock-form')[0].reset();
       $('.out-stock-form')[0].reset();
+      $('.new-spoilage-stock-form')[0].reset();
+      $('#new_stock_customer_id').val(null).trigger('change');
+    });
+    $(document).on('click','#stockSpoilageTab ',function(e){
+      $('.add-new-stock-form')[0].reset();
+      $('.out-stock-form')[0].reset();
+      $('.transfer-stock-form')[0].reset();
       $('#new_stock_customer_id').val(null).trigger('change');
     });
     $(document).on('click','.add-new-stock-btn',function(){
@@ -3464,7 +3504,7 @@ $(document).ready(function(){
       var customer_id = null;
       var quantity_out = null; 
       var quantity_in = null;
-      // when user in 
+            // when user in 
       if ($(this).hasClass('stock_in_form_btn')) {
 
         supplier_id = $('#stock_supplier_id option:selected').val();
@@ -3494,15 +3534,32 @@ $(document).ready(function(){
         return false;
       }
      }
-      
+     if($(this).hasClass("stock_spoilage_form_btn")){
+        supplier_id = $('#spoilage_supplier_id option:selected').val();
+        quantity_out = $('#new_stock_quantity_spoilage').val();
+        if(supplier_id == '')
+        {
+          swal({ html:true, title:'Alert !!!', text:'<b>Please Select Supplier First!!!</b>'});
+          return false;
+        }
+        if(quantity_out == ''){
+          swal({ html:true, title:'Alert !!!', text:'<b>Please Enter Quantity!!!</b>'});
+          return false;
+        }
+     }
       if($(this).hasClass('stock_in_form_btn')) {
         stock_for = 'supplier'
         cogs = $('#new_stok_in_cost').val();
         // $('.out-stock-form')[0].reset();
-      } else {
+      } 
+      if($(this).hasClass("stock_out_form_btn")) {
         stock_for = 'customer'
         cogs = $('#new_stok_out_cost').val();
         // $('.add-new-stock-form')[0].reset();
+      }
+      if($(this).hasClass("stock_spoilage_form_btn")) {
+        stock_for = 'spoilage'
+        cogs = $('#new_stok_spoilage_cost').val();
       }
 
       if(stock_id == 'parent_stock')
@@ -3529,6 +3586,7 @@ $(document).ready(function(){
             if (isConfirm) {
               $("#stock_management_out").attr("disabled", true).val('Please Wait!');
               $("#stock_management_in").attr("disabled", true).val('Please Wait!');
+              $("#stock_management_spoilage").attr("disabled", true).val('Please Wait!');
               $.ajax({
                 method:"get",
                 data:'prod_id='+prod_id+'&warehouse_id='+warehouse_id+'&stock_id='+stock_id+'&supplier_id='+supplier_id+'&quantity_in='+quantity_in+'&cogs='+cogs+'&customer_id='+customer_id+'&quantity_out='+quantity_out+'&stock_for='+stock_for,
@@ -3550,8 +3608,10 @@ $(document).ready(function(){
                     getStockDataCard(st_id);
                     $('.out-stock-form')[0].reset();
                     $('.add-new-stock-form')[0].reset();
+                    $('.new-spoilage-stock-form')[0].reset();
                     $("#stock_management_out").attr("disabled", false).val('ADD');
                     $("#stock_management_in").attr("disabled", false).val('ADD');
+                    $("#stock_management_spoilage").attr("disabled", false).val('ADD');
                 toastr.success('Success!', 'New Stock Adjustment Done Successfully.', {"positionClass": "toast-bottom-right"});
                   }else{
                     toastr.error('Sorry!', 'Something Went Wrong !!!',{"positionClass": "toast-bottom-right"});
