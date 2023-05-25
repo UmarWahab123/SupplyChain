@@ -1142,7 +1142,7 @@ class TransferDocumentHelper
         $stock_out               = new StockManagementOut;
         $stock_out->title        = $msg ?? 'TD';
         $stock_out->smi_id       = $stock->id;
-        $stock_out->po_id        = $PO->id;
+        $stock_out->po_id        = @$PO->id;
         $stock_out->p_o_d_id     = @$p_o_d->id;
         $stock_out->product_id   = @$product_id != null ? $product_id : @$p_o_d->product_id;
         if ($reserved_quantity < 0) {
