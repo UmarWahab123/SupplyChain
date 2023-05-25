@@ -1417,6 +1417,7 @@ class HomeController extends Controller
                     $order_product->$key = $value;
                     $order_product->save();
                 } else {
+                    $old_value = $key == 'qty_shipped' ? $order_product->qty_shipped : $order_product->pcs_shipped;
                     if($key == 'qty_shipped')
                     {
                         if($order_product->product != null)
@@ -1427,6 +1428,15 @@ class HomeController extends Controller
                     }
                     $order_product->$key = $value;
                     $order_product->save();
+                    
+                    $order_history = new OrderHistory;
+                    $order_history->user_id = Auth::user()->id;
+                    $order_history->reference_number = $order_product->product->refrence_code;
+                    $order_history->column_name = $key == 'qty_shipped' ? "Qty Sent" : 'Pieces Sent';
+                    $order_history->old_value = $old_value;
+                    $order_history->new_value = $value;
+                    $order_history->order_id = $order_product->order_id;
+                    $order_history->save();
                 }
             }
         }
