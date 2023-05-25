@@ -2932,6 +2932,7 @@ class PurchaseOrderController extends Controller
         }
         $query = DraftPurchaseOrderDetail::with('getProduct.supplier_products','draftPo.getSupplier.getCurrency','getProduct.productType','getProduct.units','getProduct.sellingUnits','notes', 'getProductStock')->where('po_id', $id)->select('draft_purchase_order_details.*');
         $query = DraftPurchaseOrderDetail::DraftPOSorting($request, $query);
+        $config = Configuration::first();
 
         return Datatables::of($query)
 
@@ -3632,9 +3633,8 @@ class PurchaseOrderController extends Controller
                     return $html_string;
             })
            
-            ->addColumn('current_stock_qty', function ($item) {
-                $config = Configuration::first();
-                if($config->server == 'lucilla'){
+            ->addColumn('current_stock_qty', function ($item) use ($config) {
+                if(@$config->server == 'lucilla'){
                 return $item->getProductStock != null ? round(@$item->getProductStock->sum('current_quantity'),3) : '--';
                 }else{
                     return $item->getProductStock != null ? round(@$item->getProductStock->where('warehouse_id', @$item->draftPo->to_warehouse_id)->first()->current_quantity,3) : '--';
