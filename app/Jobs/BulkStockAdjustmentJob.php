@@ -64,11 +64,11 @@ class BulkStockAdjustmentJob implements ShouldQueue
 
                 $adjust_1 = $row[18];
                 $expiry_1 = $row[19];
-                $adjust_2 = $row[21];
-                $expiry_2 = $row[22];
+                $adjust_2 = $row[22];
+                $expiry_2 = $row[23];
 
-                $adjust_3 = $row[24];
-                $expiry_3 = $row[25];
+                $adjust_3 = $row[25];
+                $expiry_3 = $row[26];
                 // to check for supplier or customer
                 if (is_numeric($adjust_1))
                 {
@@ -107,7 +107,14 @@ class BulkStockAdjustmentJob implements ShouldQueue
                         continue;
                     }
                 }
-               
+                if (is_numeric($adjust_1)){
+                 if($adjust_1 > 0){
+                  $supplier = Supplier::where('reference_name',$supplier_name)->first();
+                  if(empty($supplier)){
+
+                  }
+                 }
+                }
           
 
                 if ($product_code != null)
