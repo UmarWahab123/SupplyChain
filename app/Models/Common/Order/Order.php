@@ -768,7 +768,7 @@ class Order extends Model
         return $data;
     }
 
-    public static function createManualOrder($stock, $order_id = null, $msg = null )
+    public static function createManualOrder($stock, $order_id = null, $msg = null ,$user_id = null)
     {
         if($stock->customer_id != null){
             $customer = Customer::find($stock->customer_id);
@@ -791,11 +791,11 @@ class Order extends Model
             $order->delivery_request_date = $stock->created_at;
             $order->billing_address_id    = $address != null ? $address->id : null;
             $order->shipping_address_id   = $address != null ? $address->id : null;
-            $order->user_id               = @auth()->user()->id;
+            $order->user_id               = $user_id ?? @auth()->user()->id;
             $order->converted_to_invoice_on = Carbon::now();
             $order->manual_ref_no         = null;
             $order->is_vat                = 0;
-            $order->created_by            = @auth()->user()->id;
+            $order->created_by            = $user_id ?? @auth()->user()->id;
             $order->primary_status        = 37;
             $order->status                = 38;
             $order->save();
@@ -841,7 +841,7 @@ class Order extends Model
                 'is_billed'            => 'Product',
                 'default_supplier'     => null,
                 'remarks'     => $stock->title,
-                'created_by'           => @auth()->user()->id,
+                'created_by'           => $user_id ?? @auth()->user()->id,
                 'discount'             => 0,
                 'is_retail'            => 'qty',
                 'import_vat_amount'    => null,
@@ -853,7 +853,7 @@ class Order extends Model
             $stock->save();
 
             $order_history = new OrderStatusHistory;
-            $order_history->user_id = @auth()->user()->id;
+            $order_history->user_id = $user_id ?? @auth()->user()->id;
             $order_history->order_id = @$order->id;
             $order_history->status = 'Created';
             $order_history->new_status = 'Manual Adjustment Document';

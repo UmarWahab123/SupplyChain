@@ -38,6 +38,14 @@
   </div>
 </div>
 
+<div class="row joberrormsgDiv mt-2 d-none">
+    <div class="container" style="max-width: 100% !important; min-width: 100% !important">
+      <div class="alert alert-danger alert-dismissible">
+        <a href="javascript:void(0)" class="closeErrorDiv">&times;</a>
+        <span class="job-errors"></span>
+      </div>
+    </div>
+  </div>
 <?php if(!empty($errors) && count($errors)>0) : ?>
 <div class="row errormsgDiv">
   <div class="container">
@@ -250,7 +258,9 @@ $(function(e){
       $('#warehouse_for_all').val(w_id);
       $('#allProducts').submit();
     });
-
+    $(document).on('click', '.closeErrorDiv', function (){
+      $('.joberrormsgDiv').addClass('d-none');
+    });
   $('#alreadybtn').on('click',function(){
     $('.upload-div').show(300);
   });
@@ -579,6 +589,16 @@ $(function(e){
 
                     // toastr.error('Error!', 'Something went wrong. Please try again later. If the issue persists, please contact support.' ,{"positionClass": "toast-bottom-right"});
                     swal("Something went wrong. Please try again later. If the issue persists, please contact support", "", "error");
+                }
+                else if(data.status == 3)
+                {
+                    // console.log(data.exception);
+                    $('#bulk_upload_Modal').modal('hide');
+
+                    // toastr.error('Error!', 'Something went wrong. Please try again later. If the issue persists, please contact support.' ,{"positionClass": "toast-bottom-right"});
+                    swal("Some products have incomplete data please check the erros shown of the screen", "", "error");
+                    $('.job-errors').html(data.exception);
+                    $('.joberrormsgDiv').removeClass('d-none');
                 }
             }
         });
