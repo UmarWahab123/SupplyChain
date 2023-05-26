@@ -120,10 +120,14 @@ class UsersController extends Controller
     {
         $roles = Role::select('id', 'name')->where('id', '!=', 8)->get();
         $query = User::with('getCompany:id,company_name', 'roles:id,name', 'get_warehouse:id,warehouse_title')->where('role_id', '!=', 8);
+        //dd($request->status);
+
         User::doSort($request, $query);
 
         if ($request->status !== null) {
             $query->where('users.status', $request->status);
+        }elseif($request->status == null){
+            $query->where('users.status', 1);
         }
 
         if ($request->role_user) {

@@ -234,11 +234,12 @@ class StockManagementOut extends Model
                       {
                               if($out->available_stock >= abs($stock_out->available_stock))
                               {
+                                  $history_quantity = $stock_out->available_stock;
                                   $stock_out->parent_id_in .= $out->id.',';
                                   $out->available_stock = $out->available_stock - abs($stock_out->available_stock);
                                   $stock_out->available_stock = 0;
                                   if($from_which_stock_it_will_deduct == null){
-                                    $new_stock_out_history = (new StockOutHistory)->setHistory($out,$stock_out,$order_product,abs($stock_out->available_stock));
+                                    $new_stock_out_history = (new StockOutHistory)->setHistory($out,$stock_out,$order_product,abs($history_quantity));
                                   }
                               }
                               else

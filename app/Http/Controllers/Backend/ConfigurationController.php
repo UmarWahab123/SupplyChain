@@ -386,9 +386,15 @@ class ConfigurationController extends Controller
               <input type="color" id="btn_hover_txt_color" name="btn_hover_txt_color" onchange="checkHoverColor()" class="font-weight-bold form-control-lg form-control" value="'.$configuration->btn_hover_txt_color.'">
             </div>
 
+            <div class="form-group col-6">
+              <label style="float:left">Server</label>
+              <input type="text" name="server_name" placeholder="Server" class="font-weight-bold form-control-lg form-control" value="' . $configuration->server. '">
+            </div>
+
             <div class="form-group col-12" id="hover_color_div" style="display:none;">
               <p style="color:red;">"Button Hover Color" and "Button Hover Text Color" must be different</p>
             </div>
+
 
             <div class="form-group col-3" style="margin-top: 35px;">
               <input type="checkbox" name="email_notification" id="email_notification" '.@$checked.'>
@@ -527,7 +533,8 @@ class ConfigurationController extends Controller
       } else {
         $woocommerce = 0;
       }
-
+      // dd($request->server);
+      // $ser_n = 'server';
         $config->company_name         = $request->company_name;
         $config->email_notification   = $e_notification;
         $config->currency_id          = $request->currency_code;
@@ -543,6 +550,7 @@ class ConfigurationController extends Controller
         $config->btn_hover_txt_color  = $request->btn_hover_txt_color;
         $config->woo_commerce          = $woocommerce;
         $config->woocom_warehouse_id = $request->woocom_warehouse_id;
+        $config->server               = $request->server_name;
         $config->update();
 
 

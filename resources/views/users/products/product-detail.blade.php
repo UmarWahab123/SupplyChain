@@ -2930,7 +2930,7 @@ span#product_notes{
                         </select>
                       </div>
                       <div class="form-group">
-                        <label for="to_warehouse" class="font-weight-bold">To Warehouse</label>
+                        <label for="to_warehouse" class="font-weight-bold">Transfer To</label>
                         <select id="to_warehouse" class="form-control-lg form-control" name="to_warehouse">
                           <option value="" disabled="true" selected="true">Select To Warehouse</option>
                           <option value=""></option>
@@ -3271,6 +3271,7 @@ $(document).ready(function(){
                 id: warehouse_id
             },
             success: function(data) {
+              $("#to_warehouse").select2();
               // console.log("dresponse",data.response);
                 $('#from_warehouse').html(data.currentwarehouse);
                 $('#to_warehouse').html(data.response);

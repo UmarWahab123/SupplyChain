@@ -356,6 +356,14 @@ $(function(e){
         {
           if(data.success == true)
           {
+            
+            var qty_cinv = $('#qty_inv_'+pod_id).html();
+            var qty_received = $('#quantity_received_'+pod_id).val();
+            if(parseFloat(qty_cinv) == parseFloat(qty_received)){
+              $('#'+pod_id).removeClass('yellowRow');
+            }else{
+              $('#'+pod_id).addClass('yellowRow');
+            }
             //$(".product_table").DataTable().ajax.reload(null, false );
             toastr.success('Success!', 'Information updated successfully.',{"positionClass": "toast-bottom-right"});
             return true;
@@ -376,6 +384,7 @@ $(function(e){
                 if(response.success == true){
                   $('#greater_quantity').modal('show');
                   $('.fetched-po').html(response.html_string);
+                 
                 }
                 else{
                   $(".product_table").DataTable().ajax.reload(null, false );
