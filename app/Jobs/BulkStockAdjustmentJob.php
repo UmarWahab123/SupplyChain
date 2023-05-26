@@ -64,7 +64,11 @@ class BulkStockAdjustmentJob implements ShouldQueue
 
                 $adjust_1 = $row[18];
                 $expiry_1 = $row[19];
+                $adjust_2 = $row[21];
+                $expiry_2 = $row[22];
 
+                $adjust_3 = $row[24];
+                $expiry_3 = $row[25];
                 // to check for supplier or customer
                 if (is_numeric($adjust_1))
                 {
@@ -103,11 +107,8 @@ class BulkStockAdjustmentJob implements ShouldQueue
                         continue;
                     }
                 }
-                $adjust_2 = $row[21];
-                $expiry_2 = $row[22];
-
-                $adjust_3 = $row[24];
-                $expiry_3 = $row[25];
+               
+          
 
                 if ($product_code != null)
                 {
