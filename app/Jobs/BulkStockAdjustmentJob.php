@@ -16,7 +16,8 @@ use App\Models\Common\StockManagementOut;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Models\Common\PurchaseOrders\PurchaseOrder;
-
+use App\Models\Sales\Customer;
+use App\Models\Common\Supplier;
 class BulkStockAdjustmentJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
