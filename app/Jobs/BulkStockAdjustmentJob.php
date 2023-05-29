@@ -48,7 +48,6 @@ class BulkStockAdjustmentJob implements ShouldQueue
         $rows = $this->rows;
         $user_id = $this->user_id;
         $error_msg = null;
-        $error = 0;
         $html_string = '';
         try {
             $row1 = $rows->toArray();
@@ -56,7 +55,8 @@ class BulkStockAdjustmentJob implements ShouldQueue
             $increment = 0; 
             foreach ($row1 as $key => $row)
             {
-               $increment = $key + 2;
+                $error = 0;
+                $increment = $key + 2;
                 $product_code = $row[7];
                 $reserved_qty = $row[14];
 
@@ -85,21 +85,21 @@ class BulkStockAdjustmentJob implements ShouldQueue
                 if (is_numeric($adjust_2)){
                     if($adjust_2 > 0 && $supplier_name == null){
                         $error = 3;
-                        $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_1.' QTY into system but doesnt have supplier name </li>';
+                        $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_2.' QTY into system but doesnt have supplier name </li>';
                     }
                     if($adjust_2 < 0 && $customer_name == null){
                         $error = 3;
-                        $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_1.' QTY into system but doesnt have customer name </li>';
+                        $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_2.' QTY into system but doesnt have customer name </li>';
                     }
                 }
                 if (is_numeric($adjust_3)){
                     if($adjust_3 > 0 && $supplier_name == null){
                         $error = 3;
-                        $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_1.' QTY into system but doesnt have supplier name </li>';
+                        $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_3.' QTY into system but doesnt have supplier name </li>';
                     }
                     if($adjust_3 < 0 && $customer_name == null){
                         $error = 3;
-                        $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_1.' QTY into system but doesnt have customer name </li>';
+                        $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_3.' QTY into system but doesnt have customer name </li>';
                     }
                 }
                 // To check Customer or Supplier exist in the system or not
@@ -108,13 +108,13 @@ class BulkStockAdjustmentJob implements ShouldQueue
                   $supplier = Supplier::where('reference_name',$supplier_name)->first();
                   if(empty($supplier)){
                     $error = 3;
-                    $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_1.' QTY into system but '.$supplier_name.' doesnt exist in the system.</li>';
+                    $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_1.' QTY into system but Supplier '.$supplier_name.' doesnt exist in the system.</li>';
                   }
                  }else{
                     $cusomer = Customer::where('reference_name',$customer_name)->first();
                     if(empty($cusomer)){
                       $error = 3;
-                      $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_1.' QTY into system but '.$customer_name.' doesnt exist in the system.</li>';
+                      $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_1.' QTY into system but Customer '.$customer_name.' doesnt exist in the system.</li>';
                     }
                  }
                 }
@@ -124,13 +124,13 @@ class BulkStockAdjustmentJob implements ShouldQueue
                      $supplier = Supplier::where('reference_name',$supplier_name)->first();
                      if(empty($supplier)){
                        $error = 3;
-                       $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_1.' QTY into system but '.$supplier_name.' doesnt exist in the system.</li>';
+                       $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_2.' QTY into system but Supplier '.$supplier_name.' doesnt exist in the system.</li>';
                      }
                     }else{
                        $cusomer = Customer::where('reference_name',$customer_name)->first();
                        if(empty($cusomer)){
                          $error = 3;
-                         $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_1.' QTY into system but '.$customer_name.' doesnt exist in the system.</li>';
+                         $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_2.' QTY into system but Customer '.$customer_name.' doesnt exist in the system.</li>';
                        }
                     }
                    }
@@ -139,17 +139,17 @@ class BulkStockAdjustmentJob implements ShouldQueue
                      $supplier = Supplier::where('reference_name',$supplier_name)->first();
                      if(empty($supplier)){
                        $error = 3;
-                       $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_1.' QTY into system but '.$supplier_name.' doesnt exist in the system.</li>';
+                       $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_3.' QTY into system but Supplier '.$supplier_name.' doesnt exist in the system.</li>';
                      }
                     }else{
                        $cusomer = Customer::where('reference_name',$customer_name)->first();
                        if(empty($cusomer)){
                          $error = 3;
-                         $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_1.' QTY into system but '.$customer_name.' doesnt exist in the system.</li>';
+                         $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_3.' QTY into system but Customer '.$customer_name.' doesnt exist in the system.</li>';
                        }
                     }
                    }
-                 if($error = 3){
+                 if($error == 3){
                   continue;  
                  }
                 if ($product_code != null)
@@ -210,7 +210,7 @@ class BulkStockAdjustmentJob implements ShouldQueue
                                             {
                                               $dummy_order = Order::createManualOrder($stock_out, 'Created by doing stock adjustment bulk import', 'Created by doing stock adjustment bulk import', $user_id);
                                             }else{
-                                              $dummy_order = PurchaseOrder::createManualPo($stock_out);
+                                              $dummy_order = PurchaseOrder::createManualPo($stock_out , $user_id);
                                             }
                                         }
                                     }
@@ -314,9 +314,9 @@ class BulkStockAdjustmentJob implements ShouldQueue
                                         {
                                             if($adjust_2 < 0)
                                             {
-                                                $dummy_order = Order::createManualOrder($stock_out, 'Created by doing stock adjustment bulk import', 'Created by doing stock adjustment bulk import');
+                                                $dummy_order = Order::createManualOrder($stock_out, 'Created by doing stock adjustment bulk import', 'Created by doing stock adjustment bulk import', $user_id);
                                             }else{
-                                                $dummy_order = PurchaseOrder::createManualPo($stock_out);
+                                                $dummy_order = PurchaseOrder::createManualPo($stock_out, $user_id);
                                             }
                                         }
                                     }
@@ -428,9 +428,9 @@ class BulkStockAdjustmentJob implements ShouldQueue
                                         {
                                             if($adjust_3 < 0)
                                             {
-                                                $dummy_order = Order::createManualOrder($stock_out, 'Created by doing stock adjustment bulk import', 'Created by doing stock adjustment bulk import');
+                                                $dummy_order = Order::createManualOrder($stock_out, 'Created by doing stock adjustment bulk import', 'Created by doing stock adjustment bulk import', $user_id);
                                             }else{
-                                                $dummy_order = PurchaseOrder::createManualPo($stock_out);
+                                                $dummy_order = PurchaseOrder::createManualPo($stock_out, $user_id);
                                             }
                                         }
                                     }

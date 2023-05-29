@@ -587,7 +587,7 @@ class PurchasingController extends Controller
             }
 
         }
-        else if($statusCheck->status==0 || $statusCheck->status==2)
+        else if($statusCheck->status==0 || $statusCheck->status==2 || $statusCheck->status==3)
         {
 
             ExportStatus::where('type','stock_bulk_upload')->where('user_id',Auth::user()->id)->update(['status'=>1,'exception'=>null]);

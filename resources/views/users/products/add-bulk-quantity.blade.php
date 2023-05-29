@@ -373,6 +373,11 @@ $(function(e){
                       toastr.error('Error!', 'Something went wrong. Please try again later. If the issue persists, please contact support.' ,{"positionClass": "toast-bottom-right"});
 
                   }
+                  else if(data.status==3)
+                  {
+                      $('#filteredProductsbtn').html('Download Filtered Products');
+                      $('#filteredProductsbtn').prop('disabled',false);
+                  }
               }
           });
   }
