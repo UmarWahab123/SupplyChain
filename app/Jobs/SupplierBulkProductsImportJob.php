@@ -363,7 +363,7 @@ class SupplierBulkProductsImportJob implements ShouldQueue
                                 'status'                 => $status,
                                 'created_by'             => $user_id,
                                 'fixed_prices_array'     => serialize($fixed_prices_array),
-                                'order_qty_per_piece'    => $row['order_qty_per_piece'],
+                                'order_qty_per_piece'    => @$row['order_qty_per_piece'],
                             ]);
 
                             $new_data->save();
