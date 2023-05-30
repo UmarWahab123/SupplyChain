@@ -103,52 +103,47 @@ class BulkStockAdjustmentJob implements ShouldQueue
                     }
                 }
                 // To check Customer or Supplier exist in the system or not
+                $supplier = Supplier::where('reference_name',$supplier_name)->first();
+                $cusomer = Customer::where('reference_name',$customer_name)->first();
                 if (is_numeric($adjust_1)){
-                 if($adjust_1 > 0){
-                  $supplier = Supplier::where('reference_name',$supplier_name)->first();
-                  if(empty($supplier)){
-                    $error = 3;
-                    $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_1.' QTY into system but Supplier '.$supplier_name.' doesnt exist in the system.</li>';
-                  }
-                 }else{
-                    $cusomer = Customer::where('reference_name',$customer_name)->first();
-                    if(empty($cusomer)){
-                      $error = 3;
-                      $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_1.' QTY into system but Customer '.$customer_name.' doesnt exist in the system.</li>';
+                  if($adjust_1 > 0){
+                    if(!$supplier){
+                        $error = 3;
+                        $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_1.' QTY into system but Supplier '.$supplier_name.' doesnt exist in the system.</li>';
                     }
-                 }
+                  }else{
+                    if(!$cusomer){
+                        $error = 3;
+                        $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_1.' QTY into system but Customer '.$customer_name.' doesnt exist in the system.</li>';  
+                    }
+                  }
                 }
-             
                 if (is_numeric($adjust_2)){
                     if($adjust_2 > 0){
-                     $supplier = Supplier::where('reference_name',$supplier_name)->first();
-                     if(empty($supplier)){
-                       $error = 3;
-                       $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_2.' QTY into system but Supplier '.$supplier_name.' doesnt exist in the system.</li>';
-                     }
+                      if(!$supplier){
+                          $error = 3;
+                          $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_2.' QTY into system but Supplier '.$supplier_name.' doesnt exist in the system.</li>';
+                      }
                     }else{
-                       $cusomer = Customer::where('reference_name',$customer_name)->first();
-                       if(empty($cusomer)){
-                         $error = 3;
-                         $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_2.' QTY into system but Customer '.$customer_name.' doesnt exist in the system.</li>';
-                       }
+                      if(!$cusomer){
+                          $error = 3;
+                          $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_2.' QTY into system but Customer '.$customer_name.' doesnt exist in the system.</li>';  
+                      }
                     }
-                   }
-                   if (is_numeric($adjust_3)){
+                  }
+                  if (is_numeric($adjust_3)){
                     if($adjust_3 > 0){
-                     $supplier = Supplier::where('reference_name',$supplier_name)->first();
-                     if(empty($supplier)){
-                       $error = 3;
-                       $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_3.' QTY into system but Supplier '.$supplier_name.' doesnt exist in the system.</li>';
-                     }
+                      if(!$supplier){
+                          $error = 3;
+                          $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_3.' QTY into system but Supplier '.$supplier_name.' doesnt exist in the system.</li>';
+                      }
                     }else{
-                       $cusomer = Customer::where('reference_name',$customer_name)->first();
-                       if(empty($cusomer)){
-                         $error = 3;
-                         $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_3.' QTY into system but Customer '.$customer_name.' doesnt exist in the system.</li>';
-                       }
+                      if(!$cusomer){
+                          $error = 3;
+                          $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_3.' QTY into system but Customer '.$customer_name.' doesnt exist in the system.</li>';  
+                      }
                     }
-                   }
+                  }
                  if($error == 3){
                   continue;  
                  }
