@@ -549,12 +549,14 @@ $(function(e){
                     keyboard: false
                 });
                 $("#bulk_upload_Modal").modal('show');
+                $('.job-errors').html("");
+                $('.joberrormsgDiv').addClass('d-none');
             },
             success:function(data)
             {
                 if(data.status==0 || data.status==2)
                 {
-
+                
                 }
                 else
                 {
@@ -604,6 +606,7 @@ $(function(e){
                     // toastr.success('Success!', 'Stock Adjust Successfully.' ,{"positionClass": "toast-bottom-right"});
                     swal("Stock Adjusted Successfully", "", "success");
                     $('#bulk_upload_Modal').modal('hide');
+                   
 
                 }
                 else if(data.status==2)

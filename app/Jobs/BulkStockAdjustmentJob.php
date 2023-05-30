@@ -49,6 +49,7 @@ class BulkStockAdjustmentJob implements ShouldQueue
         $user_id = $this->user_id;
         $error_msg = null;
         $html_string = '';
+        $has_error = 0;
         try {
             $row1 = $rows->toArray();
             $remove = array_shift($row1);
@@ -103,15 +104,16 @@ class BulkStockAdjustmentJob implements ShouldQueue
                     }
                 }
                 // To check Customer or Supplier exist in the system or not
-                $supplier = Supplier::where('reference_name',$supplier_name)->first();
-                $cusomer = Customer::where('reference_name',$customer_name)->first();
+               
                 if (is_numeric($adjust_1)){
                   if($adjust_1 > 0){
+                    $supplier = Supplier::where('reference_name',$supplier_name)->first();
                     if(!$supplier){
                         $error = 3;
                         $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_1.' QTY into system but Supplier '.$supplier_name.' doesnt exist in the system.</li>';
                     }
                   }else{
+                    $cusomer = Customer::where('reference_name',$customer_name)->first();
                     if(!$cusomer){
                         $error = 3;
                         $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_1.' QTY into system but Customer '.$customer_name.' doesnt exist in the system.</li>';  
@@ -120,11 +122,13 @@ class BulkStockAdjustmentJob implements ShouldQueue
                 }
                 if (is_numeric($adjust_2)){
                     if($adjust_2 > 0){
+                        $supplier = Supplier::where('reference_name',$supplier_name)->first();
                       if(!$supplier){
                           $error = 3;
                           $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_2.' QTY into system but Supplier '.$supplier_name.' doesnt exist in the system.</li>';
                       }
                     }else{
+                        $cusomer = Customer::where('reference_name',$customer_name)->first();
                       if(!$cusomer){
                           $error = 3;
                           $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_2.' QTY into system but Customer '.$customer_name.' doesnt exist in the system.</li>';  
@@ -133,11 +137,13 @@ class BulkStockAdjustmentJob implements ShouldQueue
                   }
                   if (is_numeric($adjust_3)){
                     if($adjust_3 > 0){
+                    $supplier = Supplier::where('reference_name',$supplier_name)->first();
                       if(!$supplier){
                           $error = 3;
                           $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_3.' QTY into system but Supplier '.$supplier_name.' doesnt exist in the system.</li>';
                       }
                     }else{
+                        $cusomer = Customer::where('reference_name',$customer_name)->first();
                       if(!$cusomer){
                           $error = 3;
                           $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_3.' QTY into system but Customer '.$customer_name.' doesnt exist in the system.</li>';  
@@ -145,6 +151,7 @@ class BulkStockAdjustmentJob implements ShouldQueue
                     }
                   }
                  if($error == 3){
+                  $has_error = 1;
                   continue;  
                  }
                 if ($product_code != null)
@@ -498,7 +505,7 @@ class BulkStockAdjustmentJob implements ShouldQueue
                 $export_status->error_msgs = $error_msg;
             }
             $export_status->save();
-            if($error == 3)
+            if($has_error == 1)
             {
                 $success = 'hasError';
                 $export_status->error_msgs = "Stock Adjusted Successfully, But Some Of Them Has Issues !!!";
