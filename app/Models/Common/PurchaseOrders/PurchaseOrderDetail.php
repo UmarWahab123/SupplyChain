@@ -1403,14 +1403,14 @@ class PurchaseOrderDetail extends Model
                 if($po_group_product_detail){
                     return round(@$po_group_product_detail->actual_tax_percent,4) ?? 0;
                 }
-                return $item->product_id !== null ? ($item->product->supplier_products->where('supplier_id',$item->product->supplier_id)->first()->import_tax_actual !== null ? number_format((float) $item->product->supplier_products->where('supplier_id',$item->product->supplier_id)->first()->import_tax_actual, 3, '.', ',') : '--') : 'N.A';
+                return '--';
                 break;
 
             case 'landing':
                 if($po_group_product_detail){
                     return round(@$po_group_product_detail->landing,4) ?? 0;
                 }
-                return $item->product_id !== null ? ($item->product->supplier_products->where('supplier_id',$item->product->supplier_id)->first()->landing !== null ? number_format((float) $item->product->supplier_products->where('supplier_id',$item->product->supplier_id)->first()->landing, 3, '.', ',') : '--') : 'N.A';
+                return '--';
                 break;
 
             case 'freight':
@@ -1418,8 +1418,7 @@ class PurchaseOrderDetail extends Model
                 if($po_group_product_detail){
                     return round(@$po_group_product_detail->freight,4) ?? 0;
                 }
-
-                return $item->product_id !== null ? ($item->product->supplier_products->where('supplier_id',$item->product->supplier_id)->first()->freight !== null ? number_format((float) $item->product->supplier_products->where('supplier_id',$item->product->supplier_id)->first()->freight, 3, '.', ',') : '--') : 'N.A';
+                return '--';
                 break;
             case 'vat':
                 // return $item->product->vat !== null ? $item->product->vat.' %' : '0 %';
