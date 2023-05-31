@@ -134,26 +134,28 @@ class BulkStockAdjustmentJob implements ShouldQueue
                           $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_2.' QTY into system but Customer '.$customer_name.' doesnt exist in the system.</li>';  
                       }
                     }
-                  }
-                  if (is_numeric($adjust_3)){
-                    if($adjust_3 > 0){
-                    $supplier = Supplier::where('reference_name',$supplier_name)->first();
-                      if(!$supplier){
-                          $error = 3;
-                          $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_3.' QTY into system but Supplier '.$supplier_name.' doesnt exist in the system.</li>';
-                      }
-                    }else{
-                        $cusomer = Customer::where('reference_name',$customer_name)->first();
-                      if(!$cusomer){
-                          $error = 3;
-                          $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_3.' QTY into system but Customer '.$customer_name.' doesnt exist in the system.</li>';  
-                      }
+                }
+                if (is_numeric($adjust_3)){
+                if($adjust_3 > 0){
+                $supplier = Supplier::where('reference_name',$supplier_name)->first();
+                    if(!$supplier){
+                        $error = 3;
+                        $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_3.' QTY into system but Supplier '.$supplier_name.' doesnt exist in the system.</li>';
                     }
-                  }
-                 if($error == 3){
-                  $has_error = 1;
-                  continue;  
-                 }
+                }else{
+                    $cusomer = Customer::where('reference_name',$customer_name)->first();
+                    if(!$cusomer){
+                        $error = 3;
+                        $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_3.' QTY into system but Customer '.$customer_name.' doesnt exist in the system.</li>';  
+                    }
+                }
+                }
+                if($error == 3){
+                $has_error = 1;
+                continue;  
+                }
+                $supplier = Supplier::where('reference_name',$supplier_name)->first();
+                $cusomer = Customer::where('reference_name',$customer_name)->first();
                 if ($product_code != null)
                 {
                     $product = Product::where('refrence_code', $product_code)->first();
@@ -198,9 +200,11 @@ class BulkStockAdjustmentJob implements ShouldQueue
                                         if($adjust_1 < 0) {
                                         $stock_out->quantity_out = $adjust_1;
                                         $stock_out->available_stock = $adjust_1;
+                                        $stock_out->customer_id  = @$cusomer->id;
                                         }else{
                                         $stock_out->quantity_in  = $adjust_1;
                                         $stock_out->available_stock  = $adjust_1;  
+                                        $stock_out->supplier_id  = @$supplier->id;
                                         }
                                         $stock_out->created_by   = $user_id;
                                         $stock_out->warehouse_id = $warehouse->id;
@@ -242,9 +246,11 @@ class BulkStockAdjustmentJob implements ShouldQueue
                                         if($adjust_1 < 0) {
                                         $stock_out->quantity_out = $adjust_1;
                                         $stock_out->available_stock = $adjust_1;
+                                        $stock_out->customer_id  = @$cusomer->id;
                                         }else{
                                         $stock_out->quantity_in  = $adjust_1;
                                         $stock_out->available_stock  = $adjust_1;  
+                                        $stock_out->supplier_id  = @$supplier->id;
                                         }
                                         $stock_out->created_by   = $user_id;
                                         $stock_out->warehouse_id = $warehouse->id;
@@ -303,11 +309,13 @@ class BulkStockAdjustmentJob implements ShouldQueue
                                         {
                                             $stock_out->quantity_out = $adjust_2;
                                             $stock_out->available_stock = $adjust_2;
+                                            $stock_out->customer_id  = @$cusomer->id;
                                         }
                                         else
                                         {
                                             $stock_out->quantity_in  = $adjust_2;
                                             $stock_out->available_stock = $adjust_2;
+                                            $stock_out->supplier_id  = @$supplier->id;
                                         }
                                         $stock_out->created_by   = $user_id;
                                         $stock_out->warehouse_id = $warehouse->id;
@@ -352,11 +360,13 @@ class BulkStockAdjustmentJob implements ShouldQueue
                                             {
                                                 $stock_out->quantity_out = $adjust_2;
                                                 $stock_out->available_stock = $adjust_2;
+                                                $stock_out->customer_id  = @$cusomer->id;
                                             }
                                             else
                                             {
                                                 $stock_out->quantity_in  = $adjust_2;
                                                 $stock_out->available_stock = $adjust_2;
+                                                $stock_out->supplier_id  = @$supplier->id;
                                             }
                                         }
                                         $stock_out->created_by   = $user_id;
@@ -417,11 +427,13 @@ class BulkStockAdjustmentJob implements ShouldQueue
                                         {
                                             $stock_out->quantity_out = $adjust_3;
                                             $stock_out->available_stock = $adjust_3;
+                                            $stock_out->customer_id  = @$cusomer->id;
                                         }
                                         else
                                         {
                                             $stock_out->quantity_in  = $adjust_3;
                                             $stock_out->available_stock = $adjust_3;
+                                            $stock_out->supplier_id  = @$supplier->id;
                                         }
                                         $stock_out->created_by   = $user_id;
                                         $stock_out->warehouse_id = $warehouse->id;
@@ -466,11 +478,14 @@ class BulkStockAdjustmentJob implements ShouldQueue
                                             {
                                                 $stock_out->quantity_out = $adjust_3;
                                                 $stock_out->available_stock = $adjust_3;
+                                                $stock_out->customer_id  = @$cusomer->id;
                                             }
                                             else
                                             {
                                                 $stock_out->quantity_in  = $adjust_3;
                                                 $stock_out->available_stock = $adjust_3;
+                                                $stock_out->supplier_id  = @$supplier->id;
+
                                             }
                                         }
                                         $stock_out->created_by   = $user_id;
