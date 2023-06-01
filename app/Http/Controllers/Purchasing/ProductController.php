@@ -7893,18 +7893,18 @@ class ProductController extends Controller
 
             ->addColumn('old_value', function ($item) {
                 if (@$item->column_name == 'category_id') {
-                    return @$item->old_value != null ? $item->old_productSubCategory->title : '--';
+                    return @$item->old_value != null ? @$item->old_productSubCategory->title : '--';
                 } else if (@$item->column_name == 'type_id') {
-                    return @$item->old_value != null ? $item->oldProductType->title : '--';
+                    return @$item->old_value != null ? @$item->oldProductType->title : '--';
                 } else if (@$item->column_name == 'ecom_product') {
                     return @$item->old_value != null ? @$item->old_value == 0 ? 'Disabled' : 'Enabled' : '--';
                 } else if (@$item->column_name == 'buying_unit' || @$item->column_name == 'selling_unit' || @$item->column_name == 'stock_unit') {
-                    return @$item->old_value != null ? $item->oldUnits->title : '--';
+                    return @$item->old_value != null ? @$item->oldUnits->title : '--';
                 } else if (@$item->column_name == 'supplier_id') {
                     if ($item->old_value == 0) {
                         return "--";
                     } else {
-                        return @$item->old_value != null ? $item->old_def_or_last_supplier->reference_name : '--';
+                        return @$item->old_value != null ? @$item->old_def_or_last_supplier->reference_name : '--';
                     }
                 }
 
@@ -7913,15 +7913,15 @@ class ProductController extends Controller
 
             ->addColumn('new_value', function ($item) {
                 if (@$item->column_name == 'supplier_id') {
-                    return @$item->new_value != null ? $item->def_or_last_supplier->reference_name : '--';
+                    return @$item->new_value != null ? @$item->def_or_last_supplier->reference_name : '--';
                 } else if (@$item->column_name == 'category_id') {
-                    return @$item->new_value != null ? $item->new_productSubCategory->title : '--';
+                    return @$item->new_value != null ? @$item->new_productSubCategory->title : '--';
                 } else if (@$item->column_name == 'type_id') {
-                    return @$item->new_value != null ? $item->newProductType->title : '--';
+                    return @$item->new_value != null ? @$item->newProductType->title : '--';
                 } else if (@$item->column_name == 'ecom_product') {
                     return @$item->new_value != null ? @$item->new_value == 0 ? 'Disabled' : 'Enabled' : '--';
                 } else if (@$item->column_name == 'buying_unit' || @$item->column_name == 'selling_unit' || @$item->column_name == 'stock_unit') {
-                    return @$item->new_value != null ? $item->newUnits->title : '--';
+                    return @$item->new_value != null ? @$item->newUnits->title : '--';
                 }
 
                 return @$item->new_value != null ? $item->new_value : '--';
