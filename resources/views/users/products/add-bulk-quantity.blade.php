@@ -549,19 +549,40 @@ $(function(e){
                     keyboard: false
                 });
                 $("#bulk_upload_Modal").modal('show');
+                $('.job-errors').html("");
+                $('.joberrormsgDiv').addClass('d-none');
             },
             success:function(data)
             {
                 if(data.status==0 || data.status==2)
                 {
-
+                
                 }
                 else
                 {
                     console.log(data.status);
                     recursiveCallForImportStatus();
                 }
+            },
+            error: function(xhr, status, error) {
+            var response = JSON.parse(xhr.responseText);
+            var errorMessage = response.message;
+            var errorDetails = response.errors;
+            var errorText = '';
+
+            // Format the error details
+            for (var key in errorDetails) {
+                if (errorDetails.hasOwnProperty(key)) {
+                    errorText += key + ': ' + errorDetails[key].join(', ') + '<br>';
+                }
             }
+
+            // Display swal with error message and details
+            swal("The given data is invalid, The excel must be a file of type: xlsx.", "", "error");
+
+            $('#bulk_upload_Modal').modal('hide');
+
+           }
             });
     });
 
@@ -585,6 +606,7 @@ $(function(e){
                     // toastr.success('Success!', 'Stock Adjust Successfully.' ,{"positionClass": "toast-bottom-right"});
                     swal("Stock Adjusted Successfully", "", "success");
                     $('#bulk_upload_Modal').modal('hide');
+                   
 
                 }
                 else if(data.status==2)
