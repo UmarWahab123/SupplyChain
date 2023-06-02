@@ -77,7 +77,7 @@ class PurchaseOrder extends Model
     {
         return $this->hasOne('App\PurchaseOrderTransaction', 'po_id', 'id');
     }
-    public static function createManualPo($stock_out)
+    public static function createManualPo($stock_out, $user_id = null)
     {
         if($stock_out->supplier_id != null){
             $supplier = Supplier::find($stock_out->supplier_id);
@@ -101,7 +101,7 @@ class PurchaseOrder extends Model
                     'total_vat_actual_price_in_thb' => 0,
                     'supplier_id'                   => $supplier->id,
                     'from_warehouse_id'             => $stock_out->warehouse_id,
-                    'created_by'                    => Auth::user()->id,
+                    'created_by'                    => $user_id ?? @auth()->user()->id,
                     'memo'                          => null,
                     'payment_terms_id'              => null,
                     'payment_due_date'              => $stock_out->created_at,
@@ -121,7 +121,7 @@ class PurchaseOrder extends Model
                 'product_id'                        => $stock_out->product_id,
                 'billed_desc'                       => null,
                 'is_billed'                         => 'Product',
-                'created_by'                        => Auth::user()->id,
+                'created_by'                        => $user_id ?? @auth()->user()->id,
                 'pod_import_tax_book'               => 0,
                 'pod_vat_actual'                    => 0,
                 'pod_unit_price'                    => 0,

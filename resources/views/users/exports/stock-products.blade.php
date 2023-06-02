@@ -22,6 +22,8 @@
                 <th>Unit</th>
                 <th>Reorder {{$global_terminologies['qty']}}</th>
                 <th>Reserved Qty</th>
+                <th>Supplier Name</th>
+                <th>Customer Name</th>
                 <th>Current Qty 1</th>
                 <th>Adjust 1</th>   
                 <th>Exp 1  <br> (dd/m/YYYY)</th>                      
@@ -57,7 +59,8 @@
                     @endphp
 
                     <td>{{ $reserved + $ecom_reserved }}</td>
-                    
+                    <td></td>
+                    <td></td>
                     @php
                         
                         $stock = $product->stock_in->where('warehouse_id',$warehouse->id);

@@ -691,6 +691,7 @@ $('.sorting_filter_table').on('click',function(){
           if(data.success == true)
           {
             {{-- $(".pick-instruction-table").DataTable().ajax.reload(); --}}
+            $(".table-order-history").DataTable().ajax.reload();
             toastr.success('Success!', 'Information updated successfully.',{"positionClass": "toast-bottom-right"});
 
             return true;

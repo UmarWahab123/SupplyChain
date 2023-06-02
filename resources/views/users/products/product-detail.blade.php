@@ -3297,18 +3297,22 @@ $(document).ready(function(){
       $('.add-new-stock-form')[0].reset();
       $('.new-spoilage-stock-form')[0].reset();
       $('#new_stock_customer_id').val(null).trigger('change');
+      $('#to_warehouse').val(null).trigger('change');
+
     });
     $(document).on('click','#stockInTab',function(e){
       $('.transfer-stock-form')[0].reset();
       $('.out-stock-form')[0].reset();
       $('#new_stock_customer_id').val(null).trigger('change');
       $('.new-spoilage-stock-form')[0].reset();
+      $('#to_warehouse').val(null).trigger('change');
       
     });
     $(document).on('click','#stockOutTab ',function(e){
       $('.add-new-stock-form')[0].reset();
       $('.transfer-stock-form')[0].reset();
       $('.new-spoilage-stock-form')[0].reset();
+      $('#to_warehouse').val(null).trigger('change');
 
     });
     $(document).on('click','#stockTransferTab ',function(e){
@@ -3322,6 +3326,7 @@ $(document).ready(function(){
       $('.out-stock-form')[0].reset();
       $('.transfer-stock-form')[0].reset();
       $('#new_stock_customer_id').val(null).trigger('change');
+      $('#to_warehouse').val(null).trigger('change');
     });
     $(document).on('click','.add-new-stock-btn',function(){
       var stock_id = $(this).data('id');
@@ -3405,6 +3410,11 @@ $(document).ready(function(){
     else if(new_stock_transfer_quantity == '')
     {
       swal({ html:true, title:'Alert !!!', text:'<b>Must Enter Quantity!!!</b>'});
+      inverror = true;
+    }
+    else if(new_stock_transfer_quantity == 0)
+    {
+      swal({ html:true, title:'Alert !!!', text:'<b>Quantity Cannot Be Zero!!!</b>'});
       inverror = true;
     }
     else if(from_warehouse != '' && to_warehouse != '' )
