@@ -2087,7 +2087,48 @@ class ProductController extends Controller
             ]);
         return $dt->make(true);
     }
-
+    
+    public function MarginReport13(Request $request)
+    {
+        return $this->render('users.reports.margin-report.margin-report-by-spoilage');
+    }
+    public function getMarginReport13(Request $request)
+    {
+        $spoilage_stock = StockManagementOut::whereHas('customer', function ($q) {
+            $q->where('manual_customer', 2);
+        });
+        
+        $mergedRecords = $spoilage_stock->get()->groupBy(function ($item) {
+            return $item->supplier->reference_name . '_' . $item->get_product->refrence_code;
+        });
+        $mergedData = $mergedRecords->map(function ($group) {
+            $totalQuantity = $group->sum('quantity_out');
+            $unitCOGS = $group->first()->cost;
+            $totalCOGS = abs($totalQuantity) * $unitCOGS;
+        
+            return [
+                'reference_code' => $group->first()->get_product->refrence_code ?? '--',
+                'default_supplier' => $group->first()->supplier->reference_name ?? '--',
+                'customer' => $group->first()->customer->reference_name ?? '--',
+                'quantity' => $totalQuantity != null ? abs($totalQuantity) : '--',
+                'unit_cogs' => $unitCOGS != null ? $unitCOGS : '--',
+                'cogs_total' => number_format($totalCOGS),
+            ];
+        });
+        $dt = Datatables::of($mergedData);
+        
+        $add_columns = ['refrence_code','default_supplier', 'customer', 'quantity', 'unit_cogs', 'cogs_total'];
+        foreach ($add_columns as $column) {
+            $dt->addColumn($column, function ($item) use ($column) {
+            return Product::returnAddColumnMargin13($column, $item);
+           });
+        }
+        // $dt->setRowId(function ($item) {
+        //     return $item['id'];
+        // });
+        $dt->rawColumns(['refrence_code','default_supplier', 'customer', 'quantity', 'unit_cogs', 'cogs_total']);
+        return $dt->make(true);
+    }
     public function MarginReport2(Request $request, $from_dashboard = null)
     {
         $sales_filter = null;
@@ -2189,7 +2230,7 @@ class ProductController extends Controller
         $total_items_cogs  = $to_get_totals->sum('products_total_cost');
         //to find cogs of manual adjustments
         $stock = (new StockManagementOut)->get_manual_adjustments($request);
-        $total = (clone $stock)->sum(\DB::raw('cost * quantity_out'));
+        $total = (clone $stock)->sum(\DB::raw('cost * quanttiy_out'));
         $total_items_gp    = $total_items_sales - $total_items_cogs - abs($total);
         $to_get_totals = 0;
         $products = Product::MarginReportByProductNameSorting($request, $products, $total_items_sales, $total_items_gp);

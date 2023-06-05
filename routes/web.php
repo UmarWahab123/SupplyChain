@@ -387,6 +387,11 @@ Route::group(['namespace' => 'Purchasing', 'middleware' => 'purchasing'], functi
     Route::get('get-margin-report-product-type-3-footer', 'ProductController@getMarginReportProductType3Footer')->name('get-margin-report-product-type-3-footer');
     Route::get('export-status-margin-report-by-product-type-3', 'ProductController@ExportMarginReportByProductType3')->name('export-status-margin-report-by-product-type-3');
 
+    Route::get('margin-report-13', 'ProductController@MarginReport13')->name('margin-report-13');
+    Route::get('get-margin-report-13', 'ProductController@getMarginReport13')->name('get-margin-report-13');
+    // Route::get('get-margin-report-13-footer', 'ProductController@getMarginReport13Footer')->name('get-margin-report-13-footer');
+    // Route::get('export-status-margin-report-by-spoilage', 'ProductController@ExportMarginReportBySpoilage')->name('export-status-margin-report-by-spoilage');
+
     /********************* Margin Report Routes End ***************************/
     Route::get('remove-multi-products', 'ProductController@removeMultipleProducts')->name('remove-multi-products');
     Route::get('deactivate-products', 'ProductController@deactivateProducts')->name('deactivate-products');
