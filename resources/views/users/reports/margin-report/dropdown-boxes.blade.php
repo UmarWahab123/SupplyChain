@@ -31,6 +31,8 @@
           @endif
 
           <option value="{{ url('/margin-report-10') }}" {{ ($url == 'margin-report-10' )? "selected='true'":" " }}>{{@$global_terminologies['margin_report_by_supplier'] != null ? @$global_terminologies['margin_report_by_supplier'] : 'Supplier' }}</option>
+          <option value="{{ url('/margin-report-13') }}" {{ ($url == 'margin-report-13' )? "selected='true'":" " }}>Spoilage</option>
+
           <!-- <option value="{{ url('/margin-report-7') }}" {{ ($url == 'margin-report-7' )? "selected='true'":" " }}>Preorder / Stock</option> -->
         </select>
       </div>

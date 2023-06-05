@@ -48,7 +48,9 @@ class StockManagementOut extends Model
     public function supplier(){
         return $this->belongsTo('App\Models\Common\Supplier', 'supplier_id', 'id');
     }
-
+    public function customer(){
+      return $this->belongsTo('App\Models\Sales\Customer', 'customer_id', 'id');
+    }
     public function po_detail(){
         return $this->belongsTo('App\Models\Common\PurchaseOrders\PurchaseOrderDetail', 'p_o_d_id', 'id');
     }
