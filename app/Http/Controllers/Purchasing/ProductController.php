@@ -2129,7 +2129,7 @@ class ProductController extends Controller
                 'customer' => $group->first()->customer->reference_name ?? '--',
                 'quantity' => $totalQuantity != null ? abs($totalQuantity) : '--',
                 'unit_cogs' => $unitCOGS != null ? $unitCOGS : '--',
-                'cogs_total' => number_format($totalCOGS),
+                'cogs_total' => number_format($totalCOGS, 2),
             ];
         });
         $dt = Datatables::of($mergedData);
