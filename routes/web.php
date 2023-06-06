@@ -71,6 +71,16 @@ Route::get('get-download-xslx/{file_name}', function ($file_name) {
     return \Response::download($file, $file_name, $headers);
 });
 
+Route::get('get-downloads-xslx/{file_name}', function ($file_name) {
+    $file    = storage_path('app/' . $file_name);
+    $headers = array(
+        'Content-Type: application/xlsx',
+        'Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0'
+    );
+    ob_end_clean();
+    return \Response::download($file, $file_name, $headers);
+});
+
 Route::get('/execution-time', function () {
     return view('execution');
 });
@@ -389,6 +399,8 @@ Route::group(['namespace' => 'Purchasing', 'middleware' => 'purchasing'], functi
 
     Route::get('margin-report-13', 'ProductController@MarginReport13')->name('margin-report-13');
     Route::get('get-margin-report-13', 'ProductController@getMarginReport13')->name('get-margin-report-13');
+    Route::get('/export-status-margin-report-by-spoilage', 'ProductController@ExportMarginReportBySpoilage')->name('export-status-margin-report-by-spoilage');
+
     // Route::get('get-margin-report-13-footer', 'ProductController@getMarginReport13Footer')->name('get-margin-report-13-footer');
     // Route::get('export-status-margin-report-by-spoilage', 'ProductController@ExportMarginReportBySpoilage')->name('export-status-margin-report-by-spoilage');
 
