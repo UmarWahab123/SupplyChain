@@ -106,7 +106,8 @@
 
 @section('javascript')
 <script type="text/javascript">
-  $("#to_date").datepicker({
+  $(document).ready(function(){
+    $("#to_date").datepicker({
     format: "dd/mm/yyyy",
     autoHide: true
   });
@@ -179,6 +180,7 @@
     drawCallback: function(){
       $('#loader_modal').modal('hide');
     },
+  });
   });
   $(document).on('click','.apply_date',function(){
     var date_from = $('#from_date').val();
