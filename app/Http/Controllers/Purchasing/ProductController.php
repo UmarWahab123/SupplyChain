@@ -111,6 +111,7 @@ use App\Models\Common\PurchaseOrders\PurchaseOrder;
 use App\Jobs\SoldProductsSupplierMarginDetailExportJob;
 use App\Models\Common\PurchaseOrders\PurchaseOrderDetail;
 use App\Helpers\ProductConfigurationHelper;
+use App\Helpers\MarginReportHelper;
 use App\Models\Common\Status;
 use App\Models\Common\PurchaseOrders\PurchaseOrderStatusHistory;
 use App\Helpers\TransferDocumentHelper;
@@ -2097,44 +2098,8 @@ class ProductController extends Controller
     {
         $from_date = $request->from_date;
         $to_date = $request->to_date;
-        if (!empty($from_date) && !empty($to_date)) {
-        try {
-            $from_date = Carbon::createFromFormat('d/m/Y', $from_date)->format('Y-m-d');
-            $to_date = Carbon::createFromFormat('d/m/Y', $to_date)->format('Y-m-d');
-            } catch (InvalidArgumentException $e) {
-                // Handle the exception, log the error, or display a meaningful message
-                return response()->json(['error' => 'Invalid date format'], 400);
-            }
-            $spoilage_stock = StockManagementOut::whereHas('customer', function ($q) {
-                $q->where('manual_customer', 2);
-            })
-            ->whereDate('created_at', '>=', $from_date)
-            ->whereDate('created_at', '<=', $to_date);
-          } else {
-            $spoilage_stock = StockManagementOut::whereHas('customer', function ($q) {
-                $q->where('manual_customer', 2);  
-          });
-        }
-        $mergedRecords = $spoilage_stock->get()->groupBy(function ($item) {
-            return $item->supplier->reference_name . '_' . $item->get_product->refrence_code;
-        });
-        $mergedData = $mergedRecords->map(function ($group) {
-            $totalQuantity = $group->sum('quantity_out');
-            $unitCOGS = $group->first()->cost;
-            $totalCOGS = abs($totalQuantity) * $unitCOGS;
-        
-            return [
-                'reference_code' => $group->first()->get_product->refrence_code ?? '--',
-                'default_supplier' => $group->first()->supplier->reference_name ?? '--',
-                'customer' => $group->first()->customer->reference_name ?? '--',
-                'quantity' => $totalQuantity != null ? abs($totalQuantity) : '--',
-                'unit_cogs' => $unitCOGS != null ? $unitCOGS : '--',
-                'cogs_total' => number_format($totalCOGS, 2),
-            ];
-        });
-        $dt = Datatables::of($mergedData);
-    
-        
+        $spoilageStock = MarginReportHelper::getSpoilageData($from_date,$to_date);
+        $dt = Datatables::of($spoilageStock);
         $add_columns = ['refrence_code','default_supplier', 'customer', 'quantity', 'unit_cogs', 'cogs_total'];
         foreach ($add_columns as $column) {
             $dt->addColumn($column, function ($item) use ($column) {

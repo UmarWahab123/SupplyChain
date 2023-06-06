@@ -100,8 +100,6 @@
   <input type="hidden" name="from_date_exp" id="from_date_exp">
   <input type="hidden" name="to_date_exp" id="to_date_exp">
 </form>
-
-
 @endsection
 
 @section('javascript')
