@@ -11338,7 +11338,7 @@ class ProductController extends Controller
         } elseif ($status->status == 1) {
             return response()->json(['msg' => "File is already being prepared", 'status' => 2]);
         } elseif ($status->status == 0 || $status->status == 2) {
-            ExportStatus::where('type', 'margin_report_by_office')->update(['status' => 1, 'exception' => null, 'user_id' => Auth::user()->id]);
+            ExportStatus::where('type', 'margin_report_by_spoilage')->update(['status' => 1, 'exception' => null, 'user_id' => Auth::user()->id]);
             MarginReportBySpoilageJob::dispatch($data, Auth::user()->id);
             return response()->json(['msg' => "File is now getting prepared", 'status' => 1, 'exception' => null]);
         }
