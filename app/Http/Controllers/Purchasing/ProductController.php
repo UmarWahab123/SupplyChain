@@ -67,6 +67,7 @@ use App\Models\BarcodeConfiguration;
 use App\Models\Common\Configuration;
 use Illuminate\Support\Facades\View;
 use App\Jobs\MarginReportByOfficeJob;
+use App\Jobs\MarginReportBySpoilageJob;
 use App\Exports\completeProductExport;
 use App\Models\Common\ProductCategory;
 use App\Models\Common\StockOutHistory;
@@ -2094,10 +2095,26 @@ class ProductController extends Controller
     }
     public function getMarginReport13(Request $request)
     {
-        $spoilage_stock = StockManagementOut::whereHas('customer', function ($q) {
-            $q->where('manual_customer', 2);
-        });
-        
+        $from_date = $request->from_date;
+        $to_date = $request->to_date;
+        if (!empty($from_date) && !empty($to_date)) {
+        try {
+            $from_date = Carbon::createFromFormat('d/m/Y', $from_date)->format('Y-m-d');
+            $to_date = Carbon::createFromFormat('d/m/Y', $to_date)->format('Y-m-d');
+            } catch (InvalidArgumentException $e) {
+                // Handle the exception, log the error, or display a meaningful message
+                return response()->json(['error' => 'Invalid date format'], 400);
+            }
+            $spoilage_stock = StockManagementOut::whereHas('customer', function ($q) {
+                $q->where('manual_customer', 2);
+            })
+            ->whereDate('created_at', '>=', $from_date)
+            ->whereDate('created_at', '<=', $to_date);
+          } else {
+            $spoilage_stock = StockManagementOut::whereHas('customer', function ($q) {
+                $q->where('manual_customer', 2);  
+          });
+        }
         $mergedRecords = $spoilage_stock->get()->groupBy(function ($item) {
             return $item->supplier->reference_name . '_' . $item->get_product->refrence_code;
         });
@@ -2116,6 +2133,7 @@ class ProductController extends Controller
             ];
         });
         $dt = Datatables::of($mergedData);
+    
         
         $add_columns = ['refrence_code','default_supplier', 'customer', 'quantity', 'unit_cogs', 'cogs_total'];
         foreach ($add_columns as $column) {
@@ -2123,6 +2141,7 @@ class ProductController extends Controller
             return Product::returnAddColumnMargin13($column, $item);
            });
         }
+        
         // $dt->setRowId(function ($item) {
         //     return $item['id'];
         // });
@@ -2230,7 +2249,7 @@ class ProductController extends Controller
         $total_items_cogs  = $to_get_totals->sum('products_total_cost');
         //to find cogs of manual adjustments
         $stock = (new StockManagementOut)->get_manual_adjustments($request);
-        $total = (clone $stock)->sum(\DB::raw('cost * quanttiy_out'));
+        $total = (clone $stock)->sum(\DB::raw('cost * quantity_out'));
         $total_items_gp    = $total_items_sales - $total_items_cogs - abs($total);
         $to_get_totals = 0;
         $products = Product::MarginReportByProductNameSorting($request, $products, $total_items_sales, $total_items_gp);
@@ -11303,7 +11322,28 @@ class ProductController extends Controller
             echo $output;
         }
     }
-
+    public function ExportMarginReportBySpoilage(Request $request)
+    {
+        $data = $request->all();
+        $status = ExportStatus::where('type', 'margin_report_by_spoilage')->first();
+        if ($status == null) {
+            $new = new ExportStatus();
+            $new->user_id = Auth::user()->id;
+            $new->type = 'margin_report_by_Spoilage';
+            $new->file_name = 'Margin-Report-By-Spoilage.xlsx';
+            $new->status = 1;
+            $new->save();
+            MarginReportBySpoilageJob::dispatch($data, Auth::user()->id);
+            return response()->json(['msg' => "File is now getting prepared", 'status' => 1, 'recursive' => true]);
+        } elseif ($status->status == 1) {
+            return response()->json(['msg' => "File is already being prepared", 'status' => 2]);
+        } elseif ($status->status == 0 || $status->status == 2) {
+            ExportStatus::where('type', 'margin_report_by_office')->update(['status' => 1, 'exception' => null, 'user_id' => Auth::user()->id]);
+            MarginReportBySpoilageJob::dispatch($data, Auth::user()->id);
+            return response()->json(['msg' => "File is now getting prepared", 'status' => 1, 'exception' => null]);
+        }
+    }
+    
     public function ExportMarginReportByOffice(Request $request)
     {
         $data = $request->all();
