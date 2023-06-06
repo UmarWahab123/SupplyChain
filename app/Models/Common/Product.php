@@ -1889,27 +1889,27 @@ class Product extends Model
     {
         switch ($column) {
             case 'refrence_code':
-                return @$item['reference_code'] != null ? @$item['reference_code'] : '--';
+                return @$item->reference_code != null ? @$item->reference_code : '--';
                 break;
 
             case 'default_supplier':
-                return @$item['default_supplier'] != null ? @$item['default_supplier'] : '--';
+                return@$item->default_supplier != null ? @$item->default_supplier : '--';
                 break;
 
             case 'customer':
-                return @$item['customer'] != null ? @$item['customer']  : '--';
+                return @$item->customer != null ? @$item->customer  : '--';
                 break;
 
             case 'quantity':
-                return @$item['quantity'] != null ? abs(@$item['quantity']) : '--' ;
+                return  @$item->quantity != null ? abs(@$item->quantity) : '--' ;
                 break;
 
             case 'unit_cogs':
-                return @$item['unit_cogs'] != null ? @$item['unit_cogs'] : '--';
+                return @$item->unit_cogs != null ? @$item->unit_cogs : '--';
                 break;
 
             case 'cogs_total':
-                return @$item['cogs_total'] != null ? @$item['cogs_total'] : '--';;
+                return @$item->cogs_total != null ? abs(@$item->cogs_total) : '--';;
                 break;
         }
     }
