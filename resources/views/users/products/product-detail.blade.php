@@ -177,6 +177,17 @@ span#product_notes{
 .quantity-common-style::-webkit-outer-spin-button {
   -webkit-appearance: none;
 }
+.nav-tabs-inline {
+      display: inline;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+   }
+
+   .nav-tabs-inline li {
+      display: inline-block;
+      margin-right: 10px;
+   }
 </style>
 
 <div class="row">
@@ -2846,145 +2857,162 @@ span#product_notes{
   </div>
 </div>
 <div class="modal fade" id="addNewStockModal">
-  <div class="modal-dialog modal-dialog-centered parcelpop">
+   <div class="modal-dialog modal-dialog-centered parcelpop modal-lg">
       <div class="modal-content">
-          <div class="modal-header">
-              <button type="button" class="close reset-all-form" data-dismiss="modal">×</button>
-          </div>
-          <div class="modal-body text-center">
-              <h3 class="text-capitalize fontmed">Add New Stock</h3>
-              <ul class="nav nav-tabs">
-                <li class="nav-item">
-                  <a class="nav-link active" id="stockInTab" data-toggle="tab" href="#stockInForm">Stock In</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" id="stockOutTab" data-toggle="tab" href="#stockOutForm">Stock Out</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" id="stockTransferTab" data-toggle="tab" href="#stockTransferForm">Transfer</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" id="stockSpoilageTab" data-toggle="tab" href="#stockSpoilageForm">Spoilage</a>
-                </li>
-              </ul>
-              <div class="tab-content mt-5">
-                <div class="tab-pane fade show active" id="stockInForm">
-                 <input type="hidden" id="stock_id" value="" name="stock_id" class="form-control-lg form-control">
+         <div class="modal-header">
+            <button type="button" class="close reset-all-form" data-dismiss="modal">×</button>
+         </div>
+         <div class="modal-body text-center">
+            <h3 class="text-capitalize fontmed">Add New Stock</h3>
+            <ul class="nav nav-tabs nav-tabs-inline">
+              <li class="nav-item"><a class="nav-link active" id="stockInTab" data-toggle="tab" href="#stockInForm">Stock In</a></li>
+              <li class="nav-item"><a class="nav-link" id="stockOutTab" data-toggle="tab" href="#stockOutForm">Stock Out</a></li>
+              <li class="nav-item"><a class="nav-link" id="stockTransferTab" data-toggle="tab" href="#stockTransferForm">Transfer</a></li>
+              <li class="nav-item"><a class="nav-link" id="stockSpoilageTab" data-toggle="tab" href="#stockSpoilageForm">Spoilage</a></li>
+              @if(@$sys_logos->server=="lucilla")
+              <li class="nav-item"><a class="nav-link" id="inventoryManagementTab" data-toggle="tab" href="#inventoryManagementForm">Inventory Management</a></li>
+              @endif
+            </ul>
+            <div class="tab-content mt-5">
+               <div class="tab-pane fade show active" id="stockInForm">
+                  <input type="hidden" id="stock_id" value="" name="stock_id" class="form-control-lg form-control">
                   <input type="hidden" id="new_warehouse_id" value="" name="warehouse_id" class="form-control-lg form-control">
                   <form class="add-new-stock-form">
-                    <div class="form-group">
-                      <label for="stock_supplier_id" class="font-weight-bold">Choose Supply From</label>
-                      <select id="stock_supplier_id" class="form-control-lg form-control" name="stock_supplier_id">
-                        <option value=""></option>
-                      </select>
-                    </div>
-                    <div class="form-group">
-                      <label for="new_stock_quantity_in" class="font-weight-bold">Quantity</label>
-                      <input type="number" id="new_stock_quantity_in" name="new_stock_quantity_in" class="form-control-lg form-control quantity-common-style" placeholder="Quantity In">
-                    </div>
-                    <div class="form-group">
-                      <label for="new_stok_in_cost" class="font-weight-bold">COGS</label>
-                      <input type="text" id="new_stok_in_cost" value="{{(@$product->selling_price!=null)?number_format((float)@$product->selling_price, 3, '.', ''):'N/A'}}" name="cost" class="form-control-lg form-control" placeholder="COGS">
-                    </div>
-                    <div class="form-submit">
-                      <input type="button" value="Add" id="stock_management_in" class="btn btn-bg stock_in_form_btn add-new-stock-save-btn">
-                      <input type="reset" value="Close" class="btn btn-danger reset-all-form close-btn">
-                    </div>
+                     <div class="form-group">
+                        <label for="stock_supplier_id" class="font-weight-bold">Choose Supply From</label>
+                        <select id="stock_supplier_id" class="form-control-lg form-control" name="stock_supplier_id">
+                           <option value=""></option>
+                        </select>
+                     </div>
+                     <div class="form-group">
+                        <label for="new_stock_quantity_in" class="font-weight-bold">Quantity</label>
+                        <input type="number" id="new_stock_quantity_in" name="new_stock_quantity_in" class="form-control-lg form-control quantity-common-style" placeholder="Quantity In">
+                     </div>
+                     <div class="form-group">
+                        <label for="new_stok_in_cost" class="font-weight-bold">COGS</label>
+                        <input type="text" id="new_stok_in_cost" value="{{(@$product->selling_price!=null)?number_format((float)@$product->selling_price, 3, '.', ''):'N/A'}}" name="cost" class="form-control-lg form-control" placeholder="COGS">
+                     </div>
+                     <div class="form-submit">
+                        <input type="button" value="Add" id="stock_management_in" class="btn btn-bg stock_in_form_btn add-new-stock-save-btn">
+                        <input type="reset" value="Close" class="btn btn-danger reset-all-form close-btn">
+                     </div>
                   </form>
-                </div>
-                <div class="tab-pane fade" id="stockOutForm">
-                <form class="out-stock-form">
-                    <div class="form-group">
-                      <label for="new_stock_customer_id" class="font-weight-bold">BILL TO</label>
-                      <select id="new_stock_customer_id" class="form-control-lg form-control" name="new_stock_customer_id">
-                        <option id="default_customer_option" value="" disabled="true" selected="true">Choose Customer</option>
-                        @foreach($customers as $customer)
-                        <option value="{{$customer->id}}">{{$customer->reference_name}}</option>
-                        @endforeach
-                      </select>
-                    </div>
-                    <div class="form-group">
-                      <label for="new_stock_quantity_out" class="font-weight-bold">Quantity</label>
-                      <input type="number" id="new_stock_quantity_out" name="quantity_out" class="form-control-lg form-control quantity-common-style" placeholder="Quantity Out">
-                    </div>
-                    <div class="form-group">
-                      <label for="new_stok_out_cost" class="font-weight-bold">COGS</label>
-                      <input type="text" id="new_stok_out_cost" value="{{(@$product->selling_price!=null)?number_format((float)@$product->selling_price, 3, '.', ''):'N/A'}}" name="cost" class="form-control-lg form-control" placeholder="COGS">
-                    </div>
-                    <div class="form-submit">
-                      <input type="button" value="Add" id="stock_management_out" class="btn btn-bg save-btn stock_out_form_btn add-new-stock-save-btn">
-                      <input type="reset" value="Close" class="btn btn-danger close-btn reset-all-form">
-                    </div>
+               </div>
+               <div class="tab-pane fade" id="stockOutForm">
+                  <form class="out-stock-form">
+                     <div class="form-group">
+                        <label for="new_stock_customer_id" class="font-weight-bold">BILL TO</label>
+                        <select id="new_stock_customer_id" class="form-control-lg form-control" name="new_stock_customer_id">
+                           <option id="default_customer_option" value="" disabled="true" selected="true">Choose Customer</option>
+                           @foreach($customers as $customer)
+                           <option value="{{$customer->id}}">{{$customer->reference_name}}</option>
+                           @endforeach
+                        </select>
+                     </div>
+                     <div class="form-group">
+                        <label for="new_stock_quantity_out" class="font-weight-bold">Quantity</label>
+                        <input type="number" id="new_stock_quantity_out" name="quantity_out" class="form-control-lg form-control quantity-common-style" placeholder="Quantity Out">
+                     </div>
+                     <div class="form-group">
+                        <label for="new_stok_out_cost" class="font-weight-bold">COGS</label>
+                        <input type="text" id="new_stok_out_cost" value="{{(@$product->selling_price!=null)?number_format((float)@$product->selling_price, 3, '.', ''):'N/A'}}" name="cost" class="form-control-lg form-control" placeholder="COGS">
+                     </div>
+                     <div class="form-submit">
+                        <input type="button" value="Add" id="stock_management_out" class="btn btn-bg save-btn stock_out_form_btn add-new-stock-save-btn">
+                        <input type="reset" value="Close" class="btn btn-danger close-btn reset-all-form">
+                     </div>
                   </form>
-                </div>
-                <div class="tab-pane fade" id="stockTransferForm">
+               </div>
+               <div class="tab-pane fade" id="stockTransferForm">
                   <div class="supplier-available-stock-list"></div>
                   <form class="transfer-stock-form">
-                  @csrf
-                  <input type="hidden" id="smi_id" name="smi_id" value="" class="form-control-lg form-control">
-                  <input type="hidden" id="prod_id" name="prod_id" value="{{$id}}" class="form-control-lg form-control">
-                      <div class="form-group">
+                     @csrf
+                     <input type="hidden" id="smi_id" name="smi_id" value="" class="form-control-lg form-control">
+                     <input type="hidden" id="prod_id" name="prod_id" value="{{$id}}" class="form-control-lg form-control">
+                     <div class="form-group">
                         <label for="from_warehouse" class="font-weight-bold">SUPPLY FROM</label>
                         <select id="from_warehouse" class="form-control-lg form-control" name="from_warehouse">
-                          <option value="" disabled="true" selected="true">Select Supply From Warehouse</option>
+                           <option value="" disabled="true" selected="true">Select Supply From Warehouse</option>
                         </select>
-                      </div>
-                      <div class="form-group">
+                     </div>
+                     <div class="form-group">
                         <label for="to_warehouse" class="font-weight-bold">Transfer To</label>
                         <select id="to_warehouse" class="form-control-lg form-control" name="to_warehouse">
-                          <option value="" disabled="true" selected="true">Select To Warehouse</option>
-                          <option value=""></option>
-
+                           <option value="" disabled="true" selected="true">Select To Warehouse</option>
+                           <option value=""></option>
                         </select>
-                      </div>
-                      <div class="form-group">
+                     </div>
+                     <div class="form-group">
                         <label for="transfer_stock_supplier_id" class="font-weight-bold">Choose Supply From</label>
                         <select id="transfer_stock_supplier_id" class="form-control-lg form-control transfer_stock_supplier_id" name="transfer_stock_supplier_id">
-                          <option value=""></option>
+                           <option value=""></option>
                         </select>
-                      </div>
-                      <div class="form-group">
+                     </div>
+                     <div class="form-group">
                         <label for="new_stock_quantity_transfer" class="font-weight-bold">Quantity</label>
                         <input type="number" id="new_stock_quantity_transfer" name="quantity_transfer" class="form-control-lg form-control quantity-common-style" placeholder="Quantity Transfer">
-                      </div>
-                      <div class="form-group">
+                     </div>
+                     <div class="form-group">
                         <label for="new_stok_transfer_cost" class="font-weight-bold">COGS</label>
                         <input type="text" id="new_stok_transfer_cost" value="{{(@$product->selling_price!=null)?number_format((float)@$product->selling_price, 3, '.', ''):'N/A'}}" name="cost" class="form-control-lg form-control" placeholder="COGS">
-                      </div>
-                      <br>
-                      <div class="form-submit">
+                     </div>
+                     <br>
+                     <div class="form-submit">
                         <input type="button" value="Add" id="stock_management_transfer" class="btn btn-bg save-btn add-new-stock-transfer-save-btn">
                         <input type="reset" value="Close" class="btn btn-danger reset-all-form close-btn">
-                      </div>
-                    </form>
-                  </div>
-                 <div class="tab-pane fade" id="stockSpoilageForm">
-                 <h5><b>Customer</b> : <span>Spoilage</span></h5><br>
-                  <form class="new-spoilage-stock-form">
-                    <div class="form-group">
-                      <label for="spoilage_supplier_id" class="font-weight-bold">Choose Supply From</label>
-                      <select id="spoilage_supplier_id" class="form-control-lg form-control" name="spoilage_supplier_id">
-                        <option value=""></option>
-                      </select>
-                    </div>
-                    <div class="form-group">
-                      <label for="new_stock_quantity_spoilage" class="font-weight-bold">Quantity</label>
-                      <input type="number" id="new_stock_quantity_spoilage" name="new_stock_quantity_spoilage" class="form-control-lg form-control quantity-common-style" placeholder="Quantity Out">
-                    </div>
-                    <div class="form-group">
-                      <label for="new_stok_in_cost" class="font-weight-bold">COGS</label>
-                      <input type="text" id="new_stok_spoilage_cost" value="{{(@$product->selling_price!=null)?number_format((float)@$product->selling_price, 3, '.', ''):'N/A'}}" name="cost" class="form-control-lg form-control" placeholder="COGS">
-                    </div>
-                    <div class="form-submit">
-                      <input type="button" value="Add" id="stock_management_spoilage" class="btn btn-bg stock_spoilage_form_btn add-new-stock-save-btn">
-                      <input type="reset" value="Close" class="btn btn-danger reset-all-form close-btn">
-                    </div>
+                     </div>
                   </form>
-                </div>
-              </div>
-          </div>
+               </div>
+               <div class="tab-pane fade" id="stockSpoilageForm">
+                  <h5><b>Customer</b> : <span>Spoilage</span></h5>
+                  <br>
+                  <form class="new-spoilage-stock-form">
+                     <div class="form-group">
+                        <label for="spoilage_supplier_id" class="font-weight-bold">Choose Supply From</label>
+                        <select id="spoilage_supplier_id" class="form-control-lg form-control" name="spoilage_supplier_id">
+                           <option value=""></option>
+                        </select>
+                     </div>
+                     <div class="form-group">
+                        <label for="new_stock_quantity_spoilage" class="font-weight-bold">Quantity</label>
+                        <input type="number" id="new_stock_quantity_spoilage" name="new_stock_quantity_spoilage" class="form-control-lg form-control quantity-common-style" placeholder="Quantity Out">
+                     </div>
+                     <div class="form-group">
+                        <label for="new_stok_in_cost" class="font-weight-bold">COGS</label>
+                        <input type="text" id="new_stok_spoilage_cost" value="{{(@$product->selling_price!=null)?number_format((float)@$product->selling_price, 3, '.', ''):'N/A'}}" name="cost" class="form-control-lg form-control" placeholder="COGS">
+                     </div>
+                     <div class="form-submit">
+                        <input type="button" value="Add" id="stock_management_spoilage" class="btn btn-bg stock_spoilage_form_btn add-new-stock-save-btn">
+                        <input type="reset" value="Close" class="btn btn-danger reset-all-form close-btn">
+                     </div>
+                  </form>
+               </div>
+               <div class="tab-pane fade" id="inventoryManagementForm">
+                  <input type="hidden" id="inventory_stock_id" value="" name="stock_id" class="form-control-lg form-control">
+                  <input type="hidden" id="new_inventory_warehouse_id" value="" name="warehouse_id" class="form-control-lg form-control">
+                  <form class="inventory-management-form">
+                     <div class="form-group">
+                        <label for="new_inventory_quantity_in" class="font-weight-bold">Quantity In</label>
+                        <input type="number" id="new_inventory_quantity_in" name="new_inventory_quantity_in" class="form-control-lg form-control quantity-common-style" placeholder="Quantity In">
+                     </div>
+                     <div class="form-group">
+                        <label for="new_inventory_quantity_out" class="font-weight-bold">Quantity Out</label>
+                        <input type="number" id="new_inventory_quantity_out" name="new_inventory_quantity_out" class="form-control-lg form-control quantity-common-style" placeholder="Quantity Out">
+                     </div>
+                     <div class="form-group">
+                        <label for="new_inventory_cost" class="font-weight-bold">COGS</label>
+                        <input type="text" id="new_inventory_cost" value="{{(@$product->selling_price!=null)?number_format((float)@$product->selling_price, 3, '.', ''):'N/A'}}" name="new_inventory_cost" class="form-control-lg form-control" placeholder="COGS">
+                     </div>
+                     <div class="form-submit">
+                        <input type="button" value="Add" id="inventory_management" class="btn btn-bg inventory_management_form_btn inventory-management-save-btn">
+                        <input type="reset" value="Close" class="btn btn-danger reset-all-form close-btn">
+                     </div>
+                  </form>
+               </div>
+            </div>
+         </div>
       </div>
-  </div>
+   </div>
 </div>
 
 @endsection
@@ -3237,12 +3265,15 @@ $(document).ready(function(){
     $(document).on('click','.new-stock-add-button',function(e){
       var stock_id = $(this).data('id');
       $('#stock_id').val(stock_id);
+      $('#inventory_stock_id').val(stock_id);
       // $("spoilage_stock_id").val(stock_id);
       var warehouse_id = $(this).data('warehouse_id');
       // Set the values of the hidden input fields
       $('#smi_id').val($(this).attr('data-id'));
       // aler
       $('#new_warehouse_id').val(warehouse_id);
+      $('#new_inventory_warehouse_id').val(warehouse_id);
+
       // $('#spoilage_warehouse_id').val(warehouse_id);
       // Show the modal
       $("#addNewStockModal").modal('show');
@@ -3298,7 +3329,9 @@ $(document).ready(function(){
       $('.new-spoilage-stock-form')[0].reset();
       $('#new_stock_customer_id').val(null).trigger('change');
       $('#to_warehouse').val(null).trigger('change');
-
+      $('.inventory-management-form')[0].reset();
+      $('#new_inventory_quantity_out').prop('disabled', false);
+      $('#new_inventory_quantity_in').prop('disabled', false);
     });
     $(document).on('click','#stockInTab',function(e){
       $('.transfer-stock-form')[0].reset();
@@ -3306,20 +3339,27 @@ $(document).ready(function(){
       $('#new_stock_customer_id').val(null).trigger('change');
       $('.new-spoilage-stock-form')[0].reset();
       $('#to_warehouse').val(null).trigger('change');
-      
+      $('.inventory-management-form')[0].reset();
+      $('#new_inventory_quantity_out').prop('disabled', false);
+      $('#new_inventory_quantity_in').prop('disabled', false);
     });
     $(document).on('click','#stockOutTab ',function(e){
       $('.add-new-stock-form')[0].reset();
       $('.transfer-stock-form')[0].reset();
       $('.new-spoilage-stock-form')[0].reset();
       $('#to_warehouse').val(null).trigger('change');
-
+      $('.inventory-management-form')[0].reset();
+      $('#new_inventory_quantity_out').prop('disabled', false);
+      $('#new_inventory_quantity_in').prop('disabled', false);
     });
     $(document).on('click','#stockTransferTab ',function(e){
       $('.add-new-stock-form')[0].reset();
       $('.out-stock-form')[0].reset();
       $('.new-spoilage-stock-form')[0].reset();
       $('#new_stock_customer_id').val(null).trigger('change');
+      $('.inventory-management-form')[0].reset();
+      $('#new_inventory_quantity_out').prop('disabled', false);
+      $('#new_inventory_quantity_in').prop('disabled', false);
     });
     $(document).on('click','#stockSpoilageTab ',function(e){
       $('.add-new-stock-form')[0].reset();
@@ -3327,6 +3367,17 @@ $(document).ready(function(){
       $('.transfer-stock-form')[0].reset();
       $('#new_stock_customer_id').val(null).trigger('change');
       $('#to_warehouse').val(null).trigger('change');
+      $('#new_inventory_quantity_out').prop('disabled', false);
+      $('#new_inventory_quantity_in').prop('disabled', false);
+      $('.inventory-management-form')[0].reset();
+    });
+    $(document).on('click','#inventoryManagementTab ',function(e){
+      $('.add-new-stock-form')[0].reset();
+      $('.out-stock-form')[0].reset();
+      $('.transfer-stock-form')[0].reset();
+      $('#new_stock_customer_id').val(null).trigger('change');
+      $('#to_warehouse').val(null).trigger('change');
+      $('.new-spoilage-stock-form')[0].reset();
     });
     $(document).on('click','.add-new-stock-btn',function(){
       var stock_id = $(this).data('id');
@@ -3508,6 +3559,90 @@ $(document).ready(function(){
             },
         })
     }
+    $(document).ready(function(){
+      $('#new_inventory_quantity_out').on('keyup', function() {
+        $('#new_inventory_quantity_in').prop('disabled', true);
+      });
+
+      $('#new_inventory_quantity_in').on('keyup', function() {
+        $('#new_inventory_quantity_out').prop('disabled', true);
+      });
+    });
+    //inventory management
+    $(document).on('click','.inventory-management-save-btn',function(){
+      var stock_id = $("#inventory_stock_id").val();
+      var cogs, stock_for = null;
+      var customer_id = null;
+      var quantity_out = null; 
+      var quantity_in = null;
+            // when user in 
+      cogs = $('#new_inventory_cost').val();
+      quantity_in = $('#new_inventory_quantity_in').val();
+      quantity_out = $('#new_inventory_quantity_out').val();
+
+      if(!quantity_in && !quantity_out){
+          swal({ html:true, title:'Alert !!!', text:'<b>Please Enter Quantity!!!</b>'});
+          return false;
+      }
+     
+      if(stock_id == 'parent_stock')
+      {
+        var warehouse_id = $(".warehouses-tab li a.active").data("id");
+      }
+      else
+      {
+        var warehouse_id = $("#new_inventory_warehouse_id").val();
+      }
+      var prod_id  = "{{ $id }}";
+      swal({
+        title: "Are you sure?",
+        text: "You want to Make New Stock Adjustment!!!",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: " #006400",
+        confirmButtonText: "Yes, do it!",
+        cancelButtonText: "Cancel",
+        closeOnConfirm: true,
+        closeOnCancel: false
+        },
+        function (isConfirm) {
+            if (isConfirm) {
+              $("#inventory_management").attr("disabled", true).val('Please Wait!');
+              $.ajax({
+                method:"get",
+                data:'prod_id='+prod_id+'&warehouse_id='+warehouse_id+'&stock_id='+stock_id+'&quantity_in='+quantity_in+'&cogs='+cogs+'&quantity_out='+quantity_out,
+                url: "{{ route('make-manual-inventory-management') }}",
+                beforeSend:function(){
+                  $('#loader_modal').modal({
+                    backdrop: 'static',
+                    keyboard: false
+                  });
+                  $("#loader_modal").modal('show');
+                },
+                success: function(response){
+                  $("#loader_modal").modal('hide');
+                  if(response.success === true){
+                    $('.inventory-management-form')[0].reset();
+                    $("#inventory_management").attr("disabled", false).val('ADD');
+                   $('#new_inventory_quantity_out').prop('disabled', false);
+                   $('#new_inventory_quantity_in').prop('disabled', false);
+                  toastr.success('Success!', 'Inventory Management Done Successfully.', {"positionClass": "toast-bottom-right"});
+                  }else{
+                    toastr.error('Sorry!', 'Something Went Wrong !!!',{"positionClass": "toast-bottom-right"});
+                  }
+                },
+                error: function(request, status, error){
+                  $("#loader_modal").modal('hide');
+                }
+              });
+            }
+            else {
+                swal("Cancelled", "", "error");
+            }
+        });
+      //when user out quantity
+      
+    });
     $(document).on('click','.add-new-stock-save-btn',function(){
       var inverror = false;
       var stock_id = $("#stock_id").val();

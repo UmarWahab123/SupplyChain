@@ -502,6 +502,8 @@ Route::group(['namespace' => 'Purchasing', 'middleware' => 'purchasing'], functi
     // save default supplier in product detail
     Route::post('set-default-supplier', 'ProductController@setDefaultSupplier')->name('setDefaultSupplier');
     Route::get('make-manual-stock-adjustment', 'ProductController@makeManualStockAdjustment')->name('make-manual-stock-adjustment');
+    Route::get('make-manual-inventory-management', 'ProductController@makeManualInventoryManagement')->name('make-manual-inventory-management');
+
     Route::post('update-stock-record', 'ProductController@updateStockRecord')->name('update-stock-record');
     Route::post('delete-stock-record', 'ProductController@deleteStockRecord')->name('delete-stock-record');
     Route::post('update-stock-card-cogs', 'ProductController@updateStockRecordCost')->name('update-stock-card-cogs');

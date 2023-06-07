@@ -7019,7 +7019,30 @@ class ProductController extends Controller
                   </tr>';
         return response()->json(['success' => true, 'html_string' => $html_string, 'id' => @$request->stock_id]);
     }
+    public function makeManualInventoryManagement(Request $request)
+    {
+        $quantity = $request->quantity_out != null ? '-'.$request->quantity_out : $request->quantity_in;
 
+        $stock_out = new StockManagementOut;
+        $stock_out->title = 'Inventory Management';
+        $stock_out->smi_id = $request->stock_id;
+        $stock_out->product_id = $request->prod_id;
+        $stock_out->warehouse_id = $request->warehouse_id;
+        $stock_out->quantity_out = $request->quantity_out != null ? $quantity : null;
+        $stock_out->quantity_in = $request->quantity_in != null ? $quantity : null;
+        $stock_out->cost = $request->cogs;
+        $stock_out->created_by = Auth::user()->id;
+        $stock_out->save();
+    
+        $warehouse_product = WarehouseProduct::where('product_id', $request->prod_id)
+            ->where('warehouse_id', $request->warehouse_id)
+            ->first();
+        $warehouse_product->current_quantity += $quantity;
+        $warehouse_product->available_quantity += $quantity;
+        $warehouse_product->save();
+       return response()->json(['success' => true]);
+    }
+    
     public function updateStockRecord(Request $request)
     {
         // dd($request->all());
