@@ -3562,11 +3562,17 @@ $(document).ready(function(){
     $(document).ready(function(){
       $('#new_inventory_quantity_out').on('keyup', function() {
         $('#new_inventory_quantity_in').prop('disabled', true);
+        if($('#new_inventory_quantity_out').val() == ''){
+        $('#new_inventory_quantity_in').prop('disabled', false);
+        }
       });
-
       $('#new_inventory_quantity_in').on('keyup', function() {
         $('#new_inventory_quantity_out').prop('disabled', true);
+        if($('#new_inventory_quantity_in').val() == ''){
+        $('#new_inventory_quantity_out').prop('disabled', false);
+        }
       });
+     
     });
     //inventory management
     $(document).on('click','.inventory-management-save-btn',function(){
