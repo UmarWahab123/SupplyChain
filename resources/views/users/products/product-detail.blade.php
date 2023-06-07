@@ -3622,10 +3622,14 @@ $(document).ready(function(){
                 success: function(response){
                   $("#loader_modal").modal('hide');
                   if(response.success === true){
+                    var st_id = response.id;
+                    getStockDataCard(st_id);
                     $('.inventory-management-form')[0].reset();
                     $("#inventory_management").attr("disabled", false).val('ADD');
                    $('#new_inventory_quantity_out').prop('disabled', false);
                    $('#new_inventory_quantity_in').prop('disabled', false);
+                    $("#addNewStockModal").modal('hide');
+
                   toastr.success('Success!', 'Inventory Management Done Successfully.', {"positionClass": "toast-bottom-right"});
                   }else{
                     toastr.error('Sorry!', 'Something Went Wrong !!!',{"positionClass": "toast-bottom-right"});
