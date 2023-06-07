@@ -2869,7 +2869,9 @@ span#product_notes{
               <li class="nav-item"><a class="nav-link" id="stockOutTab" data-toggle="tab" href="#stockOutForm">Stock Out</a></li>
               <li class="nav-item"><a class="nav-link" id="stockTransferTab" data-toggle="tab" href="#stockTransferForm">Transfer</a></li>
               <li class="nav-item"><a class="nav-link" id="stockSpoilageTab" data-toggle="tab" href="#stockSpoilageForm">Spoilage</a></li>
+              @if(@$sys_logos->server=="lucilla")
               <li class="nav-item"><a class="nav-link" id="inventoryManagementTab" data-toggle="tab" href="#inventoryManagementForm">Inventory Management</a></li>
+              @endif
             </ul>
             <div class="tab-content mt-5">
                <div class="tab-pane fade show active" id="stockInForm">
