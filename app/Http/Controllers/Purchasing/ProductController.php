@@ -7040,7 +7040,7 @@ class ProductController extends Controller
         $warehouse_product->current_quantity += $quantity;
         $warehouse_product->available_quantity += $quantity;
         $warehouse_product->save();
-       return response()->json(['success' => true]);
+       return response()->json(['success' => true,'id' => @$request->stock_id]);
     }
     
     public function updateStockRecord(Request $request)
