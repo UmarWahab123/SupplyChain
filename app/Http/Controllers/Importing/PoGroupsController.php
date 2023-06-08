@@ -2744,9 +2744,9 @@ class PoGroupsController extends Controller
                     }
                 }
                 $supplier_conv_rate_thb = @$p_g_pd->currency_conversion_rate != 0 ? $p_g_pd->currency_conversion_rate : 1;
-                $buying_price_in_thb    = $p_g_pd->unit_price_in_thb;
-
-
+                $buying_price_in_thb_d = ($p_g_pd->discount != NULL && $p_g_pd->discount != 0) ? ($p_g_pd->unit_price_in_thb)*((100-$p_g_pd->discount)/100) : $p_g_pd->unit_price_in_thb;
+                $buying_price_in_thb = $buying_price_in_thb_d;
+                //$buying_price_in_thb    = $p_g_pd->unit_price_in_thb;
                 $product = Product::find($p_g_pd->product_id);
                 $column = 'Purchasing Price (EUR) Before Discount';
 
@@ -2765,10 +2765,15 @@ class PoGroupsController extends Controller
                 // $supplier_product->buying_price_in_thb = $buying_price_in_thb;
 
                 // $buying_unit_price_in_thb = ($p_g_pd->unit_price - ($p_g_pd->unit_price * $p_g_pd->discount/100)) * (1/$p_g_pd->currency_conversion_rate);
-                $buying_unit_price_in_thb    = $p_g_pd->unit_price_in_thb;
+                $buying_unit_price_in_thb    = $buying_price_in_thb_d;
                 $column = 'Buying Price in THB';
                 $p_g_pd->saveProductHistory($product->id, @$po_group->id, $column, @$supplier_product->buying_price_in_thb, $buying_unit_price_in_thb);
                 $supplier_product->buying_price_in_thb = $buying_unit_price_in_thb;
+                // if($p_g_pd->discount != NUll){
+                // $supplier_product->buying_price_in_thb = ($p_g_pd->unit_price_in_thb)*($p_g_pd->discount/100);
+                // }else{
+                //     $supplier_product->buying_price_in_thb = $buying_unit_price_in_thb;
+                // }
 
                 if ($p_g_pd->supplier_id != null) {
                     $column = 'Freight';
@@ -2799,6 +2804,7 @@ class PoGroupsController extends Controller
                     $column = 'Import Tax Actual';
                     $p_g_pd->saveProductHistory($product->id, @$po_group->id, $column, @$supplier_product->import_tax_actual, $p_g_pd->actual_tax_percent);
                     $supplier_product->import_tax_actual   = $p_g_pd->actual_tax_percent;
+                  //  $supplier_product->import_tax_actual = ($p_g_pd->discount != Null && $_p_pd->discount !=0)?():$p_g_pd->actual_tax_percent;
                 }
 
                 $column = 'Gross Weight';
