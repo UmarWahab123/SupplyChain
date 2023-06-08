@@ -67,6 +67,7 @@ use App\Models\BarcodeConfiguration;
 use App\Models\Common\Configuration;
 use Illuminate\Support\Facades\View;
 use App\Jobs\MarginReportByOfficeJob;
+use App\Jobs\MarginReportBySpoilageJob;
 use App\Exports\completeProductExport;
 use App\Models\Common\ProductCategory;
 use App\Models\Common\StockOutHistory;
@@ -110,6 +111,7 @@ use App\Models\Common\PurchaseOrders\PurchaseOrder;
 use App\Jobs\SoldProductsSupplierMarginDetailExportJob;
 use App\Models\Common\PurchaseOrders\PurchaseOrderDetail;
 use App\Helpers\ProductConfigurationHelper;
+use App\Helpers\MarginReportHelper;
 use App\Models\Common\Status;
 use App\Models\Common\PurchaseOrders\PurchaseOrderStatusHistory;
 use App\Helpers\TransferDocumentHelper;
@@ -2087,7 +2089,30 @@ class ProductController extends Controller
             ]);
         return $dt->make(true);
     }
-
+    
+    public function MarginReport13(Request $request)
+    {
+        return $this->render('users.reports.margin-report.margin-report-by-spoilage');
+    }
+    public function getMarginReport13(Request $request)
+    {
+        $from_date = $request->from_date;
+        $to_date = $request->to_date;
+        $spoilageStock = MarginReportHelper::getSpoilageData($from_date,$to_date);
+        $dt = Datatables::of($spoilageStock);
+        $add_columns = ['refrence_code','default_supplier', 'customer', 'quantity', 'unit_cogs', 'cogs_total'];
+        foreach ($add_columns as $column) {
+            $dt->addColumn($column, function ($item) use ($column) {
+            return Product::returnAddColumnMargin13($column, $item);
+           });
+        }
+        
+        // $dt->setRowId(function ($item) {
+        //     return $item['id'];
+        // });
+        $dt->rawColumns(['refrence_code','default_supplier', 'customer', 'quantity', 'unit_cogs', 'cogs_total']);
+        return $dt->make(true);
+    }
     public function MarginReport2(Request $request, $from_dashboard = null)
     {
         $sales_filter = null;
@@ -6994,7 +7019,30 @@ class ProductController extends Controller
                   </tr>';
         return response()->json(['success' => true, 'html_string' => $html_string, 'id' => @$request->stock_id]);
     }
+    public function makeManualInventoryManagement(Request $request)
+    {
+        $quantity = $request->quantity_out != null ? '-'.$request->quantity_out : $request->quantity_in;
 
+        $stock_out = new StockManagementOut;
+        $stock_out->title = 'Inventory Management';
+        $stock_out->smi_id = $request->stock_id;
+        $stock_out->product_id = $request->prod_id;
+        $stock_out->warehouse_id = $request->warehouse_id;
+        $stock_out->quantity_out = $request->quantity_out != null ? $quantity : null;
+        $stock_out->quantity_in = $request->quantity_in != null ? $quantity : null;
+        $stock_out->cost = $request->cogs;
+        $stock_out->created_by = Auth::user()->id;
+        $stock_out->save();
+    
+        $warehouse_product = WarehouseProduct::where('product_id', $request->prod_id)
+            ->where('warehouse_id', $request->warehouse_id)
+            ->first();
+        $warehouse_product->current_quantity += $quantity;
+        $warehouse_product->available_quantity += $quantity;
+        $warehouse_product->save();
+       return response()->json(['success' => true,'id' => @$request->stock_id]);
+    }
+    
     public function updateStockRecord(Request $request)
     {
         // dd($request->all());
@@ -11262,7 +11310,28 @@ class ProductController extends Controller
             echo $output;
         }
     }
-
+    public function ExportMarginReportBySpoilage(Request $request)
+    {
+        $data = $request->all();
+        $status = ExportStatus::where('type', 'margin_report_by_spoilage')->first();
+        if ($status == null) {
+            $new = new ExportStatus();
+            $new->user_id = Auth::user()->id;
+            $new->type = 'margin_report_by_Spoilage';
+            $new->file_name = 'Margin-Report-By-Spoilage.xlsx';
+            $new->status = 1;
+            $new->save();
+            MarginReportBySpoilageJob::dispatch($data, Auth::user()->id);
+            return response()->json(['msg' => "File is now getting prepared", 'status' => 1, 'recursive' => true]);
+        } elseif ($status->status == 1) {
+            return response()->json(['msg' => "File is already being prepared", 'status' => 2]);
+        } elseif ($status->status == 0 || $status->status == 2) {
+            ExportStatus::where('type', 'margin_report_by_spoilage')->update(['status' => 1, 'exception' => null, 'user_id' => Auth::user()->id]);
+            MarginReportBySpoilageJob::dispatch($data, Auth::user()->id);
+            return response()->json(['msg' => "File is now getting prepared", 'status' => 1, 'exception' => null]);
+        }
+    }
+    
     public function ExportMarginReportByOffice(Request $request)
     {
         $data = $request->all();

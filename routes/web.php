@@ -71,6 +71,16 @@ Route::get('get-download-xslx/{file_name}', function ($file_name) {
     return \Response::download($file, $file_name, $headers);
 });
 
+Route::get('get-downloads-xslx/{file_name}', function ($file_name) {
+    $file    = storage_path('app/' . $file_name);
+    $headers = array(
+        'Content-Type: application/xlsx',
+        'Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0'
+    );
+    ob_end_clean();
+    return \Response::download($file, $file_name, $headers);
+});
+
 Route::get('/execution-time', function () {
     return view('execution');
 });
@@ -387,6 +397,13 @@ Route::group(['namespace' => 'Purchasing', 'middleware' => 'purchasing'], functi
     Route::get('get-margin-report-product-type-3-footer', 'ProductController@getMarginReportProductType3Footer')->name('get-margin-report-product-type-3-footer');
     Route::get('export-status-margin-report-by-product-type-3', 'ProductController@ExportMarginReportByProductType3')->name('export-status-margin-report-by-product-type-3');
 
+    Route::get('margin-report-13', 'ProductController@MarginReport13')->name('margin-report-13');
+    Route::get('get-margin-report-13', 'ProductController@getMarginReport13')->name('get-margin-report-13');
+    Route::get('/export-status-margin-report-by-spoilage', 'ProductController@ExportMarginReportBySpoilage')->name('export-status-margin-report-by-spoilage');
+
+    // Route::get('get-margin-report-13-footer', 'ProductController@getMarginReport13Footer')->name('get-margin-report-13-footer');
+    // Route::get('export-status-margin-report-by-spoilage', 'ProductController@ExportMarginReportBySpoilage')->name('export-status-margin-report-by-spoilage');
+
     /********************* Margin Report Routes End ***************************/
     Route::get('remove-multi-products', 'ProductController@removeMultipleProducts')->name('remove-multi-products');
     Route::get('deactivate-products', 'ProductController@deactivateProducts')->name('deactivate-products');
@@ -485,6 +502,8 @@ Route::group(['namespace' => 'Purchasing', 'middleware' => 'purchasing'], functi
     // save default supplier in product detail
     Route::post('set-default-supplier', 'ProductController@setDefaultSupplier')->name('setDefaultSupplier');
     Route::get('make-manual-stock-adjustment', 'ProductController@makeManualStockAdjustment')->name('make-manual-stock-adjustment');
+    Route::get('make-manual-inventory-management', 'ProductController@makeManualInventoryManagement')->name('make-manual-inventory-management');
+
     Route::post('update-stock-record', 'ProductController@updateStockRecord')->name('update-stock-record');
     Route::post('delete-stock-record', 'ProductController@deleteStockRecord')->name('delete-stock-record');
     Route::post('update-stock-card-cogs', 'ProductController@updateStockRecordCost')->name('update-stock-card-cogs');
