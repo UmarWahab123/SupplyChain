@@ -3468,6 +3468,11 @@ $(document).ready(function(){
       swal({ html:true, title:'Alert !!!', text:'<b>Quantity Cannot Be Zero!!!</b>'});
       inverror = true;
     }
+    else if (parseFloat(new_stock_transfer_quantity) < 0) 
+    {
+      swal({ html:true, title:'Alert !!!', text:'<b>Quantity cannot be a negative number!!!</b>'});
+      inverror = true;
+    }
     else if(from_warehouse != '' && to_warehouse != '' )
     {
       if( from_warehouse == to_warehouse )
@@ -3521,6 +3526,10 @@ $(document).ready(function(){
                 {
                 if(result.success == true)
                 {
+                    var warehouse_id = result.warehouse_id;
+                    var product_id = result.product_id;
+                    var wp = result.wp;
+                    warehouseCurrentTotalStock(warehouse_id, product_id, wp);
                     var st_id = result.id;
                     getStockDataCard(st_id);
                     toastr.success('Success!', result.successMsg ,{"positionClass": "toast-bottom-right"});
@@ -3590,7 +3599,16 @@ $(document).ready(function(){
           swal({ html:true, title:'Alert !!!', text:'<b>Please Enter Quantity!!!</b>'});
           return false;
       }
-     
+      else if (parseFloat(quantity_in) < 0) 
+      {
+        swal({ html:true, title:'Alert !!!', text:'<b>Quantity cannot be a negative number!!!</b>'});
+        return false;
+      }
+      else if (parseFloat(quantity_out) < 0) 
+      {
+        swal({ html:true, title:'Alert !!!', text:'<b>Quantity cannot be a negative number!!!</b>'});
+        return false;
+      }
       if(stock_id == 'parent_stock')
       {
         var warehouse_id = $(".warehouses-tab li a.active").data("id");
@@ -3602,7 +3620,7 @@ $(document).ready(function(){
       var prod_id  = "{{ $id }}";
       swal({
         title: "Are you sure?",
-        text: "You want to Make New Stock Adjustment!!!",
+        text: "You want to Make Inventory Managemenet!!!",
         type: "warning",
         showCancelButton: true,
         confirmButtonColor: " #006400",
@@ -3630,6 +3648,10 @@ $(document).ready(function(){
                   if(response.success === true){
                     var st_id = response.id;
                     getStockDataCard(st_id);
+                    var warehouse_id = response.warehouse_id;
+                    var product_id = response.product_id;
+                    var wp = response.wp;
+                    warehouseCurrentTotalStock(warehouse_id, product_id, wp);
                     $('.inventory-management-form')[0].reset();
                     $("#inventory_management").attr("disabled", false).val('ADD');
                    $('#new_inventory_quantity_out').prop('disabled', false);
@@ -3653,6 +3675,29 @@ $(document).ready(function(){
       //when user out quantity
       
     });
+    function warehouseCurrentTotalStock(warehouse_id, product_id, wp) {
+      // console.log(warehouse_id, product_id, wp);
+      $.ajax({
+        method: "get",
+        data: { warehouse_id: warehouse_id, product_id: product_id, wp: wp },
+        url: "{{ route('get-html-of-stock-data') }}",
+        beforeSend: function() {
+        },
+        success: function(data) {
+          if (data.success == true) {
+            $('#id' + data.wp).html(data.html);
+
+            $(".expiration_date_sc").datepicker({
+              format: "dd/mm/yyyy",
+              autoHide: true,
+            });
+          }
+        },
+        error: function(request, status, error) {
+          $("#loader_modal").modal('hide');
+        }
+      });
+    }
     $(document).on('click','.add-new-stock-save-btn',function(){
       var inverror = false;
       var stock_id = $("#stock_id").val();
@@ -3675,6 +3720,11 @@ $(document).ready(function(){
           swal({ html:true, title:'Alert !!!', text:'<b>Please Enter Quantity!!!</b>'});
           return false;
         }
+          // Check if quantity_in is a negative number
+        if (parseFloat(quantity_in) < 0) {
+            swal({ html:true, title:'Alert !!!', text:'<b>Quantity cannot be a negative number!!!</b>'});
+            return false;
+        }
      }
      if($(this).hasClass('stock_out_form_btn')){
       var customer_id = $('#new_stock_customer_id').val();
@@ -3689,6 +3739,10 @@ $(document).ready(function(){
         swal({ html:true, title:'Alert !!!', text:'<b>Please Enter Quantity!!!</b>'});
         return false;
       }
+      if (parseFloat(quantity_out) < 0) {
+            swal({ html:true, title:'Alert !!!', text:'<b>Quantity cannot be a negative number!!!</b>'});
+            return false;
+        }
      }
      if($(this).hasClass("stock_spoilage_form_btn")){
         supplier_id = $('#spoilage_supplier_id option:selected').val();
@@ -3701,6 +3755,10 @@ $(document).ready(function(){
         if(quantity_out == ''){
           swal({ html:true, title:'Alert !!!', text:'<b>Please Enter Quantity!!!</b>'});
           return false;
+        }
+        if (parseFloat(quantity_out) < 0) {
+            swal({ html:true, title:'Alert !!!', text:'<b>Quantity cannot be a negative number!!!</b>'});
+            return false;
         }
      }
       if($(this).hasClass('stock_in_form_btn')) {
@@ -3762,12 +3820,17 @@ $(document).ready(function(){
                   if(response.success === true){
                     var st_id = response.id;
                     getStockDataCard(st_id);
+                    var warehouse_id = response.warehouse_id;
+                    var product_id = response.product_id;
+                    var wp = response.wp;
+                    warehouseCurrentTotalStock(warehouse_id, product_id, wp);
                     $('.out-stock-form')[0].reset();
                     $('.add-new-stock-form')[0].reset();
                     $('.new-spoilage-stock-form')[0].reset();
                     $("#stock_management_out").attr("disabled", false).val('ADD');
                     $("#stock_management_in").attr("disabled", false).val('ADD');
                     $("#stock_management_spoilage").attr("disabled", false).val('ADD');
+                    // $(".click-nav" ).trigger( "click" );
                 toastr.success('Success!', 'New Stock Adjustment Done Successfully.', {"positionClass": "toast-bottom-right"});
                   }else{
                     toastr.error('Sorry!', 'Something Went Wrong !!!',{"positionClass": "toast-bottom-right"});
