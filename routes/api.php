@@ -123,6 +123,8 @@ Route::group([
    Route::get('categories','Api\ProductCategoryController@getCategoriesThrougApi');
    //to get all products
    Route::get('products/{warehouse_id?}','Api\ProductController@index');
+   //to get specific products
+   Route::post('get-products','Api\ProductController@getProducts');
 
    //single product
    Route::get('product/{id}/{warehouse_id?}','Api\ProductController@show');
