@@ -323,6 +323,11 @@ table.dataTable thead .sorting_desc { background: url('public/sort/sort_desc.png
     <!-- </div> -->
 
   </div>
+   <div class="pull-right col-lg col-md-3 col-3" style="margin-bottom: 20px;">
+      <span class="vertical-icons export_btn" title="Wocommerce Product Details">
+      <img src="{{asset('public/icons/export_icon.png')}}" width="27px">
+      </span>
+    </div>  
 
 <div class="row entriestable-row">
   <div class="col-12">
@@ -342,6 +347,15 @@ table.dataTable thead .sorting_desc { background: url('public/sort/sort_desc.png
         @if($deployment != null && @$deployment->status == 1 && (Auth::user()->role_id == 1 || Auth::user()->role_id == 10 || Auth::user()->role_id == 11))
 
         <a href="javascript:void(0);" class="btn selected-item-btn btn-sm deleteBtnImg woocommerce-products-enabled" data-toggle="tooltip" title="Click to Enable Selected Products to Woocommerce"><i class="fa fa-globe"></i></a>
+        @endif
+
+        @if($deployment != null && @$deployment->status == 1 && (Auth::user()->role_id == 1 || Auth::user()->role_id == 10 || Auth::user()->role_id == 11))
+        <div class="float-right">
+        <a href="javascript:void(0);" class="btn selected-item-btn btn-sm deleteBtnImg woocommerce-products-api" data-toggle="tooltip" title="Click Show In Woocommerce">
+          <i class="fa fa-globe"></i>
+        </a>
+      </div>
+        <!-- <a href="javascript:void(0);" class="btn selected-item-btn btn-sm deleteBtnImg woocommerce-products-api" data-toggle="tooltip" title="Click Show In Woocommerce"><i class="fa fa-globe"></i></a> -->
         @endif
 
         <a href="javascript:void(0);" class="btn selected-item-btn btn-sm deleteBtnImg print_btn d-none ecommerce-products-disabled" data-toggle="tooltip" title="Click to print the Products"><i class="fa fa-print"></i></a>
@@ -398,6 +412,18 @@ table.dataTable thead .sorting_desc { background: url('public/sort/sort_desc.png
     <a class="exp_download" href="{{ url('get-download-xslx','User-Selected-Products.xlsx')}}" target="_blank" id=""><u>Click Here</u></a>
   </b>
 </div>
+<div class="alert alert-success wocom-alert-success-product-details d-none"  role="alert">
+    <i class=" fa fa-check "></i>
+    <b>Export file is ready to download.
+      <!-- <a class = "clickhere exp_download" href="#" target="_blank" id="export"><u>Click Here</u></a> -->
+    <a class="exp_download" href="{{ url('get-download-xslx','Purchase_orders_details.xlsx')}}" target="_blank" id=""><u>Click Here</u></a>
+    </b>
+  </div>
+
+  <div class="alert alert-primary export-alert-another-user d-none"  role="alert">
+    <i class="  fa fa-spinner fa-spin"></i>
+    <b> Export file is already being prepared by another user! Please wait.. </b>
+  </div>
 <!--   <button class="btn btn-primary mb-2 table-reload" style="border-radius: 0px;" title="Click to update total visible stock column"><i class="fa fa-refresh"></i></button> -->
     <div class="table-responsive">
       <table class="table entriestable table-bordered table-product text-center purchase-complete-product" >
@@ -1029,6 +1055,37 @@ table.dataTable thead .sorting_desc { background: url('public/sort/sort_desc.png
   </form>
 
   </div>
+  </div>
+</div>
+<div class="modal" tabindex="-1" role="dialog" id="woocommerce-wordpress">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- <p>Modal body text goes here.</p> -->
+        @if($deployment->type == "woocommerce")
+        <label for="wocomProducts">
+        <input type="checkBox" id="wocomProducts" name="checkBox" style="transform: scale(1.5);" required>
+         <span class ="ml-1">Woocommerce</span>
+        </label>
+        @else
+        <label for="wocomProducts">
+        <input type="checkBox" id="wocomProducts" name="checkBox" style="transform: scale(1.5);" disabled>
+         <span class ="ml-1">Woocommerce</span>
+        </label>
+        @endif
+      
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary woocomBtn">Share</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -2258,12 +2315,12 @@ $(document).ready(function(){
       }); //Enable Over Ecommerce Product
 
 
-      $(document).on("click",'.woocommerce-products-enabled',function(){
+    $(document).on("click",'.woocommerce-products-enabled',function(){
     var selected_products = [];
       $("input.check:checked").each(function() {
       selected_products.push($(this).val());
     });
-
+    
       swal({
           title: "Alert!",
           text: "Are you sure you want to enable selected products to Woocommerce?",
@@ -3577,6 +3634,115 @@ $('#header_product_search').keyup(function(event){
     var url = "{{url('print-barcode')}}"+"/"+fees;
     window.open(url, 'Product Barcode', 'width=1200,height=600,scrollbars=yes');
   })
+
+
+$('.woocommerce-products-api').on('click',function(){
+  var checkedIds = [];
+  $("input.check:checked").each(function() {
+    checkedIds.push($(this).attr('id'));
+  });
+  console.log(checkedIds);
+  $('#woocommerce-wordpress').modal('show');
+});
+
+function checkWocomProductsStatus(){
+  $.ajax({
+    method:'get',
+    url:"{{route('wocom-recursive-export-status-for-products')}}",
+    success:function(data){
+      if(data.status==1)
+    {
+      console.log("Status " +data.status);
+      setTimeout(
+        function(){
+          console.log("Calling Function Again");
+           checkWocomProductsStatus();
+        }, 5000);
+
+    }else if(data.status==0)
+    {
+      $('.wocom-alert-success-product-details').removeClass('d-none');
+      $('.export-alert').addClass('d-none');
+      $('.export-alert-another-user').addClass('d-none');
+     // $('.export_btn').attr('title','Create New Export');
+      //$('.export_btn').prop('disabled',false);
+      $('.bulk_export_btn').attr('title','Po Details Export');
+      $('.bulk_export_btn').prop('disabled',false);
+      $('.download-btn').removeClass('d-none');
+    }
+    else if(data.status==2)
+    {
+      $('.wocom-alert-success-product-details').addClass('d-none');
+      $('.export-alert').addClass('d-none');
+      $('.export-alert-another-user').addClass('d-none');
+      //$('.export_btn').attr('title','Create New Export');
+      //$('.export_btn').prop('disabled',false);
+      $('.bulk_export_btn').attr('title','Po Details Export');
+      $('.bulk_export_btn').prop('disabled',false);
+      toastr.error('Error!', 'Something went wrong. Please Try Again' ,{"positionClass": "toast-bottom-right"});
+      console.log(data.exception);
+    }
+    }
+  });
+
+}
+
+  $(document).on("click",'.woocomBtn',function(){
+    var check_woocommerce_check = $('#wocomProducts').prop('checked');
+    if(!check_woocommerce_check){
+      toastr.info('Attention!', 'Please select option first !' ,{"positionClass": "toast-bottom-right"});
+      return;
+    }
+      var selected_products = [];
+      $('input.check:checked').each(function(){
+        selected_products.push($(this).val());
+        });
+
+    swal({
+          title: "Alert!",
+          text: "Are you sure you want to enable selected Woocommerce Products?",
+          type: "info",
+          showCancelButton: true,
+          confirmButtonClass: "btn-danger",
+          confirmButtonText: "Yes!",
+          cancelButtonText: "No!",
+          closeOnConfirm: true,
+          closeOnCancel: true
+        },
+        function isConfirm(){
+          if (isConfirm){
+            $.ajax({
+              method:"get",
+              data:'selected_products='+selected_products,
+              url:"{{route('woocommerce-products-sharing')}}",
+              success:function(data){
+                if(data.status == 1)
+                {
+                  $('.wocom-alert-success-product-details').addClass('d-none');
+                  $('.export-alert').removeClass('d-none');
+                  $('.bulk_export_btn').attr('title', 'EXPORT is being Prepared');
+                  $('.bulk_export_btn').prop('disabled', true);
+                  console.log("Calling Function from first part");
+                  checkWocomProductsStatus();
+                }
+                else if (data.status == 2) {
+                  $('.export-alert-another-user').removeClass('d-none');
+                  $('.export-alert').addClass('d-none');
+                  $('.bulk_export_btn').prop('disabled', true);
+                  $('.bulk_export_btn').attr('title', 'EXPORT is being Prepared');
+                  checkWocomProductsStatus();
+                }
+              },
+              error: function() {
+                $('.bulk_export_btn').attr('title', 'Create New Export');
+                $('.bulk_export_btn').prop('disabled', false);
+              },
+            });
+          }else{
+              swal("Cancelled", "", "error");
+          }
+      });
+  });
 
 </script>
 @stop
