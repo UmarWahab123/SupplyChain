@@ -6913,6 +6913,8 @@ class ProductController extends Controller
         $stock_out->created_by   = Auth::user()->id;
         $stock_out->save();
 
+        $warehouse_products = WarehouseProduct::where('warehouse_id', $stock_out->warehouse_id)->where('product_id', $stock_out->product_id)->first();
+        
         $product_history              = new ProductHistory;
         $product_history->user_id     = Auth::user()->id;
         $product_history->product_id  = $request->prod_id;
@@ -7017,7 +7019,7 @@ class ProductController extends Controller
                       <input type="text" style="width:100%;" name="note" class="fieldFocusStock d-none" value="' . $stock_out->note . '" data-id="' . $stock_out->id . '">
                     </td>
                   </tr>';
-        return response()->json(['success' => true, 'html_string' => $html_string, 'id' => @$request->stock_id]);
+        return response()->json(['success' => true, 'html_string' => $html_string, 'id' => @$request->stock_id,'warehouse_id' => @$request->warehouse_id,'product_id'=>@$request->prod_id,'wp'=>$warehouse_products->id]);
     }
     public function makeManualInventoryManagement(Request $request)
     {
@@ -7040,7 +7042,7 @@ class ProductController extends Controller
         $warehouse_product->current_quantity += $quantity;
         $warehouse_product->available_quantity += $quantity;
         $warehouse_product->save();
-       return response()->json(['success' => true,'id' => @$request->stock_id]);
+       return response()->json(['success' => true,'id' => @$request->stock_id,'warehouse_id' => @$request->warehouse_id,'product_id'=>@$request->prod_id,'wp'=>$warehouse_product->id]);
     }
     
     public function updateStockRecord(Request $request)
@@ -12360,13 +12362,12 @@ class ProductController extends Controller
             ->orderBy('supplier_id')
             ->get();
 
-        
         $find_stock_from_which_order_deducted = StockManagementOut::findStockFromWhicOrderIsDeducted('-'.$quantity, $stock_in, $stock, NULL,$from_which_stock_it_will_deduct);
         
-        $warehouse_product = WarehouseProduct::where('product_id', $request->prod_id)->where('warehouse_id', $request->from_warehouse)->first();
-        $warehouse_product->current_quantity -= $quantity;
-        $warehouse_product->available_quantity -= $quantity;
-        $warehouse_product->save();
+        $warehouse_products = WarehouseProduct::where('product_id', $request->prod_id)->where('warehouse_id', $request->from_warehouse)->first();
+        $warehouse_products->current_quantity -= $quantity;
+        $warehouse_products->available_quantity -= $quantity;
+        $warehouse_products->save();
         // $stock_in = StockManagementIn::find($request->smi_id);   
 
         //handling stock management for To warehouse
@@ -12404,7 +12405,7 @@ class ProductController extends Controller
         $warehouse_product->available_quantity += $quantity;
         $warehouse_product->save();
 
-       return response()->json(['success' => true,'id' => @$request->smi_id, 'successMsg' => "Manual Transfer Document Created Successfully."]);
+       return response()->json(['success' => true,'id' => @$request->smi_id, 'warehouse_id' => @$request->from_warehouse,'product_id'=>@$request->prod_id,'wp'=>@$warehouse_products->id, 'successMsg' => "Manual Transfer Document Created Successfully."]);
 }
  public function suppliersAvailableStock(Request $request){
 
