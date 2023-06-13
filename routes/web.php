@@ -284,6 +284,10 @@ Route::group(['namespace' => 'Purchasing', 'middleware' => 'purchasing'], functi
 
     // Route::get('complete-list-product','ProductController@index')->name('setProductDetailFilters');
 
+    //woocommerce routes
+    Route::get('woocommerce-products-sharing','Woocommerce\IndexController@wocomProducts')->name('woocommerce-products-sharing');
+    Route::get('wocom-recursive-export-status-for-products','Woocommerce\IndexController@wocomRecursiveExportStatusForProducts')->name('wocom-recursive-export-status-for-products');
+
 
     Route::get('sold-products-report', 'ProductController@soldProductsReport')->name('sold-products-report');
 
@@ -2484,6 +2488,7 @@ Route::group(['prefix' => 'ecom', 'middleware' => 'ecom'], function () {
     Route::get('get-ecom-cancelled-data', 'Ecom\CustomerController@EcomCancelledOrdersData')->name('get-ecom-cancelled-data');
     Route::post('new_pin_generate', 'Ecom\CustomerController@EcomPinGenerate')->name('new_pin_generate');
 });
+
 Route::get('testing-route', function () {
     $x = \App\ProductSaleReportDetailHistory::all();
     dd($x);
