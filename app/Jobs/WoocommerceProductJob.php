@@ -57,29 +57,33 @@ class WoocommerceProductJob implements ShouldQueue
         $url = @$deployment->url.'/wp-json/supplychain-woocommerce/v1/update-products-from-marketplace/';
         $method = "Post";
         try {
-            $response =GuzzuleRequestHelper::guzzuleRequest($token, $url, $method, $body, $with_header = false);
+        $response =GuzzuleRequestHelper::guzzuleRequest($token, $url, $method, $body, $with_header = false);
         } catch (RequestException $e) {
             $statusCode = $e->getResponse()->getStatusCode();
             $errorMessage = $e->getMessage();
             throw new Exception("Request failed with status code: $statusCode. Error message: $errorMessage");
         }
-        foreach ($productIds as $productId) {
-        $checkAlreadyShareProduct = ShareProduct::where('product_id', $productId)->first();
-        if (!$checkAlreadyShareProduct) {
-            $shareProduct = new ShareProduct();
-            $shareProduct->product_id = $productId;
-            $shareProduct->user_id = $user_id;
-            $shareProduct->store_type = "woocommerce";
-            $shareProduct->save();
-
-            $product_history = new ProductHistory;
-            $product_history->user_id     = $user_id;
-            $product_history->product_id  = $productId;
-            $product_history->column_name = 'product enabled by ' . $user_id;
-            $product_history->old_value   = '---';
-            $product_history->new_value   = "enabled";
-            $product_history->save();
+        dd($response['success']);
+        if($response['success'] == true){
+            foreach ($productIds as $productId) {
+            $checkAlreadyShareProduct = ShareProduct::where('product_id', $productId)->first();
+                if (!$checkAlreadyShareProduct) {
+                $shareProduct = new ShareProduct();
+                $shareProduct->product_id = $productId;
+                $shareProduct->user_id = $user_id;
+                $shareProduct->store_type = "woocommerce";
+                $shareProduct->save();
             }
-         } 
+                
+                $product_history = new ProductHistory;
+                $product_history->user_id     = $user_id;
+                $product_history->product_id  = $productId;
+                $product_history->column_name = 'product enabled by ' . $user_id;
+                $product_history->old_value   = '---';
+                $product_history->new_value   = "enabled";
+                $product_history->save();
+            } 
+        }
+        
     }
 }
