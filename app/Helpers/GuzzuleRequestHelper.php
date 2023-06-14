@@ -1,10 +1,11 @@
 <?php
 namespace App\Helpers;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 /**
  * 
  */
-class GuzzleRequestHelper
+class GuzzuleRequestHelper
 {
 	public static function guzzuleRequest($token = null, $url, $method, $data = null, $with_header = false)
 	{
@@ -28,7 +29,7 @@ class GuzzleRequestHelper
             ]);
         }
 		$store_name = $response;
-
+        // dd($store_name);
         $statusCode = $response->getStatusCode();
         $body = $response->getBody()->getContents();
         $content = json_decode($response->getBody(), true);

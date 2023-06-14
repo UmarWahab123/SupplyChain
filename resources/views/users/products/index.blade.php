@@ -1068,7 +1068,7 @@ table.dataTable thead .sorting_desc { background: url('public/sort/sort_desc.png
       </div>
       <div class="modal-body">
         <!-- <p>Modal body text goes here.</p> -->
-        @if($deployment->type == "woocommerce")
+        @if(@$deployment->type == "woocommerce")
         <label for="wocomProducts">
         <input type="checkBox" id="wocomProducts" name="checkBox" style="transform: scale(1.5);" required>
          <span class ="ml-1">Woocommerce</span>
@@ -3070,7 +3070,7 @@ $(document).ready(function(){
   <input type="hidden" name="prod_category_exp" id="prod_category_exp">
   <input type="hidden" name="prod_type_exp" id="prod_type_exp">
   <input type="hidden" name="filter-dropdown_exp" id="filter-dropdown_exp">
-  <input type="hidden" name="type" id="type" value=1>
+  <input type="hidden" name="type" id="type" value="1">
   <input type="hidden" name="search_value" id="search_value">
     <input type="hidden" name="from_date_exp" id="from_date_exp">
   <input type="hidden" name="to_date_exp" id="to_date_exp">
