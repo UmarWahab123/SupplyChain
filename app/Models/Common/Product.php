@@ -238,6 +238,11 @@ class Product extends Model
         return $this->hasMany('App\Models\Common\StockManagementOut', 'product_id', 'id')->whereNull('order_id')->whereNull('order_product_id')->whereNull('po_id')->whereNull('p_o_d_id')->whereNull('po_group_id')->whereNull('supplier_id')->whereNull('quantity_in')->whereNotNull('cost');
     }
 
+    public function woocommerce_enabled()
+    {
+        return $this->belongsTo('App\Models\Common\ShareProduct', 'id', 'product_id')->where('store_type', 'woocommerce');
+    }
+
     public function price_calculate($product, $order)
     {
         $today_date = date('Y-m-d');

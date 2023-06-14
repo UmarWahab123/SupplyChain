@@ -83,13 +83,19 @@ class ProductController extends Controller
             return response()->json(['success' => false, 'error' => 'No such warehouse exists']);
         }
 
-        $products = Product::whereIn('id', $ids)->select('id','refrence_code','name','short_desc','ecommerce_price','discount_price','selling_unit','primary_category','category_id','long_desc','system_code','product_temprature_c','vat','type_id','ecom_selling_unit','weight','type_id_2','supplier_id','length','width','height','ecom_product_weight_per_unit','brand','product_notes','product_note_3');
+        $products = Product::whereIn('id', $ids)->select('id','refrence_code',\DB::raw('IFNULL(name, short_desc) AS name'),'short_desc','ecommerce_price','discount_price','selling_unit','primary_category','category_id','long_desc','system_code','product_temprature_c','vat','type_id','ecom_selling_unit','weight','type_id_2','supplier_id','length','width','height','ecom_product_weight_per_unit','brand','product_notes','product_note_3');
 
         $products = $products->with(['prouctImages:id,product_id,image','productCategory:id,parent_id,title','productSubCategory:id,parent_id,title','sellingUnits:id,title','productType','ecomSellingUnits','restaurant_fixed_price','hotel_fixed_price','productOrigin','supplier_products:id,supplier_description,supplier_id,product_id', 'warehouse_products' => function ($q) use ($warehouse_id) {
             $q->where('warehouse_id',$warehouse_id)->select('id', 'product_id', 'available_quantity');
             }
         ]);
         $products = $products->get();
+
+        $products->each(function ($product) {
+            $product->prouctImages->each(function ($image) {
+                $image->image = asset('public/uploads/products/product_' . $image->product_id . '/' . $image->image);
+            });
+        });
 
         return response()->json(['success' => true, 'products' => $products]);
     }
