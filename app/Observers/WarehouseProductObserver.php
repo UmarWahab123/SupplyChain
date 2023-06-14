@@ -4,6 +4,8 @@ namespace App\Observers;
 
 use App\Models\Common\WarehouseProduct;
 use App\Models\WooCom\EcomProduct;
+use App\Helpers\GuzzuleRequestHelper;
+use App\Models\Common\Deployment;
 
 class WarehouseProductObserver
 {
@@ -52,6 +54,13 @@ class WarehouseProductObserver
 
         $link = '/api/warehouseproducts-update';
         $curl_output =  $this->curl_call($link, $warehouseProduct);
+
+        $token = config('app.external_token');
+        $deployment = Deployment::where('type','woocommerce')->first();
+        $url = @$deployment->url.'/wp-json/supplychain-woocommerce/v1/update-product/';
+        $body =  ['product_id'=>  $warehouseProduct->product_id];
+        $method = 'POST';
+        $response = GuzzuleRequestHelper::guzzuleRequest($token,$url,$method,$body); 
 
         return $curl_output;
     }

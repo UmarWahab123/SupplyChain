@@ -3,6 +3,8 @@
 namespace App\Observers;
 
 use App\Models\Common\Product;
+use App\Helpers\GuzzuleRequestHelper;
+use App\Models\Common\Deployment;
 
 class ProductObserver
 {
@@ -34,6 +36,15 @@ class ProductObserver
         // dd('in products update function observer ');
         $link = '/api/products-update';
         $curl_output =  $this->curl_call($link, $product);
+
+        //Update Product on Wordpress //
+
+        $token = config('app.external_token');
+        $deployment = Deployment::where('type','woocommerce')->first();
+        $url = @$deployment->url.'/wp-json/supplychain-woocommerce/v1/update-product/';
+        $body = ['product_id'=> $product->id];
+        $method = 'POST';
+        $response = GuzzuleRequestHelper::guzzuleRequest($token,$url,$method,$body); 
 
         // \Log::info($curl_output);
         return $curl_output;

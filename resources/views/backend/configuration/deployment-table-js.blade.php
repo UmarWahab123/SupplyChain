@@ -90,6 +90,25 @@
 		$("#warehouse option:contains(" + row.warehouse + ")").attr('selected', 'selected').trigger('change');
 	});
 
+	$(document).on('click','.btn-connect',function(e){
+		let id = $(this).data('id');
+		$.ajax({
+			url:"{{route('connect-deployment-data')}}",
+			method:'post',
+			data:{id: id},
+			success:function(data){
+			    if(data.success == true)
+					{
+						toastr.success('Success!', 'Connection Working !!!',{"positionClass": "toast-bottom-right"});	
+					}
+			},
+			error:function(data){
+				if(data.success == false)
+				toastr.error('Error!', 'Connection Not Working !!!',{"positionClass": "toast-bottom-right"});	
+			}
+		});
+	});
+
 	$(document).on('click', '.btn-delete', function (e) {
 		let id = $(this).data('id');
 		swal({

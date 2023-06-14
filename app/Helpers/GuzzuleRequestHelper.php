@@ -4,7 +4,7 @@ use GuzzleHttp\Client;
 /**
  * 
  */
-class GuzzleRequestHelper
+class GuzzuleRequestHelper
 {
 	public static function guzzuleRequest($token = null, $url, $method, $data = null, $with_header = false)
 	{

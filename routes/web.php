@@ -1698,7 +1698,7 @@ Route::group(['namespace' => 'Backend', 'prefix' => 'admin', 'middleware' => 'ad
     Route::post('save-deployment-data', 'ConfigurationController@SaveDeploymentsData')->name('save-deployment-data');
     Route::post('delete-deployment-data', 'ConfigurationController@DeleteDeploymentsData')->name('delete-deployment-data');
     Route::post('save-deployment-status', 'ConfigurationController@SaveDeploymentsStatus')->name('save-deployment-status');
-
+    Route::post('connect-deployment-data','ConfigurationController@CheckConnection')->name('connect-deployment-data');
     //*******   Ticket Routes    ******/
 
     Route::post('create-ticket', 'TicketController@postTicketRequest')->name('create-ticket');

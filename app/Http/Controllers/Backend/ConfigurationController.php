@@ -6,6 +6,7 @@ use File;
 use Validator;
 use Milon\Barcode\DNS1D;
 use App\Helpers\MyHelper;
+use App\Helpers\GuzzuleRequestHelper;
 use App\Models\Common\Role;
 use Illuminate\Http\Request;
 use App\Models\Common\Currency;
@@ -611,7 +612,8 @@ class ConfigurationController extends Controller
         $html_string = '<div class="icons">'.'
                       <a href="javascript:void(0);" data-id="'.$item->id.'" data-toggle="modal" data-target="#deployment-Modal" class="actionicon tickIcon btn-edit" title="Edit"><i class="fa fa-pencil"></i></a>
                       <a href="javascript:void(0);" data-id="'.$item->id.'"  class="actionicon tickIcon btn-delete" title="Delete"><i class="fa fa-trash"></i></a>
-                  </div>';
+                      <a href="javascript:void(0);" data-id="'.$item->id.'"  class="actionicon tickIcon btn-connect " title="Check Connection"><i class="fa fa-globe"></i></a>
+                      </div>';
         return $html_string;
       })
       ->addColumn('type', function ($item){
@@ -673,6 +675,16 @@ class ConfigurationController extends Controller
       $deployment->status = $request->status;
       $deployment->save();
       return response()->json(['success' => true]);
+    }
+
+    public function CheckConnection(Request $request)
+    {
+      $token = config('app.external_token');
+      $deployment = Deployment::find($request->id);
+      $url = @$deployment->url.'/wp-json/supplychain-woocommerce/v1/check-connection';
+      $method = 'POST';
+      $response = GuzzuleRequestHelper::guzzuleRequest($token,$url,$method);
+      return response()->json(['success'=>true]);
     }
 
     private function generatenumber($limit)

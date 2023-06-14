@@ -416,7 +416,7 @@ table.dataTable thead .sorting_desc { background: url('public/sort/sort_desc.png
     <i class=" fa fa-check "></i>
     <b>Export file is ready to download.
       <!-- <a class = "clickhere exp_download" href="#" target="_blank" id="export"><u>Click Here</u></a> -->
-    <a class="exp_download" href="{{ url('get-download-xslx','Purchase_orders_details.xlsx')}}" target="_blank" id=""><u>Click Here</u></a>
+    <!-- <a class="exp_download" href="{{ url('get-download-xslx','Purchase_orders_details.xlsx')}}" target="_blank" id=""><u>Click Here</u></a> -->
     </b>
   </div>
 
