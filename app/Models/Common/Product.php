@@ -39,6 +39,10 @@ class Product extends Model
     {
         return $this->belongsTo('App\Models\Common\PurchaseOrders\DraftPurchaseOrderDetail', 'order_product_id', 'id');
     }
+     public function woocommerce_enabled()
+     {
+        return $this->belongsTo('App\Models\Common\ShareProduct','id','product_id')->where('store_type', 'woocommerce');
+     }
 
     public function def_or_last_supplier()
     {

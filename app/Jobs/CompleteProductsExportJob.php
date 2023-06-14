@@ -113,7 +113,7 @@ class CompleteProductsExportJob implements ShouldQueue
             }
 
             $query = Product::select('products.refrence_code', 'products.primary_category', 'products.short_desc', 'products.buying_unit', 'products.selling_unit', 'products.type_id', 'products.brand', 'products.product_temprature_c', 'products.supplier_id', 'products.id', 'products.total_buy_unit_cost_price', 'products.weight', 'products.unit_conversion_rate', 'products.selling_price', 'products.vat', 'products.import_tax_book', 'products.hs_code', 'products.hs_description', 'products.name', 'products.category_id', 'products.product_notes', 'products.status', 'products.min_stock', 'products.last_price_updated_date', 'products.ecommerce_enabled', 'products.created_at', 'products.type_id_2', 'products.min_o_qty', 'products.max_o_qty', 'products.length', 'products.width', 'products.height', 'products.long_desc', 'products.ecommerce_price', 'products.discount_price', 'products.discount_expiry_date', 'products.ecom_selling_unit', 'products.selling_unit_conversion_rate', 'ecom_product_weight_per_unit','products.bar_code','products.barcode_type', 'products.type_id_3', 'product_note_3');
-            $query =  $query->with('def_or_last_supplier:id,reference_name,country', 'units:id,title,decimal_places', 'productType:id,title', 'productType2:id,title', 'productSubCategory:id,title', 'supplier_products:id,supplier_id,product_id,product_supplier_reference_no,supplier_description,freight,landing,buying_price,buying_price_in_thb,leading_time,extra_tax', 'supplier_products.supplier:id,currency_id', 'supplier_products.supplier.getCurrency:currency_symbol', 'productCategory:id,title', 'product_fixed_price:id,product_id,customer_type_id,fixed_price', 'customer_type_product_margins:id,product_id,customer_type_id,default_value', 'getPoData:id,product_id,quantity', 'sellingUnits:id,title,decimal_places', 'prouctImages:id,product_id', 'warehouse_products:id,product_id,current_quantity,warehouse_id,available_quantity,reserved_quantity,ecommerce_reserved_quantity', 'check_import_or_not:id,product_id', 'ecomSellingUnits', 'def_or_last_supplier.getcountry:id,name')->where('products.status', 1);
+            $query =  $query->with('def_or_last_supplier:id,reference_name,country', 'units:id,title,decimal_places', 'productType:id,title', 'productType2:id,title', 'productSubCategory:id,title', 'supplier_products:id,supplier_id,product_id,product_supplier_reference_no,supplier_description,freight,landing,buying_price,buying_price_in_thb,leading_time,extra_tax', 'supplier_products.supplier:id,currency_id', 'supplier_products.supplier.getCurrency:currency_symbol', 'productCategory:id,title', 'product_fixed_price:id,product_id,customer_type_id,fixed_price', 'customer_type_product_margins:id,product_id,customer_type_id,default_value', 'getPoData:id,product_id,quantity', 'sellingUnits:id,title,decimal_places', 'prouctImages:id,product_id', 'warehouse_products:id,product_id,current_quantity,warehouse_id,available_quantity,reserved_quantity,ecommerce_reserved_quantity', 'check_import_or_not:id,product_id', 'ecomSellingUnits', 'def_or_last_supplier.getcountry:id,name','woocommerce_enabled')->where('products.status', 1);
             if (($request['from_date_exp'] != '' || $request['from_date_exp'] != null) && ($request['to_date_exp'] != '' || $request['to_date_exp'] != null)) {
                 $dateS = date("Y-m-d", strtotime(strtr($request['from_date_exp'], '/', '-')));
                 $dateE = date("Y-m-d", strtotime(strtr($request['to_date_exp'], '/', '-')));
@@ -264,6 +264,12 @@ class CompleteProductsExportJob implements ShouldQueue
             if ($ecommerceconfig_status == 1) {
                 if ($request['ecom-filter_exp'] == "ecom-enabled") {
                     $query->where('products.ecommerce_enabled', 1);
+                }
+                if ($request['ecom-filter_exp'] == "wocom-enabled"){
+                    $query->has('woocommerce_enabled');
+                }
+                if ($request['ecom-filter_exp'] == "wocom-disable"){
+                    $query->doesntHave('woocommerce_enabled');
                 }
             }
 

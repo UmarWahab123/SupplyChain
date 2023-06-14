@@ -250,10 +250,14 @@ table.dataTable thead .sorting_desc { background: url('public/sort/sort_desc.png
           <option {{"all"==$ecom_filter ? "selected" : ''}} value="all">All</option>
           <option value="ecom-enabled" selected="">Ecommerce Enabled</option>
           <option {{"ecom-disable"==$ecom_filter ? "selected" : ''}} value="ecom-disable">Ecommerce Disabled</option>
+          <option value="wocom-enabled" selected="">Woocommerce Enabled</option>
+          <option {{"wocom-disable"==$ecom_filter ? "selected" : ''}} value="wocom-disable">Woocommerce Disbaled</option>
         @else
           <option value="all" selected="">All</option>
           <option {{"ecom-enabled"==$ecom_filter ? "selected" : ''}} value="ecom-enabled">Ecommerce Enabled</option>
           <option {{"ecom-disable"==$ecom_filter ? "selected" : ''}} value="ecom-disable">Ecommerce Disabled</option>
+          <option {{"wocom-enabled"==$ecom_filter ? "selected" : ''}} value="wocom-enabled">Woocommerce Enabled</option>
+          <option {{"wocom-disabled"==$ecom_filter ? "selected" : ''}} value="wocom-disable">Woocommerce Disabled</option>
         @endif
       </select>
     </div>
