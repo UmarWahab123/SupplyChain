@@ -13,6 +13,7 @@ use App\FailedJobException;
 use App\User;
 use Exception;
 use App\Models\Common\ShareProduct;
+use App\ProductHistory;
 use App\Models\Common\Deployment;
 use App\Helpers\GuzzuleRequestHelper;
 
@@ -63,7 +64,7 @@ class WoocommerceProductJob implements ShouldQueue
             $errorMessage = $e->getMessage();
             throw new Exception("Request failed with status code: $statusCode. Error message: $errorMessage");
         }
-        dd($response['success']);
+       // dd($response['success']);
         if($response['success'] == true){
             foreach ($productIds as $productId) {
             $checkAlreadyShareProduct = ShareProduct::where('product_id', $productId)->first();

@@ -351,7 +351,7 @@ table.dataTable thead .sorting_desc { background: url('public/sort/sort_desc.png
 
         @if($deployment != null && @$deployment->status == 1 && (Auth::user()->role_id == 1 || Auth::user()->role_id == 10 || Auth::user()->role_id == 11))
         <div class="float-right">
-        <a href="javascript:void(0);" class="btn selected-item-btn btn-sm deleteBtnImg woocommerce-products-api" data-toggle="tooltip" title="Click Show In Woocommerce">
+        <a href="javascript:void(0);" class="btn selected-item-btn btn-sm deleteBtnImg woocommerce-products-api" data-toggle="tooltip" title="Click to show Products in Woocommerce">
           <i class="fa fa-globe"></i>
         </a>
       </div>
@@ -376,18 +376,18 @@ table.dataTable thead .sorting_desc { background: url('public/sort/sort_desc.png
 
       <div class="alert alert-primary export-alert d-none"  role="alert">
       <i class="  fa fa-spinner fa-spin"></i>
- <b> Export file is being prepared! Please wait.. </b>
-</div>
-<div class="alert alert-primary export-alert-another-user d-none"  role="alert">
-      <i class="  fa fa-spinner fa-spin"></i>
- <b> Export file is already being prepared by another user! Please wait.. </b>
-</div>
+      <b> Export file is being prepared! Please wait.. </b>
+      </div>
+      <div class="alert alert-primary export-alert-another-user d-none"  role="alert">
+            <i class="  fa fa-spinner fa-spin"></i>
+      <b> Export file is already being prepared by another user! Please wait.. </b>
+      </div>
 
-<div class="form-group mb-2 mt-2 d-flex align-items-center justify-content-start pos-prod-div">
-    @php $cod = DNS2D::getBarcodeHTML(url('get-download-xslx','Pos-products-export.xlsx'),'QRCODE',2,2,'black', true); @endphp
-   <div class="d-none export-alert-success-pos" style="margin-right: 15px;">{!! $cod !!}</div>
-    <p class="m-0 d-none export-text">Scan to download excel file.</p>
-</div>
+      <div class="form-group mb-2 mt-2 d-flex align-items-center justify-content-start pos-prod-div">
+          @php $cod = DNS2D::getBarcodeHTML(url('get-download-xslx','Pos-products-export.xlsx'),'QRCODE',2,2,'black', true); @endphp
+        <div class="d-none export-alert-success-pos" style="margin-right: 15px;">{!! $cod !!}</div>
+          <p class="m-0 d-none export-text">Scan to download excel file.</p>
+      </div>
 
 <div class="form-group mb-2 mt-2 d-flex align-items-center justify-content-start">
     @php $cod = DNS2D::getBarcodeHTML(url('get-download-xslx','Pos-notes-export.xlsx'),'QRCODE',2,2,'black', true); @endphp
@@ -412,13 +412,18 @@ table.dataTable thead .sorting_desc { background: url('public/sort/sort_desc.png
     <a class="exp_download" href="{{ url('get-download-xslx','User-Selected-Products.xlsx')}}" target="_blank" id=""><u>Click Here</u></a>
   </b>
 </div>
+
+<div class="alert alert-primary wocom-export-alert d-none"  role="alert">
+      <i class="  fa fa-spinner fa-spin"></i>
+      <b> Data is being prepared! Please wait.. </b>
+      </div>
 <div class="alert alert-success wocom-alert-success-product-details d-none"  role="alert">
     <i class=" fa fa-check "></i>
-    <b>Export file is ready to download.
+    <b>Data Enabled Successfully.
       <!-- <a class = "clickhere exp_download" href="#" target="_blank" id="export"><u>Click Here</u></a> -->
     <!-- <a class="exp_download" href="{{ url('get-download-xslx','Purchase_orders_details.xlsx')}}" target="_blank" id=""><u>Click Here</u></a> -->
     </b>
-  </div>
+</div>
 
   <div class="alert alert-primary export-alert-another-user d-none"  role="alert">
     <i class="  fa fa-spinner fa-spin"></i>
@@ -3662,23 +3667,19 @@ function checkWocomProductsStatus(){
     }else if(data.status==0)
     {
       $('.wocom-alert-success-product-details').removeClass('d-none');
-      $('.export-alert').addClass('d-none');
+      $('.wocom-export-alert').addClass('d-none');
       $('.export-alert-another-user').addClass('d-none');
-     // $('.export_btn').attr('title','Create New Export');
-      //$('.export_btn').prop('disabled',false);
-      $('.bulk_export_btn').attr('title','Po Details Export');
-      $('.bulk_export_btn').prop('disabled',false);
       $('.download-btn').removeClass('d-none');
+      $('.table-product').DataTable().ajax.reload();
+      $('.delete-selected-item').addClass('d-none');
+
+      
     }
     else if(data.status==2)
     {
       $('.wocom-alert-success-product-details').addClass('d-none');
-      $('.export-alert').addClass('d-none');
+      $('.wocom-export-alert').addClass('d-none');
       $('.export-alert-another-user').addClass('d-none');
-      //$('.export_btn').attr('title','Create New Export');
-      //$('.export_btn').prop('disabled',false);
-      $('.bulk_export_btn').attr('title','Po Details Export');
-      $('.bulk_export_btn').prop('disabled',false);
       toastr.error('Error!', 'Something went wrong. Please Try Again' ,{"positionClass": "toast-bottom-right"});
       console.log(data.exception);
     }
@@ -3719,23 +3720,23 @@ function checkWocomProductsStatus(){
                 if(data.status == 1)
                 {
                   $('.wocom-alert-success-product-details').addClass('d-none');
-                  $('.export-alert').removeClass('d-none');
-                  $('.bulk_export_btn').attr('title', 'EXPORT is being Prepared');
-                  $('.bulk_export_btn').prop('disabled', true);
+                  $('.wocom-export-alert').removeClass('d-none');
+                  $('#woocommerce-wordpress').modal('hide');
+                  $('#wocomProducts').prop('checked', false);
                   console.log("Calling Function from first part");
                   checkWocomProductsStatus();
                 }
                 else if (data.status == 2) {
                   $('.export-alert-another-user').removeClass('d-none');
-                  $('.export-alert').addClass('d-none');
-                  $('.bulk_export_btn').prop('disabled', true);
-                  $('.bulk_export_btn').attr('title', 'EXPORT is being Prepared');
+                  $('.wocom-export-alert').addClass('d-none');
+                  $('#woocommerce-wordpress').modal('hide');
+                  $('#wocomProducts').prop('checked', false);
                   checkWocomProductsStatus();
                 }
               },
               error: function() {
-                $('.bulk_export_btn').attr('title', 'Create New Export');
-                $('.bulk_export_btn').prop('disabled', false);
+                $('.woocomBtn').attr('title', 'Enable Data');
+                $('.woocomBtn').prop('disabled', false);
               },
             });
           }else{
