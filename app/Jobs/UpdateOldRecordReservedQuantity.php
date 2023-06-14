@@ -369,8 +369,10 @@ class UpdateOldRecordReservedQuantity implements ShouldQueue
                 }
 
                   $ecom_ordered_qty = $ecom_ordered_qty0 + $ecom_ordered_qty1;
-                  $warehouse_product->reserved_quantity = number_format($ordered_qty,3,'.','');
-                  $warehouse_product->ecommerce_reserved_quantity = number_format($ecom_ordered_qty,3,'.','');
+                  if($with_reserved == 'yes'){
+                    $warehouse_product->reserved_quantity = number_format($ordered_qty,3,'.','');
+                    $warehouse_product->ecommerce_reserved_quantity = number_format($ecom_ordered_qty,3,'.','');
+                  }
                   $warehouse_product->available_quantity = number_format($warehouse_product->current_quantity - ($warehouse_product->reserved_quantity + $warehouse_product->ecommerce_reserved_quantity),3,'.','');
                   $warehouse_product->save();
               }
