@@ -287,7 +287,8 @@ Route::group(['namespace' => 'Purchasing', 'middleware' => 'purchasing'], functi
     //woocommerce routes
     Route::get('woocommerce-products-sharing','Woocommerce\IndexController@wocomProducts')->name('woocommerce-products-sharing');
     Route::get('wocom-recursive-export-status-for-products','Woocommerce\IndexController@wocomRecursiveExportStatusForProducts')->name('wocom-recursive-export-status-for-products');
-
+    Route::get('unpublish-woocommerce-products','Woocommerce\IndexController@unpublishWocomProducts')->name('unpublish-woocommerce-products');
+    Route::get('wocom-recursive-data-status-for-unpublish-products','Woocommerce\IndexController@wocomRecursiveDataStatusForUnpublishProducts')->name('wocom-recursive-data-status-for-unpublish-products');
 
     Route::get('sold-products-report', 'ProductController@soldProductsReport')->name('sold-products-report');
 

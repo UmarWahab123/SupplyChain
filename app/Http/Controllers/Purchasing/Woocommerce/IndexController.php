@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Purchasing\Woocommerce\IndexController;
 use App\Models\Common\Status;
 use App\Jobs\WoocommerceProductJob;
+use App\Jobs\WoocommerceUnpublishProductJob;
 
 
 class IndexController extends Controller
@@ -43,5 +44,33 @@ class IndexController extends Controller
          $status=ExportStatus::where('user_id',Auth::user()->id)->where('type', 'wocommerce_products')->first();
 
         return response()->json(['msg'=>"File Created!",'status'=>$status->status,'exception'=>$status->exception]);
+    }
+
+    public function unpublishWocomProducts(Request $request){
+        $productIds= $request->input('selected_products');
+        $user_id = Auth::user()->id;
+        $type = 'unpublish_wocommerce_products';
+        $status = ExportStatus::where('user_id',Auth::user()->id)->where('type',$type)->first();
+        if($status == null){
+            $new = new ExportStatus();
+            $new->type = $type;
+            $new->user_id = Auth::user()->id;
+            $new->status = 1;
+            $new->save();
+
+            WoocommerceUnpublishProductJob::dispatch($productIds,Auth::user()->id);
+            return response()->json(['msg'=>"File is now getting prepared",'status'=>1,'recursive'=>true]);
+        }elseif($status->status == 1){
+            return response()->json(['msg'=>"File is Already being prepared",'status'=>2]);
+        }elseif($status->status == 0 || $status->status == 2){
+            ExportStatus::where('type',$type)->where('user_id', auth()->user()->id)->update(['status'=>1,'exception'=>null,'user_id'=>Auth::user()->id]);
+            WoocommerceUnpublishProductJob::dispatch($productIds,Auth::user()->id);
+            return response()->json(['msg'=>"File is now getting prepared",'status'=>1,'exception'=>null]);
+        }
+    }
+
+    public function wocomRecursiveDataStatusForUnpublishProducts(){
+       $status=ExportStatus::where('user_id',Auth::user()->id)->where('type','unpublish_wocommerce_products')->first();
+       return response()->json(['msg'=>"File Created!",'status'=>$status->status,'exception'=>$status->exception]);
     }
 }

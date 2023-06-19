@@ -33,34 +33,17 @@ class WarehouseProductObserver
     {
         $external_link = config('app.external_link');
         $curl_output =  $this->curl_call($external_link, $warehouseProduct, $external_link);
-
-        // $woocom_product = EcomProduct::where('web_product_id',$warehouseProduct->product_id)->first();
-        // if ($woocom_product != null)
-        // {
-        //     $stock_quantity = round($warehouseProduct->available_quantity,0);
-        //     if($stock_quantity <= 0)
-        //     {
-        //         $stock_quantity = 0;
-        //     }
-        //     $data = [
-        //       'stock_quantity' => $stock_quantity,
-        //       'stock_status' => ($stock_quantity != 0) ? 'instock' : 'outofstock'
-        //     ];
-        //     // dd($woocom_product->ecom_product_id, $stock_quantity);
-        //     $id = intval($woocom_product->ecom_product_id);
-        //     $product_ecom = \Codexshaper\WooCommerce\Facades\Product::update($id, $data);
-        // }
-        // \Log::info($warehouseProduct);
-
         $link = '/api/warehouseproducts-update';
         $curl_output =  $this->curl_call($link, $warehouseProduct);
 
+        if(@$warehouseProduct->getProduct->woocommerce_enabled){
         $token = config('app.external_token');
         $deployment = Deployment::where('type','woocommerce')->first();
         $url = @$deployment->url.'/wp-json/supplychain-woocommerce/v1/update-product/';
         $body =  ['product_id'=>  $warehouseProduct->product_id];
         $method = 'POST';
         $response = GuzzuleRequestHelper::guzzuleRequest($token,$url,$method,$body); 
+        }
 
         return $curl_output;
     }

@@ -355,12 +355,15 @@ table.dataTable thead .sorting_desc { background: url('public/sort/sort_desc.png
 
         @if($deployment != null && @$deployment->status == 1 && (Auth::user()->role_id == 1 || Auth::user()->role_id == 10 || Auth::user()->role_id == 11))
         <div class="float-right">
-        <a href="javascript:void(0);" class="btn selected-item-btn btn-sm deleteBtnImg woocommerce-products-api" data-toggle="tooltip" title="Click to show Products in Woocommerce">
+        <a href="javascript:void(0);" class="btn selected-item-btn btn-sm deleteBtnImg woocommerce-products-api" data-toggle="tooltip" title="Publish Products to Ecommerce">
           <i class="fa fa-globe"></i>
         </a>
+        <a href="javascript:void(0);" class="btn selected-item-btn btn-sm deleteBtnImg unpublish-woocommerce-products" data-toggle="tooltip" title=" Unpublish Products From Ecommerce">
+          <i class="fa fa-globe"></i>
+        </a>
+
       </div>
-        <!-- <a href="javascript:void(0);" class="btn selected-item-btn btn-sm deleteBtnImg woocommerce-products-api" data-toggle="tooltip" title="Click Show In Woocommerce"><i class="fa fa-globe"></i></a> -->
-        @endif
+      @endif
 
         <a href="javascript:void(0);" class="btn selected-item-btn btn-sm deleteBtnImg print_btn d-none ecommerce-products-disabled" data-toggle="tooltip" title="Click to print the Products"><i class="fa fa-print"></i></a>
 
@@ -433,6 +436,26 @@ table.dataTable thead .sorting_desc { background: url('public/sort/sort_desc.png
     <i class="  fa fa-spinner fa-spin"></i>
     <b> Export file is already being prepared by another user! Please wait.. </b>
   </div>
+
+  <!-- For Unpublish Woocommerce Products -->
+  <div class="alert alert-primary wocom-unpublish-alert d-none"  role="alert">
+      <i class="  fa fa-spinner fa-spin"></i>
+      <b> Data is being Unpublished! Please wait.. </b>
+      </div>
+  <div class="alert alert-success wocom-alert-success-unpublish-product-details d-none"  role="alert">
+    <i class=" fa fa-check "></i>
+    <b>Data Unpublish Successfully.
+      <!-- <a class = "clickhere exp_download" href="#" target="_blank" id="export"><u>Click Here</u></a> -->
+    <!-- <a class="exp_download" href="{{ url('get-download-xslx','Purchase_orders_details.xlsx')}}" target="_blank" id=""><u>Click Here</u></a> -->
+    </b>
+  </div>
+
+  <div class="alert alert-primary unpublish-alert-another-user d-none"  role="alert">
+    <i class="  fa fa-spinner fa-spin"></i>
+    <b> Data is already being prepared by another user! Please wait.. </b>
+  </div>
+
+
 <!--   <button class="btn btn-primary mb-2 table-reload" style="border-radius: 0px;" title="Click to update total visible stock column"><i class="fa fa-refresh"></i></button> -->
     <div class="table-responsive">
       <table class="table entriestable table-bordered table-product text-center purchase-complete-product" >
@@ -1070,7 +1093,7 @@ table.dataTable thead .sorting_desc { background: url('public/sort/sort_desc.png
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Modal title</h5>
+        <h5 class="modal-title">Share Products To</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -1092,6 +1115,38 @@ table.dataTable thead .sorting_desc { background: url('public/sort/sort_desc.png
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-primary woocomBtn">Share</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" tabindex="-1" role="dialog" id="unpublish-woocommerce-products-modal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Unpublish Products From Ecommerce</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- <p>Modal body text goes here.</p> -->
+        @if(@$deployment->type == "woocommerce")
+        <label for="unpublishwocomProducts">
+        <input type="checkBox" id="unpublishwocomProducts" name="checkBox" style="transform: scale(1.5);" required>
+         <span class ="ml-1">Unpublish Woocommerce Products</span>
+        </label>
+        @else
+        <label for="unpublishwocomProducts">
+        <input type="checkBox" id="unpublishwocomProducts" name="checkBox" style="transform: scale(1.5);" disabled>
+         <span class ="ml-1">Unpublish Woocommerce Products</span>
+        </label>
+        @endif
+      
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary unpublishwoocomBtn">Share</button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
       </div>
     </div>
@@ -3746,6 +3801,105 @@ function checkWocomProductsStatus(){
           }else{
               swal("Cancelled", "", "error");
           }
+      });
+  });
+
+
+
+  $(document).on('click','.unpublish-woocommerce-products',function(){
+  var selectedOptionValue = $('select[name="ecom-filter"]').val();
+  if(selectedOptionValue !== "wocom-enabled"){
+      toastr.info('Attention!', 'Please select Woocommerce Enabled first from E-Commerce Filter',{"positionClass": "toast-bottom-right"});
+    }
+    else{
+      $('#unpublish-woocommerce-products-modal').modal('show');
+    }
+  });
+
+  
+  function checkUnpublishWocomProductsStatus(){
+    $.ajax({
+      method:"get",
+      url:"{{route('wocom-recursive-data-status-for-unpublish-products')}}",
+      success:function(data){
+        if(data.status==1){
+          console.log("Status" +data.status);
+          setTimeout(
+            function(){
+              console.log('Calling Function Again');
+              checkUnpublishWocomProductsStatus();
+            }, 5000);
+        }else if(data.status==0){
+          $('.wocom-alert-success-unpublish-product-details').removeClass('d-none');
+          $('.wocom-unpublish-alert').addClass('d-none');
+          $('.unpublish-alert-another-user').addClass('d-none');
+          $('.unpublishwoocomBtn').removeClass('d-none');
+          $('.table-product').DataTable().ajax.reload();
+          $('.delete-selected-item').addClass('d-none');
+        }else if(data.status == 2){
+          $('.wocom-alert-success-unpublish-product-details').addClass('d-none');
+          $('.wocom-unpublish-alert').addClass('d-none');
+          $('.unpublish-alert-another-user').addClass('d-none');
+          toastr.error('Error!', 'Something went wrong. Please Try Again' ,{"positionClass": "toast-bottom-right"});
+          console.log(data.exception);
+        }
+      }
+    });
+  }
+
+  $('.unpublishwoocomBtn').on('click',function(){
+    var unpublish_woocommerce_products = $('#unpublishwocomProducts').prop('checked');
+    if(!unpublish_woocommerce_products){
+      toastr.info('Attention!', 'Please select option first !' ,{"positionClass": "toast-bottom-right"});
+      return;
+    }
+      var selected_products = [];
+      $('input.check:checked').each(function(){
+        selected_products.push($(this).val());
+        });
+        // alert(selected_products);
+      swal({
+        title:"ALert!",
+        text: "Are you sure you want to Unpublish Products From Ecommerce?",
+        type: "info",
+        showCancelButton: true,
+        confirmButtonClass: "btn-danger",
+        confirmButtonText: "Yes!",
+        cancelButtonText: "No!",
+        closeOnConfirm: true,
+        closeOnCancel: true
+      },
+      function isConfirm(){
+        if(isConfirm){
+          $.ajax({
+            method:"get",
+            data:'selected_products='+selected_products,
+            url:"{{route('unpublish-woocommerce-products')}}",
+            success:function(data){
+              if (data.status == 1){
+                $('.wocom-alert-success-unpublish-product-details').addClass('d-none');
+                  $('.wocom-unpublish-alert').removeClass('d-none');
+                  $('#unpublish-woocommerce-products-modal').modal('hide');
+                  $('#unpublishwocomProducts').prop('checked', false);
+                  console.log("Calling Function from first part");
+                  checkUnpublishWocomProductsStatus();
+              }
+              else if (data.status == 2) {
+                  $('.unpublish-alert-another-user').removeClass('d-none');
+                  $('.wocom-unpublish-alert').addClass('d-none');
+                  $('#unpublish-woocommerce-products-modal').modal('hide');
+                  $('#unpublishwocomProducts').prop('checked', false);
+                  checkUnpublishWocomProductsStatus();
+                }
+            },
+            error: function() {
+                $('.unpublishwoocomBtn').attr('title', 'Unpublish Data');
+                $('.unpublishwoocomBtn').prop('disabled', false);
+              },
+          });
+        }else{
+          swal("Cancelled", "", "error");
+        }
       });
   });
 
