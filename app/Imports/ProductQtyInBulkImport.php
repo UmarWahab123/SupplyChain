@@ -50,6 +50,7 @@ class ProductQtyInBulkImport implements ToCollection ,WithStartRow
                     $export_status = new ExportStatus();
                     $export_status->type = 'stock_bulk_upload';
                 }
+                $export_status->user_id = Auth()->user()->id;
                 $export_status->status = 1;
                 $export_status->exception = null;
                 $export_status->error_msgs = null;
