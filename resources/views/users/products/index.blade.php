@@ -354,16 +354,19 @@ table.dataTable thead .sorting_desc { background: url('public/sort/sort_desc.png
         @endif
 
         @if($deployment != null && @$deployment->status == 1 && (Auth::user()->role_id == 1 || Auth::user()->role_id == 10 || Auth::user()->role_id == 11))
+      
         <div class="float-right">
-        <a href="javascript:void(0);" class="btn selected-item-btn btn-sm deleteBtnImg woocommerce-products-api" data-toggle="tooltip" title="Publish Products to Ecommerce">
-          <i class="fa fa-globe"></i>
-        </a>
-        <a href="javascript:void(0);" class="btn selected-item-btn btn-sm deleteBtnImg unpublish-woocommerce-products" data-toggle="tooltip" title=" Unpublish Products From Ecommerce">
-          <i class="fa fa-globe"></i>
-        </a>
-
-      </div>
-      @endif
+          <div class="dropdown">
+            <button class="btn btn-primary deleteBtnImg dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Actions <i class="fa fa-caret-down"></i>
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <a class="dropdown-item deleteBtnImg woocommerce-products-api" href="javascript:void(0);" title="Publish Products to Ecommerce">Share Products</a>
+              <a class="dropdown-item deleteBtnImg unpublish-woocommerce-products" href="javascript:void(0);" title="Unpublish Products From Ecommerce">Unshare Products</a>
+            </div>
+          </div>
+        </div>
+            @endif
 
         <a href="javascript:void(0);" class="btn selected-item-btn btn-sm deleteBtnImg print_btn d-none ecommerce-products-disabled" data-toggle="tooltip" title="Click to print the Products"><i class="fa fa-print"></i></a>
 
@@ -1146,7 +1149,7 @@ table.dataTable thead .sorting_desc { background: url('public/sort/sort_desc.png
       
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary unpublishwoocomBtn">Share</button>
+        <button type="button" class="btn btn-primary unpublishwoocomBtn">Unshare</button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
       </div>
     </div>
