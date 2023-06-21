@@ -580,11 +580,11 @@ class PurchaseOrderDetail extends Model
         {
             $query->join('products','products.id','=','purchase_order_details.product_id')->orderBy('products.short_desc',$sort_order);
         }
-        elseif ($request['sortbyparam'] == 'confirm_date') {
+        elseif ($request['sortbyparam'] == 'target_receive_date') {
             $sort_order = $request['sortbyvalue'] == 1 ? 'DESC' : 'ASC';
             $query->select(\DB::raw('purchase_order_details.*'))
             ->join('purchase_orders', 'purchase_orders.id', '=', 'purchase_order_details.po_id')
-            ->orderBy('purchase_orders.confirm_date', $sort_order);
+            ->orderBy('purchase_orders.target_receive_date', $sort_order);
         }
         elseif ($request['sortbyparam'] == 'po_no') {
             $sort_order = $request['sortbyvalue'] == 1 ? 'DESC' : 'ASC';
@@ -663,7 +663,7 @@ class PurchaseOrderDetail extends Model
         {
             $query->select(\DB::raw('purchase_order_details.*'))
             ->join('purchase_orders', 'purchase_orders.id', '=', 'purchase_order_details.po_id')
-            ->orderBy('purchase_orders.confirm_date', 'desc');
+            ->orderBy('purchase_orders.target_receive_date', 'desc');
         }
         return $query;
     }
