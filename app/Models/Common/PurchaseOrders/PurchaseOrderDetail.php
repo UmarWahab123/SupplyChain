@@ -580,11 +580,11 @@ class PurchaseOrderDetail extends Model
         {
             $query->join('products','products.id','=','purchase_order_details.product_id')->orderBy('products.short_desc',$sort_order);
         }
-        elseif ($request['sortbyparam'] == 'confirm_date') {
+        elseif ($request['sortbyparam'] == 'target_receive_date') {
             $sort_order = $request['sortbyvalue'] == 1 ? 'DESC' : 'ASC';
             $query->select(\DB::raw('purchase_order_details.*'))
             ->join('purchase_orders', 'purchase_orders.id', '=', 'purchase_order_details.po_id')
-            ->orderBy('purchase_orders.confirm_date', $sort_order);
+            ->orderBy('purchase_orders.target_receive_date', $sort_order);
         }
         elseif ($request['sortbyparam'] == 'po_no') {
             $sort_order = $request['sortbyvalue'] == 1 ? 'DESC' : 'ASC';
@@ -663,7 +663,7 @@ class PurchaseOrderDetail extends Model
         {
             $query->select(\DB::raw('purchase_order_details.*'))
             ->join('purchase_orders', 'purchase_orders.id', '=', 'purchase_order_details.po_id')
-            ->orderBy('purchase_orders.confirm_date', 'desc');
+            ->orderBy('purchase_orders.target_receive_date', 'desc');
         }
         return $query;
     }
@@ -1482,8 +1482,8 @@ class PurchaseOrderDetail extends Model
                 return  $html_string = '<a target="_blank" href="'.url('get-product-detail/'.$item->product->id).'" ><b>'.$refrence_code.'</b></a>';
                 break;
 
-            case 'confirm_date':
-                return $item->PurchaseOrder->confirm_date !== null ? Carbon::parse($item->PurchaseOrder->confirm_date)->format('d/m/Y') : 'N.A';
+            case 'target_receive_date':
+                return $item->PurchaseOrder->target_receive_date !== null ? Carbon::parse($item->PurchaseOrder->target_receive_date)->format('d/m/Y') : 'N.A';
                 break;
 
             case 'supplier':

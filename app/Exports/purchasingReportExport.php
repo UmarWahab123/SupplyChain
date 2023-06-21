@@ -37,9 +37,9 @@ class purchasingReportExport implements FromQuery, ShouldAutoSize, WithHeadings,
     {
         $po_group_product_detail = PoGroupProductDetail::where('status', 1)->where('po_group_id', @$item->PurchaseOrder->po_group_id)->where('supplier_id', @$item->PurchaseOrder->supplier_id)->where('product_id', $item->product_id)->first();
         $product_detail_section = $this->product_detail_section;
-        if($item->PurchaseOrder->confirm_date !== null)
+        if($item->PurchaseOrder->target_receive_date !== null)
         {
-            $confirm_date = Carbon::parse($item->PurchaseOrder->confirm_date)->format('d/m/Y');
+            $confirm_date = Carbon::parse($item->PurchaseOrder->target_receive_date)->format('d/m/Y');
         }
         else
         {
@@ -294,7 +294,7 @@ class purchasingReportExport implements FromQuery, ShouldAutoSize, WithHeadings,
 
         $product_detail_section = $this->product_detail_section;
         $data_array = [];
-        array_push($data_array, 'Confirm Date');
+        array_push($data_array, 'Target Ship Date');
         array_push($data_array,'Supplier');
         array_push($data_array,'Country');
         array_push($data_array,'PO#');
