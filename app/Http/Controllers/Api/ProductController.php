@@ -91,11 +91,11 @@ class ProductController extends Controller
         ]);
         $products = $products->get();
 
-        $products->each(function ($product) {
-            $product->prouctImages->each(function ($image) {
-                $image->image = asset('public/uploads/products/product_' . $image->product_id . '/' . $image->image);
-            });
-        });
+        // $products->each(function ($product) {
+        //     $product->prouctImages->each(function ($image) {
+        //         $image->image = asset('public/uploads/products/product_' . $image->product_id . '/' . $image->image);
+        //     });
+        // });
 
         return response()->json(['success' => true, 'products' => $products]);
     }
