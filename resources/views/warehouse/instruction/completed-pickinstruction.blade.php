@@ -477,10 +477,14 @@ $('.sorting_filter_table').on('click',function(){
       });
 
   $(document).on("dblclick",".fieldFocus",function(){
-    $(this).removeAttr('disabled');
-    $(this).addClass('active');
-    $(this).removeAttr('readonly');
-    $(this).focus();
+    if(!$(this).hasClass('processing')){
+      $(this).removeAttr('disabled');
+      $(this).addClass('active');
+      $(this).removeAttr('readonly');
+      $(this).focus();
+    }else{
+      toastr.info('Already Processing!', 'Please wait !!!',{"positionClass": "toast-bottom-right"});
+    }
   });
 
   $(document).on('keypress keyup focusout',".fieldFocus",function(e) { 
@@ -531,9 +535,11 @@ $('.sorting_filter_table').on('click',function(){
               keyboard: false
             });
           $("#loader_modal").modal('show');
+          thisPointer.addClass('processing');
         },
         success: function(data)
         {
+          thisPointer.removeClass('processing');
           $("#loader_modal").modal('hide');
           if(data.success == true)
           {
