@@ -253,11 +253,11 @@ tbody tr td:nth-last-child(5) {
       <table id="po_tabale" class="table entriestable table entriestable table-bordered text-center purchasing-report">
         <thead>
           <tr>
-            <th>Confirm Date
-              <span class="arrow_up sorting_filter_table" data-order="2" data-column_name="confirm_date">
+            <th>Target Ship Date
+              <span class="arrow_up sorting_filter_table" data-order="2" data-column_name="target_receive_date">
                 <img src="{{url('public/svg/up.svg')}}" alt="up" style="width:10px; height:10px; cursor: pointer;">
               </span>
-              <span class="arrow_down sorting_filter_table" data-order="1" data-column_name="confirm_date">
+              <span class="arrow_down sorting_filter_table" data-order="1" data-column_name="target_receive_date">
                 <img src="{{url('public/svg/down.svg')}}" alt="down" style="width:10px; height:10px; cursor: pointer;">
               </span>
             </th>
@@ -764,7 +764,7 @@ tbody tr td:nth-last-child(5) {
       // method: "get",
     },
     columns: [
-      { data: 'confirm_date', name: 'confirm_date' },
+      { data: 'target_receive_date', name: 'target_receive_date' },
       { data: 'supplier', name: 'supplier' },
       { data: 'country', name: 'country' },
       { data: 'ref_id', name: 'ref_id'},
