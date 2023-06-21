@@ -916,6 +916,7 @@ Route::get('/find_final_book_percent/{id}',function($id){
 		 //queue
 		$choice = $request->id;
 		$choice1 = $request->st_id;
+		$with_reserved = $request->with_reserved;
               $statusCheck=ExportStatus::where('type','update_old_cq_rq')->where('user_id',1)->first();
 			        $data=$request->all();
 			        if($statusCheck==null)
@@ -926,7 +927,7 @@ Route::get('/find_final_book_percent/{id}',function($id){
 			            $new->status=1;
 			            if($new->save() && $choice1 != null)
 			            {
-			                UpdateOldRecordReservedQuantity::dispatch($data,1,1,$choice1);
+			                UpdateOldRecordReservedQuantity::dispatch($data,1,1,$choice1, $with_reserved);
 			                return response()->json(['status'=>1]);
 			            }
 			            else
@@ -942,7 +943,7 @@ Route::get('/find_final_book_percent/{id}',function($id){
 			            ExportStatus::where('type','update_old_cq_rq')->where('user_id',1)->update(['status'=>1,'exception'=>null]);
 			          	if($choice1 != null)
 			          	{
-			          		UpdateOldRecordReservedQuantity::dispatch($data,1,1,$choice1);
+			          		UpdateOldRecordReservedQuantity::dispatch($data,1,1,$choice1, $with_reserved);
 			            	return response()->json(['status'=>1]);
 
 			          	}

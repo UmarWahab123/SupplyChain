@@ -1482,8 +1482,8 @@ class PurchaseOrderDetail extends Model
                 return  $html_string = '<a target="_blank" href="'.url('get-product-detail/'.$item->product->id).'" ><b>'.$refrence_code.'</b></a>';
                 break;
 
-            case 'confirm_date':
-                return $item->PurchaseOrder->confirm_date !== null ? Carbon::parse($item->PurchaseOrder->confirm_date)->format('d/m/Y') : 'N.A';
+            case 'target_receive_date':
+                return $item->PurchaseOrder->target_receive_date !== null ? Carbon::parse($item->PurchaseOrder->target_receive_date)->format('d/m/Y') : 'N.A';
                 break;
 
             case 'supplier':

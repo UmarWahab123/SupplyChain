@@ -33,18 +33,20 @@ class UpdateOldRecordReservedQuantity implements ShouldQueue
     protected $role_id;
     protected $st_id;
     protected $tries = 2;
+    protected $with_reserved;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($data,$user_id,$role_id,$st_id)
+    public function __construct($data,$user_id,$role_id,$st_id, $with_reserved)
     {
         $this->request=$data;
         $this->user_id=$user_id;
         $this->role_id=$role_id;
         $this->st_id=$st_id;
+        $this->with_reserved=$with_reserved;
     }
 
     /**
@@ -60,6 +62,7 @@ class UpdateOldRecordReservedQuantity implements ShouldQueue
             $user_id=$this->user_id;
             $role_id=$this->role_id;
             $st_id=$this->st_id;
+            $with_reserved=$this->with_reserved;
             //update old record in stock out histories table
             // $old_records = StockOutHistory::all();
             // foreach($old_records as $rec)
@@ -319,25 +322,33 @@ class UpdateOldRecordReservedQuantity implements ShouldQueue
                   $warehouse_product->current_quantity = round($current_stock_all,3);
                   $warehouse_product->save();
 
-                  $ids =  Order::where('primary_status',2)->whereHas('order_products',function($qq) use($prod,$warehouse){
+                  $ordered_qty0 = 0;
+                  $ordered_qty1 = 0;
+                  if($with_reserved == 'yes'){
+                    $ids =  Order::where('primary_status',2)->whereHas('order_products',function($qq) use($prod,$warehouse){
                     $qq->where('product_id',$prod->id);
                     $qq->where('from_warehouse_id',$warehouse->id);
-                  })->whereNull('ecommerce_order')->pluck('id')->toArray();
+                      })->whereNull('ecommerce_order')->pluck('id')->toArray();
 
-                  $ids1 =  Order::where('primary_status',2)->whereHas('order_products',function($qq) use($prod,$warehouse){
-                    $qq->where('product_id',$prod->id);
-                    $qq->whereNull('from_warehouse_id');
-                  })->whereHas('user_created',function($query) use($warehouse){
-                      $query->where('warehouse_id',$warehouse->id);
-                    })->whereNull('ecommerce_order')
-                  ->pluck('id')->toArray();
+                      $ids1 =  Order::where('primary_status',2)->whereHas('order_products',function($qq) use($prod,$warehouse){
+                        $qq->where('product_id',$prod->id);
+                        $qq->whereNull('from_warehouse_id');
+                      })->whereHas('user_created',function($query) use($warehouse){
+                          $query->where('warehouse_id',$warehouse->id);
+                        })->whereNull('ecommerce_order')
+                      ->pluck('id')->toArray();
 
-                  $ordered_qty0 =  OrderProduct::whereIn('order_id',$ids)->where('product_id',$prod->id)->sum('quantity');
+                      $ordered_qty0 =  OrderProduct::whereIn('order_id',$ids)->where('product_id',$prod->id)->sum('quantity');
 
-                  $ordered_qty1 =  OrderProduct::whereIn('order_id',$ids1)->where('product_id',$prod->id)->sum('quantity');
+                      $ordered_qty1 =  OrderProduct::whereIn('order_id',$ids1)->where('product_id',$prod->id)->sum('quantity');
+                  }
+
+                  
 
                   $ordered_qty = $ordered_qty0 + $ordered_qty1 + $pqty;
-
+                  $ecom_ordered_qty0 = 0;
+                  $ecom_ordered_qty1 = 0;
+                  if($with_reserved == 'yes'){
                   //To Update ECOM orders
                   $ecom_ids =  Order::where('primary_status',2)->whereHas('order_products',function($qq) use($prod,$warehouse){
                     $qq->where('product_id',$prod->id);
@@ -355,10 +366,13 @@ class UpdateOldRecordReservedQuantity implements ShouldQueue
                   $ecom_ordered_qty0 =  OrderProduct::whereIn('order_id',$ecom_ids)->where('product_id',$prod->id)->sum('quantity');
 
                   $ecom_ordered_qty1 =  OrderProduct::whereIn('order_id',$ecom_ids1)->where('product_id',$prod->id)->sum('quantity');
+                }
 
                   $ecom_ordered_qty = $ecom_ordered_qty0 + $ecom_ordered_qty1;
-                  $warehouse_product->reserved_quantity = number_format($ordered_qty,3,'.','');
-                  $warehouse_product->ecommerce_reserved_quantity = number_format($ecom_ordered_qty,3,'.','');
+                  if($with_reserved == 'yes'){
+                    $warehouse_product->reserved_quantity = number_format($ordered_qty,3,'.','');
+                    $warehouse_product->ecommerce_reserved_quantity = number_format($ecom_ordered_qty,3,'.','');
+                  }
                   $warehouse_product->available_quantity = number_format($warehouse_product->current_quantity - ($warehouse_product->reserved_quantity + $warehouse_product->ecommerce_reserved_quantity),3,'.','');
                   $warehouse_product->save();
               }

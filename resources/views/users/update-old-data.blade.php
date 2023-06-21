@@ -18,6 +18,7 @@ body {
 </style>
 @section('content')
 <div class="row mb-2">
+<input type="text" name="with_reserved" class="with_reserved">
 @foreach($warehouses as $war)
 <button class="btn button-st export-btn-recievable col-2 export_s_p_r mb-2" data-id="{{$war->id}}">Update {{$war->warehouse_title}} Reserved Quantity</button>
 @endforeach
@@ -64,6 +65,8 @@ body {
 	$(document).ready(function(){
 	     $(document).on('click','.export_s_p_r',function(e){
       e.preventDefault();
+      var with_reserved = $('.with_reserved').val();
+      alert(with_reserved);
       var id = $(this).data('id');
         $.ajaxSetup({
           headers: {
@@ -73,7 +76,7 @@ body {
         $.ajax({
             method:"get",
             url:"{{route('update-old-record-for-cq-rq')}}",
-            data:{st_id: id},          
+            data:{st_id: id, with_reserved : with_reserved},          
             beforeSend:function(){
                     
                 /*$('#loader_modal').modal({
