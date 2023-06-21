@@ -76,7 +76,7 @@ class PurchasingReportJob implements ShouldQueue
                 array_push($statuses, 40);
             }
             $query = PurchaseOrderDetail::select('purchase_order_details.*');
-            $query->with('PurchaseOrder:id,ref_id,confirm_date,supplier_id,invoice_number,invoice_date,po_group_id','PurchaseOrder.PoSupplier:id,reference_name,country',
+            $query->with('PurchaseOrder:id,ref_id,target_receive_date,supplier_id,invoice_number,invoice_date,po_group_id','PurchaseOrder.PoSupplier:id,reference_name,country',
                 'product:id,refrence_code,short_desc,selling_unit,buying_unit,total_buy_unit_cost_price,vat,type_id,type_id_2,type_id_3,min_stock,unit_conversion_rate,primary_category,weight',
                 'product.sellingUnits:id,title',
                 'product.supplier_products:id,landing,freight,product_id,import_tax_actual',
@@ -157,7 +157,7 @@ class PurchasingReportJob implements ShouldQueue
                 $date = str_replace("/","-",$request['from_date_exp']);
                 $date =  date('Y-m-d',strtotime($date));
                 $query->whereHas('PurchaseOrder', function($q) use($date){
-                    $q->where('purchase_orders.confirm_date', '>=', $date);
+                    $q->where('purchase_orders.target_receive_date', '>=', $date);
                 });
             }
             if($request['to_date_exp'] != null)
@@ -165,7 +165,7 @@ class PurchasingReportJob implements ShouldQueue
                 $date = str_replace("/","-",$request['to_date_exp']);
                 $date =  date('Y-m-d',strtotime($date));
                 $query->whereHas('PurchaseOrder', function($q) use($date){
-                    $q->where('purchase_orders.confirm_date', '<=', $date);
+                    $q->where('purchase_orders.target_receive_date', '<=', $date);
                 });
             }
 
