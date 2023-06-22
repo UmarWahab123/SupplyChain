@@ -443,10 +443,15 @@ Route::group(['namespace' => 'Purchasing', 'middleware' => 'purchasing'], functi
     Route::get('check-status-for-first-time-stock-adjustments', 'PurchasingController@checkStatusFirstTimeForStockAdjustment')->name('check-status-for-first-time-stock-adjustments');
     Route::get('recursive-call-for-import-status', 'PurchasingController@recursiveImportStatusCheck')->name('recursive-call-for-import-status');
 
+    Route::get('get-temp-stock-adjustment-data', 'PurchasingController@getTempStockAdjustmentData')->name('get-temp-stock-adjustment-data');
+    Route::get('update-cusomer-or-supplier-name', 'PurchasingController@updateCustomerOrSupplierName')->name('update-cusomer-or-supplier-name');
+    Route::post('get-completed-stock-prod-excel', 'PurchasingController@getCompletedStockProdExcel')->name('get-completed-stock-prod-excel');
+    Route::get('recursive-call-for-completed-prod-status', 'PurchasingController@completedProdRecursiveStatusCheck')->name('recursive-call-for-completed-prod-status');
+
+
 
     // Sup-874 Bulk import product from different supliers at a time
     Route::get('bulk-upload-products', 'BulkUploadProductsController@index')->name('bulk-upload-products.index');
-
 
 
     Route::post('get-all-prod-qty-excel', 'PurchasingController@getFilteredStockProdExcel')->name('get-all-prod-qty-excel');

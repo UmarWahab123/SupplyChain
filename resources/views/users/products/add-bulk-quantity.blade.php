@@ -1,7 +1,12 @@
 @extends('users.layouts.layout')
 
 @section('title','Products Management | Supply Chain')
-
+<style>
+  .customer__dropdown > .select2-container--default .select2-selection--single {
+    border: 1px solid red !important;
+  }
+  
+</style>
 @section('content')
 
 <div class="row">
@@ -193,7 +198,93 @@
                   <button class="btn btn-info quantity-upload-btn" type="submit">Upload</button>
                 </form>
               </div>
-
+              <div class="col pull-right mt-4 mb-4">
+                <button class="btn bg-success  pull-right mt-4" id="completedProductsbtn">Download & Upload Completed Products</button>
+              </div>
+              <div class="entriesbg bg-white custompadding customborder mt-5">
+              <h1 class="inccorect-datatable text-danger d-none mb-3"></h1>
+                <div class="table-responsive">
+                  <table class="table entriestable table-bordered table-incomplete-rows text-center">
+                      <thead>
+                        <tr>
+                          <th>PF#
+                            <span class="arrow_up sorting_filter_table" data-order="2" data-column_name="PF#">
+                              <img src="{{url('public/svg/up.svg')}}" alt="up" style="width:10px; height:10px; cursor: pointer;">
+                            </span>
+                            <span class="arrow_down sorting_filter_table" data-order="1" data-column_name="PF#">
+                              <img src="{{url('public/svg/down.svg')}}" alt="down" style="width:10px; height:10px; cursor: pointer;">
+                            </span>
+                          </th>
+                          <th>Supplier Name
+                            <span class="arrow_up sorting_filter_table" data-order="2" data-column_name="supplier_name">
+                              <img src="{{url('public/svg/up.svg')}}" alt="up" style="width:10px; height:10px; cursor: pointer;">
+                            </span>
+                            <span class="arrow_down sorting_filter_table" data-order="1" data-column_name="supplier_name">
+                              <img src="{{url('public/svg/down.svg')}}" alt="down" style="width:10px; height:10px; cursor: pointer;">
+                            </span>
+                          </th>
+                          <th>Customer Name
+                            <span class="arrow_up sorting_filter_table" data-order="2" data-column_name="customer_name">
+                              <img src="{{url('public/svg/up.svg')}}" alt="up" style="width:10px; height:10px; cursor: pointer;">
+                            </span>
+                            <span class="arrow_down sorting_filter_table" data-order="1" data-column_name="customer_name">
+                              <img src="{{url('public/svg/down.svg')}}" alt="down" style="width:10px; height:10px; cursor: pointer;">
+                            </span>
+                          </th>
+                          <th>Adjust1
+                            <span class="arrow_up sorting_filter_table" data-order="2" data-column_name="adjace1">
+                              <img src="{{url('public/svg/up.svg')}}" alt="up" style="width:10px; height:10px; cursor: pointer;">
+                            </span>
+                            <span class="arrow_down sorting_filter_table" data-order="1" data-column_name="adjace1">
+                              <img src="{{url('public/svg/down.svg')}}" alt="down" style="width:10px; height:10px; cursor: pointer;">
+                            </span>
+                          </th>
+                          <th>Exp 1(dd/m/YYYY)
+                            <span class="arrow_up sorting_filter_table" data-order="2" data-column_name="expiration_date1">
+                              <img src="{{url('public/svg/up.svg')}}" alt="up" style="width:10px; height:10px; cursor: pointer;">
+                            </span>
+                            <span class="arrow_down sorting_filter_table" data-order="1" data-column_name="expiration_date1">
+                              <img src="{{url('public/svg/down.svg')}}" alt="down" style="width:10px; height:10px; cursor: pointer;">
+                            </span>
+                          </th>
+                          <th>Adjust2
+                            <span class="arrow_up sorting_filter_table" data-order="2" data-column_name="adjace2">
+                              <img src="{{url('public/svg/up.svg')}}" alt="up" style="width:10px; height:10px; cursor: pointer;">
+                            </span>
+                            <span class="arrow_down sorting_filter_table" data-order="1" data-column_name="adjace2">
+                              <img src="{{url('public/svg/down.svg')}}" alt="down" style="width:10px; height:10px; cursor: pointer;">
+                            </span>
+                          </th>
+                          <th>Exp 2(dd/m/YYYY)
+                            <span class="arrow_up sorting_filter_table" data-order="2" data-column_name="expiration_date2">
+                              <img src="{{url('public/svg/up.svg')}}" alt="up" style="width:10px; height:10px; cursor: pointer;">
+                            </span>
+                            <span class="arrow_down sorting_filter_table" data-order="1" data-column_name="expiration_date2">
+                              <img src="{{url('public/svg/down.svg')}}" alt="down" style="width:10px; height:10px; cursor: pointer;">
+                            </span>
+                          </th>
+                          <th>Adjust3
+                            <span class="arrow_up sorting_filter_table" data-order="2" data-column_name="Adjace3">
+                              <img src="{{url('public/svg/up.svg')}}" alt="up" style="width:10px; height:10px; cursor: pointer;">
+                            </span>
+                            <span class="arrow_down sorting_filter_table" data-order="1" data-column_name="Adjace3">
+                              <img src="{{url('public/svg/down.svg')}}" alt="down" style="width:10px; height:10px; cursor: pointer;">
+                            </span>
+                          </th>
+                          <th>Exp 3(dd/m/YYYY)
+                            <span class="arrow_up sorting_filter_table" data-order="2" data-column_name="expiration_date3">
+                              <img src="{{url('public/svg/up.svg')}}" alt="up" style="width:10px; height:10px; cursor: pointer;">
+                            </span>
+                            <span class="arrow_down sorting_filter_table" data-order="1" data-column_name="expiration_date3">
+                              <img src="{{url('public/svg/down.svg')}}" alt="down" style="width:10px; height:10px; cursor: pointer;">
+                            </span>
+                          </th>
+                        </tr>
+                      </thead>
+                  </table>
+                </div>
+              </div>
+              
             </div>
           </div>
         </div>
@@ -201,7 +292,6 @@
     </div>
   </div>
 </div>
-
     <!-- Loader Modal -->
 <div class="modal" id="loader_modal_old" role="dialog">
   <div class="modal-dialog modal-sm">
@@ -213,7 +303,7 @@
     </div>
   </div>
 </div>
-
+<div id="user-id" class="d-none" data-user-id="{{ auth()->user()->id }}"></div>
 
 <div class="modal" id="bulk_upload_Modal" role="dialog">
   <div class="modal-dialog">
@@ -237,6 +327,98 @@
 @section('javascript')
 
 <script type="text/javascript">
+$( document ).ready(function() {
+  var userId = $('#user-id').data('user-id');
+  var table2 = $('.table-incomplete-rows').DataTable({
+      "sPaginationType": "listbox",
+      processing: false,
+      "language": {
+        processing: '<i class="fa fa-spinner fa-spin fa-3x fa-fw" style="color:#13436c;"></i><span class="sr-only">Loading...</span> '},
+      ordering: false,
+      searching:true,
+      serverSide: true,
+      scrollX: true,
+      scrollY : '90vh',
+      dom: 'Blfrtip',
+      scrollCollapse: true,
+   
+      buttons: [
+        {
+            extend: 'colvis',
+            columns: ':not(.noVis)',
+
+        }
+      ],
+      "lengthMenu": [100,200,300,400],
+      ajax:
+      {
+        beforeSend: function(){
+          $('#loader_modal').modal('show');
+           
+        },
+        url: "{!! route('get-temp-stock-adjustment-data') !!}",
+        data: function(data) { data.user_id = userId
+              } ,
+      },
+      columns: [
+        { data: 'PF#', name: 'PF#' },
+        { data: 'supplier_name', name: 'supplier_name' },
+        { data: 'customer_name', name: 'customer_name' },
+        { data: 'adjace1', name: 'adjace1' },
+        { data: 'expiration_date1', name: 'expiration_date1' },
+        { data: 'adjace2', name: 'adjace2' },
+        { data: 'expiration_date2', name: 'expiration_date2' },
+        { data: 'adjace3', name: 'adjace3' },
+        { data: 'expiration_date3', name: 'expiration_date3' },
+        // Add more columns as needed
+    ],
+      initComplete: function () {
+      $(".stock-supplier-name").select2();
+      $(".stock-customer-name").select2();
+      },
+      drawCallback: function(){
+        $(".stock-supplier-name").select2();
+        $(".stock-customer-name").select2();
+        $('#loader_modal').modal('hide');
+        $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
+      },
+  });
+  //update customer and supplier name 
+  $(document).on('change', '.stock-supplier-name', function() {
+    let rowId = $(this).data('row-id');
+    var supplierName = $(this).val();
+    var type = "supplier";
+    changeCustomerOrSupplierName(rowId, supplierName, type);  
+  });
+  $(document).on('change', '.stock-customer-name', function() {
+    let rowId = $(this).data('row-id');
+    var customerName = $(this).val();
+    var type = "customer";
+    changeCustomerOrSupplierName(rowId, customerName, type);  
+  });
+  
+ });
+ function changeCustomerOrSupplierName(rowId, selected_name, type){
+  $.ajax({
+      method:"get",
+      data:{ id:rowId,selected_name:selected_name, type:type },
+      url:"{{ route('update-cusomer-or-supplier-name') }}",
+      beforeSend:function(){
+      
+      },
+      success:function(data){
+        if(data.success == true)
+        {
+        toastr.success('Success!', data.successMsg ,{"positionClass": "toast-bottom-right"});
+        $('.table-incomplete-rows').DataTable().ajax.reload();
+        return;
+        }
+      },
+      error: function(request, status, error){
+        $("#loader_modal").modal('hide');
+      }
+   });
+ }
 $(function(e){
 
   $(".state-tags").select2();
@@ -326,8 +508,101 @@ $(function(e){
     //   return false;
     // }
   });
+//download and upload completed products 
+$('#completedProductsbtn').on('click',function(e){
+    e.preventDefault();
+        $.ajaxSetup({
+          headers: {
+            'X-CSRF-TOKEN': $('meta[name="_token"]').attr('content')
+          }
+        });
+        $.ajax({
+          url:"{{ route('get-completed-stock-prod-excel') }}",
+          method:'post',
+          beforeSend:function()
+          {
+            $('#completedProductsbtn').html('Please Wait');
+            $('#completedProductsbtn').prop('disabled',true);
+          },
+          success:function(data)
+          {
+              if(data.status==1)
+              {
+                $('.export-alert-success').addClass('d-none');
+                $('#completedProductsbtn').html('<i class="fa fa-spinner fa-spin"></i> Downloading! Please Wait...');
+                $('#completedProductsbtn').prop('disabled',true);
+                console.log(data.status);
+                recursiveCallForCompletedProdStatus(1);
+              }
+              else if(data.status==2)
+              {
+                  $('.export-alert-success').addClass('d-none');
+                  $('#completedProductsbtn').html('<i class="fa fa-spinner fa-spin"></i> '+data.msg);
+                  $('#completedProductsbtn').prop('disabled',true);
+                  console.log(data.status);
+                  recursiveCallForCompletedProdStatus(2);
+              }
+          },
+          error:function()
+          {
+              $('#completedProductsbtn').html('Download & Upload Completed Products');
+              $('#completedProductsbtn').prop('disabled',false);
+          }
+        });
+  });
+  function recursiveCallForCompletedProdStatus(type)
+  {
+    console.log('Type '+type);
+    $.ajax({
+            method:"get",
+            url:"{{route('recursive-call-for-completed-prod-status')}}",
+            success:function(data){
+                  if(data.status==1)
+                  {
+                    console.log("Status " +data.status);
+                    setTimeout(
+                      function(){
+                        console.log("Calling Function Again");
+                        recursiveCallForCompletedProdStatus(type);
+                      }, 5000);
+                  }
+                  else if(data.status==0)
+                  {
+                      var user_id={{Auth::user()->id}};
+                      var url='storage/app/Completed-Stock-Adjustment-'+user_id+'-'+data.file_name+'.xlsx';
+                      console.log(url);
+                      $('#completedProductsbtn').html('Download & Upload Completed Products');
+                      $('.export-alert-success').removeClass('d-none');
+                      toastr.success('Success!', 'File downloaded successfully.' ,{"positionClass": "toast-bottom-right"});
+                      if(type==1)
+                      {
+                        console.log('Type 1 allowed');
+
+                        // window.location = 'storage/app/Stock-Adjustment-'+user_id+'-'+data.file_name+'.xlsx';
+                        var file = 'Completed-Stock-Adjustment-'+user_id+'-'+data.file_name+'.xlsx';
 
 
+                        window.location = "{{ url('get-download-xslx') }}"+'/'+file;
+                      }
+                      $('#completedProductsbtn ').prop('disabled',false);
+                      console.log('Export Done');
+                  }
+                  else if(data.status==2)
+                  {
+                      $('#completedProductsbtn ').html('Download & Upload Completed Products');
+                      $('#completedProductsbtn').prop('disabled',false);
+                      console.log(data.exception);
+                      toastr.error('Error!', 'Something went wrong. Please try again later. If the issue persists, please contact support.' ,{"positionClass": "toast-bottom-right"});
+
+                  }
+                  // else if(data.status==3)
+                  // {
+                  //     $('#completedProductsbtn ').html('Download & Upload Completed Products');
+                  //     $('#completedProductsbtn ').prop('disabled',false);
+                  // }
+              }
+          });
+  }
   function recursiveCallForStatus(type)
   {
     console.log('Type '+type);
@@ -549,18 +824,18 @@ $(function(e){
                     keyboard: false
                 });
                 $("#bulk_upload_Modal").modal('show');
-                $('.job-errors').html("");
-                $('.joberrormsgDiv').addClass('d-none');
+                $('.inccorect-datatable').addClass('d-none');
             },
             success:function(data)
             {
                 if(data.status==0 || data.status==2)
                 {
-                
+                  $('.table-incomplete-rows').DataTable().ajax.reload();
                 }
                 else
                 {
                     console.log(data.status);
+                    $('.table-incomplete-rows').DataTable().ajax.reload();
                     recursiveCallForImportStatus();
                 }
             },
@@ -621,11 +896,13 @@ $(function(e){
                 {
                     // console.log(data.exception);
                     $('#bulk_upload_Modal').modal('hide');
-
                     // toastr.error('Error!', 'Something went wrong. Please try again later. If the issue persists, please contact support.' ,{"positionClass": "toast-bottom-right"});
-                    swal("Some products have incomplete data please check the erros shown of the screen", "", "error");
-                    $('.job-errors').html(data.exception);
-                    $('.joberrormsgDiv').removeClass('d-none');
+                    swal("Some products have incomplete data please check the Incorect Datatable", "", "error");
+                    $('.table-incomplete-rows').DataTable().ajax.reload();
+                    $('.inccorect-datatable').html("Incorect Datatable");
+                    $('.inccorect-datatable').removeClass('d-none');
+
+                    // $('.joberrormsgDiv').removeClass('d-none');
                 }
             }
         });
