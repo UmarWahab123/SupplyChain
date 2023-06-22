@@ -57,7 +57,7 @@ class ProductImageObserver
         if(@$productImage->woocommerce_enabled){
             $token = config('app.external_token');
             $deployment = Deployment::where('type','woocommerce')->first();
-            $url = @$deployment->url.'/wp-json/supplychain-woocommerce/v1/delete-product/';
+            $url = @$deployment->url.'/wp-json/supplychain-woocommerce/v1/update-product/';
             $body = ['product_id'=> $productImage->product_id];
             $method = 'POST';
             $response = GuzzuleRequestHelper::guzzuleRequest($token,$url,$method,$body);
