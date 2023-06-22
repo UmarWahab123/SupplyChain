@@ -18,6 +18,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use App\Models\Common\PurchaseOrders\PurchaseOrder;
 use App\Models\Sales\Customer;
 use App\Models\Common\Supplier;
+use App\TempStockAdjustment;
 class BulkStockAdjustmentJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -49,6 +50,7 @@ class BulkStockAdjustmentJob implements ShouldQueue
         $user_id = $this->user_id;
         $error_msg = null;
         $html_string = '';
+        $incomplete_rows = [];
         $has_error = 0;
         try {
             $row1 = $rows->toArray();
@@ -74,7 +76,7 @@ class BulkStockAdjustmentJob implements ShouldQueue
                 // to check for supplier or customer
                 if (is_numeric($adjust_1))
                 {
-                    if($adjust_1 > 0 && $supplier_name == null){
+                 if($adjust_1 > 0 && $supplier_name == null){
                         $error = 3;
                         $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_1.' QTY into system but doesnt have supplier name </li>';
                     }
@@ -82,7 +84,7 @@ class BulkStockAdjustmentJob implements ShouldQueue
                         $error = 3;
                         $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_1.' QTY into system but doesnt have customer name </li>';
                     }
-                }
+                 }
                 if (is_numeric($adjust_2)){
                     if($adjust_2 > 0 && $supplier_name == null){
                         $error = 3;
@@ -104,7 +106,6 @@ class BulkStockAdjustmentJob implements ShouldQueue
                     }
                 }
                 // To check Customer or Supplier exist in the system or not
-               
                 if (is_numeric($adjust_1)){
                   if($adjust_1 > 0){
                     $supplier = Supplier::where('reference_name',$supplier_name)->first();
@@ -146,12 +147,13 @@ class BulkStockAdjustmentJob implements ShouldQueue
                     $cusomer = Customer::where('reference_name',$customer_name)->first();
                     if(!$cusomer){
                         $error = 3;
-                        $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_3.' QTY into system but Customer '.$customer_name.' doesnt exist in the system.</li>';  
+                        $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_3.' QTY into system but Customer '.$customer_name.' doesnt exist in the system.</li>'; 
                     }
                 }
                 }
                 if($error == 3){
                 $has_error = 1;
+                array_push($incomplete_rows, $row);
                 continue;  
                 }
                 $supplier = Supplier::where('reference_name',$supplier_name)->first();
@@ -512,7 +514,6 @@ class BulkStockAdjustmentJob implements ShouldQueue
                     }
                 }
             }
-
             $export_status = ExportStatus::where('type', 'stock_bulk_upload')->where('user_id', $user_id)->first();
             $export_status->status = 0;
             if ($error == 1)
@@ -526,6 +527,16 @@ class BulkStockAdjustmentJob implements ShouldQueue
                 $export_status->error_msgs = "Stock Adjusted Successfully, But Some Of Them Has Issues !!!";
                 $export_status->exception = $html_string;
                 $export_status->status = 3;
+                $removePreviousTempStockAdjustment = TempStockAdjustment::where('user_id',$user_id)->delete();
+                $warehouse_st = Warehouse::where('status',1)->where('warehouse_title', @$row1[0][1])->first();
+                foreach ($incomplete_rows as $row) {
+                    $tempStockAdjustment = new TempStockAdjustment;
+                    $tempStockAdjustment->user_id = $user_id;
+                    $tempStockAdjustment->warehouse_id = $warehouse_st ? $warehouse->id : null;
+                    $tempStockAdjustment->product_id = $row[7];
+                    $tempStockAdjustment->incomplete_rows = $row;
+                    $tempStockAdjustment->save();
+                }
             }
             $export_status->save();
         } catch (\Throwable $th) {

@@ -15,6 +15,7 @@ use App\Jobs\PurchaseListExpJob;
 use App\Jobs\PurchasingReportGroupedJob;
 use App\Jobs\PurchasingReportJob;
 use App\Jobs\StockProductsExportjob;
+use App\Jobs\StockCompletedProductsExportJob;
 use App\Models\Common\ColumnDisplayPreference;
 use App\Models\Common\Country;
 use App\Models\Common\OrderHistory;
@@ -35,6 +36,8 @@ use App\Models\Common\Unit;
 use App\Models\Common\Warehouse;
 use App\Models\Common\WarehouseProduct;
 use App\User;
+use App\Models\Sales\Customer;
+
 use Auth;
 use Carbon\Carbon;
 use DB;
@@ -52,6 +55,7 @@ use App\Models\Common\ProductSecondaryType;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Schema;
 use App\QuotationConfig;
+use App\TempStockAdjustment;
 use App\Helpers\Datatables\PurchaseListDatatable;
 use App\Helpers\ProductConfigurationHelper;
 
@@ -303,7 +307,7 @@ class PurchasingController extends Controller
       }
     }
 
-       public function recursiveStatusCheckPurchaseList()
+    public function recursiveStatusCheckPurchaseList()
     {
       $status=ExportStatus::where('type','purchase_list_export')->first();
       return response()->json(['msg'=>"File is now getting prepared",'status'=>$status->status,'exception'=>$status->exception,'file_name'=>$status->file_name]);
@@ -527,7 +531,70 @@ class PurchasingController extends Controller
             'success' => true
         ]);
     }
+    public function getTempStockAdjustmentData(Request $request)
+    { 
+        $user_id = $request->user_id;
+        $query = TempStockAdjustment::query();
+        $query->where('user_id',$user_id);
 
+        $dt = Datatables::of($query);
+
+        $add_columns = ['PF#','supplier_name','customer_name','adjace1','expiration_date1','adjace2','expiration_date2','adjace3','expiration_date3'];
+        $suppliers = Supplier::where('status', 1)->select('id','reference_name')->orderBy('reference_name')->get();
+        $customers = Customer::where('status', 1)->select('id','reference_name')->get();
+        
+        foreach ($add_columns as $column) {
+            $dt->addColumn($column, function ($item) use ($column, $suppliers, $customers) {
+                return TempStockAdjustment::returnAddColumn($column, $item, $suppliers, $customers);
+            });
+        }
+
+        // $edit_columns = ['company', 'reference_name', 'country', 'state', 'email', 'city', 'tax_id'];
+
+        // foreach ($edit_columns as $column) {
+        //     $dt->editColumn($column, function ($item) use ($column) {
+        //         return Supplier::returnEditColumn($column, $item);
+        //     });
+        // }
+
+        // $filter_columns = ['supplier_nunmber', 'country'];
+
+        // foreach ($filter_columns as $column) {
+        //     $dt->filterColumn($column, function ($item, $keyword) use ($column) {
+        //         return Supplier::returnFilterColumn($column, $item, $keyword);
+        //     });
+        // }
+
+        $dt->rawColumns(['PF#','supplier_name','customer_name','adjace1','expiration_date1','adjace2','expiration_date2','adjace3','expiration_date3']);
+        return $dt->make(true);
+    }
+    public function updateCustomerOrSupplierName(Request $request)
+    { 
+        // dd($request->all());
+        if($request->type == "supplier"){
+            
+           $data = TempStockAdjustment::find($request->id);
+            if ($data) {
+                $incompleteRows = $data->incomplete_rows;
+                $incompleteRows[15] = $request->selected_name;
+                $data->incomplete_rows = $incompleteRows;
+                $data->save();
+             return response()->json(['success' => true,'successMsg' => "Supplier Name Change Successfully."]);
+            }
+
+        }else{
+
+            $data = TempStockAdjustment::find($request->id);
+            if ($data) {
+                $incompleteRows = $data->incomplete_rows;
+                $incompleteRows[16] = $request->selected_name;
+                $data->incomplete_rows = $incompleteRows;
+                $data->save();
+             return response()->json(['success' => true,'successMsg' => "Customer Name Change Successfully."]);
+            }
+        }
+        
+    }
     public function saveRemarksInOrderProd(Request $request)
     {
         $order_product = OrderProduct::where('id', $request->op_id)->first();
@@ -622,6 +689,40 @@ class PurchasingController extends Controller
         // return response()->json(['success'=>true]);
         // return Excel::save(new FilteredStockProductsExport($request->warehouses,$request->suppliers,$request->primary_category, $request->sub_category, $request->types), $name.' Products Data Set.xlsx');
     }
+    //get completed products excel exports
+    public function getCompletedStockProdExcel(Request $request)
+    {
+        $name='Test';
+        $statusCheck=ExportStatus::where('type','stock_completed_products_download')->where('user_id',Auth::user()->id)->first();
+        $data=TempStockAdjustment::where('user_id',Auth::user()->id)->get();
+        // dd($data[0]->incomplete_rows[15]);
+        // dd($data->pluck('product_id')->toArray());
+        if($statusCheck==null)
+        {
+            $new=new ExportStatus();
+            $new->type='stock_completed_products_download';
+            $new->user_id=Auth::user()->id;
+            $new->status=1;
+            if($new->save())
+            {
+                StockCompletedProductsExportJob::dispatch($name,$data,Auth::user()->id);
+                return response()->json(['status'=>1]);
+            }
+
+        }
+        else if($statusCheck->status==0 || $statusCheck->status==2 || $statusCheck->status==3)
+        {
+
+            ExportStatus::where('type','stock_completed_products_download')->where('user_id',Auth::user()->id)->update(['status'=>1,'exception'=>null]);
+            StockCompletedProductsExportJob::dispatch($name,$data,Auth::user()->id);
+            return response()->json(['status'=>1]);
+
+        }
+        {
+            return response()->json(['msg'=>'Export already being prepared','status'=>2]);
+        }
+      
+    }
 
     public function recursiveStatusCheck()
     {
@@ -630,7 +731,13 @@ class PurchasingController extends Controller
         // $last_downloaded=Carbon::parse($last_downloaded)->format('Y-m-d-H-i-s');
         return response()->json(['msg'=>"File Created!",'status'=>$status->status,'exception'=>$status->exception,'file_name'=>$status->file_name]);
     }
-
+    public function completedProdRecursiveStatusCheck()
+    {
+        $status=ExportStatus::where('user_id',Auth::user()->id)->where('type','stock_completed_products_download')->first();
+        // $last_downloaded=$status->file_name;
+        // $last_downloaded=Carbon::parse($last_downloaded)->format('Y-m-d-H-i-s');
+        return response()->json(['msg'=>"File Created!",'status'=>$status->status,'exception'=>$status->exception,'file_name'=>$status->file_name]);
+    }
     public function checkStatusFirstTimeForStockAdjustment()
     {
         $status=ExportStatus::where('type','stock_bulk_upload')->where('user_id',Auth::user()->id)->first();
@@ -660,6 +767,11 @@ class PurchasingController extends Controller
 
     public function bulkUploadProdQty(Request $request)
     {
+        //remove auth user temp stock record first
+        $tempStockAdjustment = TempStockAdjustment::where('user_id',Auth::user()->id)->get();
+        foreach ($tempStockAdjustment as $tempStockRecord) {
+            $tempStockRecord->delete();
+        }
         $validator = $request->validate([
             'excel' => 'required|mimes:xlsx'
         ]);
