@@ -3,6 +3,8 @@
 namespace App\Observers;
 
 use App\Models\Common\ProductImage;
+use App\Helpers\GuzzuleRequestHelper;
+use App\Models\Common\Deployment;
 
 class ProductImageObserver
 {
@@ -17,6 +19,14 @@ class ProductImageObserver
 
         $link = '/api/productimage-create';
         $curl_output =  $this->curl_call($link, $productImage);
+        if(@$productImage->woocommerce_enabled){
+            $token = config('app.external_token');
+            $deployment = Deployment::where('type','woocommerce')->first();
+            $url = @$deployment->url.'/wp-json/supplychain-woocommerce/v1/update-product/';
+            $body = ['product_id'=> $productImage->product_id];
+            $method = 'POST';
+            $response = GuzzuleRequestHelper::guzzuleRequest($token,$url,$method,$body);
+          }
         return $curl_output;
     }
 
@@ -43,6 +53,15 @@ class ProductImageObserver
     {
         $link = '/api/productimage-delete';
         $curl_output =  $this->curl_call($link, $productImage);
+        $curl_output =  $this->curl_call($link, $productImage);
+        if(@$productImage->woocommerce_enabled){
+            $token = config('app.external_token');
+            $deployment = Deployment::where('type','woocommerce')->first();
+            $url = @$deployment->url.'/wp-json/supplychain-woocommerce/v1/delete-product/';
+            $body = ['product_id'=> $productImage->product_id];
+            $method = 'POST';
+            $response = GuzzuleRequestHelper::guzzuleRequest($token,$url,$method,$body);
+          }
         return $curl_output;
     }
 

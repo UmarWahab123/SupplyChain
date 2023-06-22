@@ -15,4 +15,8 @@ class ProductImage extends Model
     {
         return $this->belongsTo('App\Models\Common\Product', 'product_id', 'id');
     }
+    public function woocommerce_enabled()
+    {
+       return $this->belongsTo('App\Models\Common\ShareProduct','product_id','product_id')->where('store_type', 'woocommerce');
+    }
 }
