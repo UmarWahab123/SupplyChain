@@ -532,7 +532,7 @@ class BulkStockAdjustmentJob implements ShouldQueue
                 foreach ($incomplete_rows as $row) {
                     $tempStockAdjustment = new TempStockAdjustment;
                     $tempStockAdjustment->user_id = $user_id;
-                    $tempStockAdjustment->warehouse_id = $warehouse_st ? $warehouse->id : null;
+                    $tempStockAdjustment->warehouse_id = $warehouse_st ? $warehouse_st->id : null;
                     $tempStockAdjustment->product_id = $row[7];
                     $tempStockAdjustment->incomplete_rows = $row;
                     $tempStockAdjustment->save();
