@@ -545,7 +545,7 @@ $('#completedProductsbtn').on('click',function(e){
           },
           error:function()
           {
-              $('#completedProductsbtn').html('Redownload Stock File');
+              // $('#completedProductsbtn').html('Redownload Stock File');
               $('#completedProductsbtn').prop('disabled',false);
           }
         });
@@ -571,7 +571,7 @@ $('#completedProductsbtn').on('click',function(e){
                       var user_id={{Auth::user()->id}};
                       var url='storage/app/Completed-Stock-Adjustment-'+user_id+'-'+data.file_name+'.xlsx';
                       console.log(url);
-                      $('#completedProductsbtn').html('Redownload Stock File');
+                      // $('#completedProductsbtn').html('Redownload Stock File');
                       $('.export-alert-success').removeClass('d-none');
                       toastr.success('Success!', 'File downloaded successfully.' ,{"positionClass": "toast-bottom-right"});
                       if(type==1)
