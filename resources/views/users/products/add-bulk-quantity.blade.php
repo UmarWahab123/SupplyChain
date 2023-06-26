@@ -199,10 +199,10 @@
                 </form>
               </div>
               <div class="col pull-right mt-4 mb-4">
-                <button class="btn bg-success  pull-right mt-4" id="completedProductsbtn">Download & Upload Completed Products</button>
+                <button class="btn bg-success  pull-right mt-4" id="completedProductsbtn">Redownload Stock File</button>
               </div>
               <div class="entriesbg bg-white custompadding customborder mt-5">
-              <h1 class="inccorect-datatable text-danger d-none mb-3"></h1>
+              <h1 class="inccorect-datatable text-danger">Incomplete Records</h1>
                 <div class="table-responsive">
                   <table class="table entriestable table-bordered table-incomplete-rows text-center">
                       <thead>
@@ -545,7 +545,7 @@ $('#completedProductsbtn').on('click',function(e){
           },
           error:function()
           {
-              $('#completedProductsbtn').html('Download & Upload Completed Products');
+              $('#completedProductsbtn').html('Redownload Stock File');
               $('#completedProductsbtn').prop('disabled',false);
           }
         });
@@ -571,7 +571,7 @@ $('#completedProductsbtn').on('click',function(e){
                       var user_id={{Auth::user()->id}};
                       var url='storage/app/Completed-Stock-Adjustment-'+user_id+'-'+data.file_name+'.xlsx';
                       console.log(url);
-                      $('#completedProductsbtn').html('Download & Upload Completed Products');
+                      $('#completedProductsbtn').html('Redownload Stock File');
                       $('.export-alert-success').removeClass('d-none');
                       toastr.success('Success!', 'File downloaded successfully.' ,{"positionClass": "toast-bottom-right"});
                       if(type==1)
@@ -589,7 +589,7 @@ $('#completedProductsbtn').on('click',function(e){
                   }
                   else if(data.status==2)
                   {
-                      $('#completedProductsbtn ').html('Download & Upload Completed Products');
+                      $('#completedProductsbtn ').html('Redownload Stock File');
                       $('#completedProductsbtn').prop('disabled',false);
                       console.log(data.exception);
                       toastr.error('Error!', 'Something went wrong. Please try again later. If the issue persists, please contact support.' ,{"positionClass": "toast-bottom-right"});
@@ -824,7 +824,7 @@ $('#completedProductsbtn').on('click',function(e){
                     keyboard: false
                 });
                 $("#bulk_upload_Modal").modal('show');
-                $('.inccorect-datatable').addClass('d-none');
+                // $('.inccorect-datatable').addClass('d-none');
             },
             success:function(data)
             {
@@ -897,10 +897,10 @@ $('#completedProductsbtn').on('click',function(e){
                     // console.log(data.exception);
                     $('#bulk_upload_Modal').modal('hide');
                     // toastr.error('Error!', 'Something went wrong. Please try again later. If the issue persists, please contact support.' ,{"positionClass": "toast-bottom-right"});
-                    swal("Some products have incomplete data please check the Incorect Datatable", "", "error");
+                    swal("Some products have incomplete data please check the Incomplete Records Table", "", "error");
                     $('.table-incomplete-rows').DataTable().ajax.reload();
-                    $('.inccorect-datatable').html("Incorect Datatable");
-                    $('.inccorect-datatable').removeClass('d-none');
+                    // $('.inccorect-datatable').html("Incomplete Records");
+                    // $('.inccorect-datatable').removeClass('d-none');
 
                     // $('.joberrormsgDiv').removeClass('d-none');
                 }

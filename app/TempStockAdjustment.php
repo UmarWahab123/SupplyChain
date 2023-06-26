@@ -21,7 +21,7 @@ class TempStockAdjustment extends Model
             case 'supplier_name':
                 $supplierName = $item->incomplete_rows[15];
                 $supplierExists = $suppliers->contains('reference_name', $supplierName);
-                $html_string = '<div class="'.($supplierName == null ? 'customer__dropdown' : '').'">';
+                $html_string = '<div class="'.($supplierName == null || !$supplierExists  ? 'customer__dropdown' : '').'">';
                 $html_string .= '<select class="stock-supplier-name select2" data-row-id="'.$item->id.'" name="supplier_name">';
                 $html_string .= ' <option value="" selected="" disabled="">Choose Supplier</option>';
                 if ($suppliers->count() > 0) {
@@ -33,10 +33,10 @@ class TempStockAdjustment extends Model
                 $html_string .= '</select></div>';
                 
 
-                if (($item->incomplete_rows[18] > 0 || $item->incomplete_rows[21] > 0 || $item->incomplete_rows[24] > 0) && $supplierName == null) {
+                if (($item->incomplete_rows[18] > 0 || $item->incomplete_rows[21] > 0 || $item->incomplete_rows[24] > 0) && !$supplierName) {
                     return $html_string; 
-                }else if(!$supplierExists) {
-                    return $html_string; 
+                }else if (!$supplierExists){
+                    return $html_string;
                 }else{
                     return $html_string; 
                 }
@@ -44,7 +44,7 @@ class TempStockAdjustment extends Model
             case 'customer_name':
                 $customerName = $item->incomplete_rows[16];
                 $customerExists = $customers->contains('reference_name', $customerName);
-                $html_string = '<div class="'.($customerName == null ? 'customer__dropdown' : '').'">';
+                $html_string = '<div class="'.($customerName == null || !$customerExists ? 'customer__dropdown' : '').'">';
                 $html_string .= '<select style="border: 1px solid red;" data-row-id="'.$item->id.'" class="stock-customer-name select2" name="customer_name">';
                 $html_string .= ' <option value="" selected="" disabled="">Choose Customer</option>';
                 if ($customers->count() > 0) {
