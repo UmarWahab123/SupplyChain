@@ -1905,11 +1905,11 @@ class Product extends Model
                 break;
 
             case 'unit_cogs':
-                return @$item->unit_cogs != null ? @$item->unit_cogs : '--';
+                return @$item->unit_cogs != null ? number_format(@$item->unit_cogs,2) : '--';
                 break;
 
             case 'cogs_total':
-                return @$item->cogs_total != null ? abs(@$item->cogs_total) : '--';;
+                return @$item->cogs_total != null ? number_format(abs(@$item->cogs_total),2) : '--';
                 break;
         }
     }
