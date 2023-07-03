@@ -199,7 +199,8 @@
                 </form>
               </div>
               <div class="col pull-right mt-4 mb-4">
-                <button class="btn bg-success  pull-right mt-4" id="completedProductsbtn">Redownload Stock File</button>
+              <button class="btn bg-success pull-right mt-4" id="moveProductsToInventorybtn">Move To Inventory</button>
+                <!-- <button class="btn bg-success pull-right mt-4" id="completedProductsbtn">Redownload Stock File</button> -->
               </div>
               <div class="entriesbg bg-white custompadding customborder mt-5">
               <h1 class="inccorect-datatable text-danger">Incomplete Records</h1>
@@ -545,7 +546,7 @@ $('#completedProductsbtn').on('click',function(e){
           },
           error:function()
           {
-              // $('#completedProductsbtn').html('Redownload Stock File');
+              $('#completedProductsbtn').html('Redownload Stock File');
               $('#completedProductsbtn').prop('disabled',false);
           }
         });
@@ -571,7 +572,7 @@ $('#completedProductsbtn').on('click',function(e){
                       var user_id={{Auth::user()->id}};
                       var url='storage/app/Completed-Stock-Adjustment-'+user_id+'-'+data.file_name+'.xlsx';
                       console.log(url);
-                      // $('#completedProductsbtn').html('Redownload Stock File');
+                      $('#completedProductsbtn').html('Redownload Stock File');
                       $('.export-alert-success').removeClass('d-none');
                       toastr.success('Success!', 'File downloaded successfully.' ,{"positionClass": "toast-bottom-right"});
                       if(type==1)
@@ -802,8 +803,7 @@ $('#completedProductsbtn').on('click',function(e){
 
       });
   }
-
-    $(document).on('submit', '.upload-excel-form', function(e){
+$(document).on('submit', '.upload-excel-form', function(e){
         e.preventDefault();
         $.ajaxSetup({
             headers: {
@@ -859,6 +859,58 @@ $('#completedProductsbtn').on('click',function(e){
 
            }
             });
+    });
+    $(document).on('click', '#moveProductsToInventorybtn', function(e){
+        e.preventDefault();
+        $.ajax({
+
+            method:"get",
+            url:"{{route('bulk-completed-prod-move-to-inventory')}}",
+            contentType: false,
+            cache: false,
+            processData:false,
+            beforeSend:function(){
+            $('#moveProductsToInventorybtn').html('Please Wait');
+            $('#moveProductsToInventorybtn').prop('disabled',true);
+            },
+            success:function(data)
+            {
+                if(data.status==0 || data.status==2)
+                {
+                  $('.table-incomplete-rows').DataTable().ajax.reload();
+                  $('#moveProductsToInventorybtn').html('Move To Inventory');
+                  $('#moveProductsToInventorybtn').prop('disabled',false);
+                }
+                else
+                {
+                    console.log(data.status);
+                    recursiveCallForImportStatus();
+                    $('#moveProductsToInventorybtn').html('Move To Inventory');
+                   $('#moveProductsToInventorybtn').prop('disabled',false);
+                   $('.table-incomplete-rows').DataTable().ajax.reload();
+                  
+                    // $('.table-incomplete-rows').DataTable().ajax.reload();
+                    // recursiveCallForImportStatus();
+                }
+            },
+            error: function(xhr, status, error) {
+            var response = JSON.parse(xhr.responseText);
+            var errorMessage = response.message;
+            var errorDetails = response.errors;
+            var errorText = '';
+
+            // Format the error details
+            for (var key in errorDetails) {
+                if (errorDetails.hasOwnProperty(key)) {
+                    errorText += key + ': ' + errorDetails[key].join(', ') + '<br>';
+                }
+            }
+
+            // Display swal with error message and details
+            swal("The given data is invalid.", "", "error");
+
+            }
+         });
     });
 
     function recursiveCallForImportStatus()

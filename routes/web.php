@@ -452,6 +452,7 @@ Route::group(['namespace' => 'Purchasing', 'middleware' => 'purchasing'], functi
     Route::post('get-all-prod-qty-excel', 'PurchasingController@getFilteredStockProdExcel')->name('get-all-prod-qty-excel');
     Route::post('bulk-upload-prod-qty', 'PurchasingController@bulkUploadProdQty')->name('bulk-upload-prod-qty');
 
+    Route::get('bulk-completed-prod-move-to-inventory', 'PurchasingController@bulkCompletedProdMoveToinventory')->name('bulk-completed-prod-move-to-inventory');
 
     Route::post('get-all-prod-excel', 'ProductController@getAllProdExcel')->name('get-all-prod-excel');
     Route::post('get-filtered-prod-excel', 'ProductController@getFilteredProdExcel')->name('get-filtered-prod-excel');
