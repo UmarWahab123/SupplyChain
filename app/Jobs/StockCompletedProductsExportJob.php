@@ -49,6 +49,7 @@ class StockCompletedProductsExportJob implements ShouldQueue
             {
                 if($variable->terminology != null)
                 {
+                    
                     $global_terminologies[$variable->slug]=$variable->terminology;
                 }else{
                     $global_terminologies[$variable->slug]=$variable->standard_name;

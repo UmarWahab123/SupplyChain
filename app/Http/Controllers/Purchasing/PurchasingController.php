@@ -29,6 +29,7 @@ use App\Models\Common\PurchaseOrders\PurchaseOrder;
 use App\Models\Common\PurchaseOrders\PurchaseOrderDetail;
 use App\Models\Common\StockManagementIn;
 use App\Models\Common\Supplier;
+use App\Jobs\BulkStockAdjustmentJob;
 use App\Models\Common\SupplierCategory;
 use App\Models\Common\SupplierProducts;
 use App\Models\Common\TableHideColumn;
@@ -764,6 +765,19 @@ class PurchasingController extends Controller
     //     }
 
     // }
+    public function bulkCompletedProdMoveToinventory()
+    {
+        //remove auth user temp stock record first
+        $tempRow = TempStockAdjustment::where('user_id',Auth::user()->id)->pluck('incomplete_rows')->toArray();
+        $rows = $tempRow;
+        $removeTempStock = TempStockAdjustment::where('user_id', Auth::user()->id)->get();
+         foreach ($removeTempStock as $tempStock) {
+            $tempStock->delete();
+        }
+        BulkStockAdjustmentJob::dispatch($rows, Auth::user()->id, true);
+        // ImportFileHistory::insertRecordIntoDb(Auth::user()->id,'Stock Adjustments',$request->file('excel'));
+        return redirect()->back()->with('successmsg','Stock Adjusted Successfully!');
+    }
 
     public function bulkUploadProdQty(Request $request)
     {

@@ -25,6 +25,7 @@ class BulkStockAdjustmentJob implements ShouldQueue
 
     protected $rows = null;
     protected $user_id = null;
+    protected $stock_completed = null;
     public $timeout = 1500;
     public $tries = 1;
 
@@ -33,10 +34,11 @@ class BulkStockAdjustmentJob implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($rows, $user_id)
+    public function __construct($rows, $user_id, $stock_completed = null)
     {
         $this->rows = $rows;
         $this->user_id = $user_id;
+        $this->stock_completed = $stock_completed;
     }
 
     /**
@@ -48,13 +50,18 @@ class BulkStockAdjustmentJob implements ShouldQueue
     {
         $rows = $this->rows;
         $user_id = $this->user_id;
+        $stock_completed = $this->stock_completed;
         $error_msg = null;
         $html_string = '';
         $incomplete_rows = [];
         $has_error = 0;
         try {
-            $row1 = $rows->toArray();
-            $remove = array_shift($row1);
+            if($stock_completed == true){
+             $row1 = $rows;
+            }else{
+             $row1 = $rows->toArray();
+             $remove = array_shift($row1);
+            }
             $increment = 0; 
             foreach ($row1 as $key => $row)
             {
@@ -123,13 +130,13 @@ class BulkStockAdjustmentJob implements ShouldQueue
                 }
                 if (is_numeric($adjust_2)){
                     if($adjust_2 > 0){
-                        $supplier = Supplier::where('reference_name',$supplier_name)->first();
+                      $supplier = Supplier::where('reference_name',$supplier_name)->first();
                       if(!$supplier){
                           $error = 3;
                           $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_2.' QTY into system but Supplier '.$supplier_name.' doesnt exist in the system.</li>';
                       }
                     }else{
-                        $cusomer = Customer::where('reference_name',$customer_name)->first();
+                      $cusomer = Customer::where('reference_name',$customer_name)->first();
                       if(!$cusomer){
                           $error = 3;
                           $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_2.' QTY into system but Customer '.$customer_name.' doesnt exist in the system.</li>';  
@@ -138,7 +145,7 @@ class BulkStockAdjustmentJob implements ShouldQueue
                 }
                 if (is_numeric($adjust_3)){
                 if($adjust_3 > 0){
-                $supplier = Supplier::where('reference_name',$supplier_name)->first();
+                   $supplier = Supplier::where('reference_name',$supplier_name)->first();
                     if(!$supplier){
                         $error = 3;
                         $html_string .= '<li>Error: In Row<b> '.$increment.'</b> user is trying to add '.$adjust_3.' QTY into system but Supplier '.$supplier_name.' doesnt exist in the system.</li>';
