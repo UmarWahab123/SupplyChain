@@ -931,7 +931,6 @@ $(document).on('submit', '.upload-excel-form', function(e){
                     swal("Stock Adjusted Successfully", "", "success");
                     $('#bulk_upload_Modal').modal('hide');
                     $('.table-incomplete-rows').DataTable().ajax.reload();
-                    $('.table-incomplete-rows').DataTable().ajax.reload();
 
                 }
                 else if(data.status==2)
@@ -944,7 +943,6 @@ $(document).on('submit', '.upload-excel-form', function(e){
                 }
                 else if(data.status == 3)
                 {
-                  $('.table-incomplete-rows').DataTable().ajax.reload();
                   $('.table-incomplete-rows').DataTable().ajax.reload();
                     // console.log(data.exception);
                     $('#bulk_upload_Modal').modal('hide');
