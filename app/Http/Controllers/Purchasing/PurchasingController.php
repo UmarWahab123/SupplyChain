@@ -770,10 +770,10 @@ class PurchasingController extends Controller
         //remove auth user temp stock record first
         $tempRow = TempStockAdjustment::where('user_id',Auth::user()->id)->pluck('incomplete_rows')->toArray();
         $rows = $tempRow;
-        // $removeTempStock = TempStockAdjustment::where('user_id', Auth::user()->id)->get();
-        //  foreach ($removeTempStock as $tempStock) {
-        //     $tempStock->delete();
-        // }
+        $removeTempStock = TempStockAdjustment::where('user_id', Auth::user()->id)->get();
+         foreach ($removeTempStock as $tempStock) {
+            $tempStock->delete();
+        }
         BulkStockAdjustmentJob::dispatch($rows, Auth::user()->id, true);
         // ImportFileHistory::insertRecordIntoDb(Auth::user()->id,'Stock Adjustments',$request->file('excel'));
         return redirect()->back()->with('successmsg','Stock Adjusted Successfully!');
