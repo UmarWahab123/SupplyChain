@@ -933,7 +933,7 @@ $(document).on('submit', '.upload-excel-form', function(e){
                     // toastr.success('Success!', 'Stock Adjust Successfully.' ,{"positionClass": "toast-bottom-right"});
                     swal("Stock Adjusted Successfully", "", "success");
                     $('#bulk_upload_Modal').modal('hide');
-                    // $('.table-incomplete-rows').DataTable().ajax.reload();
+                    $('.table-incomplete-rows').DataTable().ajax.reload();
 
                 }
                 else if(data.status==2)
@@ -950,7 +950,7 @@ $(document).on('submit', '.upload-excel-form', function(e){
                     $('#bulk_upload_Modal').modal('hide');
                     // toastr.error('Error!', 'Something went wrong. Please try again later. If the issue persists, please contact support.' ,{"positionClass": "toast-bottom-right"});
                     swal("Some products have incomplete data please check the Incomplete Records Table", "", "error");
-                    // $('.table-incomplete-rows').DataTable().ajax.reload();
+                    $('.table-incomplete-rows').DataTable().ajax.reload();
                     // $('.inccorect-datatable').html("Incomplete Records");
                     // $('.inccorect-datatable').removeClass('d-none');
 
