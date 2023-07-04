@@ -834,9 +834,9 @@ $(document).on('submit', '.upload-excel-form', function(e){
                 }
                 else
                 {
-                    console.log(data.status);
-                    $('.table-incomplete-rows').DataTable().ajax.reload();
-                    recursiveCallForImportStatus();
+                  console.log(data.status);
+                  $('.table-incomplete-rows').DataTable().ajax.reload();
+                  recursiveCallForImportStatus();
                 }
             },
             error: function(xhr, status, error) {
@@ -875,7 +875,7 @@ $(document).on('submit', '.upload-excel-form', function(e){
             },
             success:function(data)
             {
-                if(data.status==0 || data.status==2)
+              if(data.status==0 || data.status==2)
                 {
                   $('.table-incomplete-rows').DataTable().ajax.reload();
                   $('#moveProductsToInventorybtn').html('Move To Inventory');
@@ -883,14 +883,11 @@ $(document).on('submit', '.upload-excel-form', function(e){
                 }
                 else
                 {
-                    console.log(data.status);
-                    recursiveCallForImportStatus();
-                    $('#moveProductsToInventorybtn').html('Move To Inventory');
-                   $('#moveProductsToInventorybtn').prop('disabled',false);
-                   $('.table-incomplete-rows').DataTable().ajax.reload();
-                  
-                    // $('.table-incomplete-rows').DataTable().ajax.reload();
-                    // recursiveCallForImportStatus();
+                  console.log(data.status);
+                   recursiveCallForImportStatus();
+                  $('#moveProductsToInventorybtn').html('Move To Inventory');
+                  $('#moveProductsToInventorybtn').prop('disabled',false);
+                  $('.table-incomplete-rows').DataTable().ajax.reload();
                 }
             },
             error: function(xhr, status, error) {
@@ -934,7 +931,6 @@ $(document).on('submit', '.upload-excel-form', function(e){
                     swal("Stock Adjusted Successfully", "", "success");
                     $('#bulk_upload_Modal').modal('hide');
                     $('.table-incomplete-rows').DataTable().ajax.reload();
-
                 }
                 else if(data.status==2)
                 {
@@ -946,11 +942,11 @@ $(document).on('submit', '.upload-excel-form', function(e){
                 }
                 else if(data.status == 3)
                 {
+                  $('.table-incomplete-rows').DataTable().ajax.reload();
                     // console.log(data.exception);
                     $('#bulk_upload_Modal').modal('hide');
                     // toastr.error('Error!', 'Something went wrong. Please try again later. If the issue persists, please contact support.' ,{"positionClass": "toast-bottom-right"});
                     swal("Some products have incomplete data please check the Incomplete Records Table", "", "error");
-                    $('.table-incomplete-rows').DataTable().ajax.reload();
                     // $('.inccorect-datatable').html("Incomplete Records");
                     // $('.inccorect-datatable').removeClass('d-none');
 

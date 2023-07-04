@@ -534,7 +534,7 @@ class BulkStockAdjustmentJob implements ShouldQueue
                 $export_status->error_msgs = "Stock Adjusted Successfully, But Some Of Them Has Issues !!!";
                 $export_status->exception = $html_string;
                 $export_status->status = 3;
-                $removePreviousTempStockAdjustment = TempStockAdjustment::where('user_id',$user_id)->delete();
+                // $removePreviousTempStockAdjustment = TempStockAdjustment::where('user_id',$user_id)->delete();
                 $warehouse_st = Warehouse::where('status',1)->where('warehouse_title', @$row1[0][1])->first();
                 foreach ($incomplete_rows as $row) {
                     $tempStockAdjustment = new TempStockAdjustment;
