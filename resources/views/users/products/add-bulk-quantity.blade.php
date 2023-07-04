@@ -884,10 +884,11 @@ $(document).on('submit', '.upload-excel-form', function(e){
                 else
                 {
                   console.log(data.status);
-                   recursiveCallForImportStatus();
                   $('#moveProductsToInventorybtn').html('Move To Inventory');
                   $('#moveProductsToInventorybtn').prop('disabled',false);
                   $('.table-incomplete-rows').DataTable().ajax.reload();
+                  recursiveCallForImportStatus();
+
                 }
             },
             error: function(xhr, status, error) {
