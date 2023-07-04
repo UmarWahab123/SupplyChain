@@ -830,6 +830,7 @@ $(document).on('submit', '.upload-excel-form', function(e){
             {
                 if(data.status==0 || data.status==2)
                 {
+                  recursiveCallForImportStatus();
                   $('.table-incomplete-rows').DataTable().ajax.reload();
                 }
                 else
@@ -880,13 +881,15 @@ $(document).on('submit', '.upload-excel-form', function(e){
                   $('.table-incomplete-rows').DataTable().ajax.reload();
                   $('#moveProductsToInventorybtn').html('Move To Inventory');
                   $('#moveProductsToInventorybtn').prop('disabled',false);
+                  recursiveCallForImportStatus();
+
                 }
                 else
                 {
                   console.log(data.status);
+                  $('.table-incomplete-rows').DataTable().ajax.reload();
                   $('#moveProductsToInventorybtn').html('Move To Inventory');
                   $('#moveProductsToInventorybtn').prop('disabled',false);
-                  $('.table-incomplete-rows').DataTable().ajax.reload();
                   recursiveCallForImportStatus();
 
                 }
