@@ -22,7 +22,7 @@ class TempStockAdjustment extends Model
                 $supplierName = $item->incomplete_rows[15];
                 $supplierExists = $suppliers->contains('reference_name', $supplierName);
                 $html_string = '<div class="'.($supplierName == null || !$supplierExists  ? 'customer__dropdown' : '').'">';
-                $html_string .= '<select class="stock-supplier-name " data-row-id="'.$item->id.'" name="supplier_name">';
+                $html_string .= '<select class="stock-supplier-name select2" data-row-id="'.$item->id.'" name="supplier_name">';
                 $html_string .= ' <option value="" selected="" disabled="">Choose Supplier</option>';
                 if ($suppliers->count() > 0) {
                     foreach ($suppliers as $supplier) {
@@ -45,7 +45,7 @@ class TempStockAdjustment extends Model
                 $customerName = $item->incomplete_rows[16];
                 $customerExists = $customers->contains('reference_name', $customerName);
                 $html_string = '<div class="'.($customerName == null || !$customerExists ? 'customer__dropdown' : '').'">';
-                $html_string .= '<select style="border: 1px solid red;" data-row-id="'.$item->id.'" class="stock-customer-name" name="customer_name">';
+                $html_string .= '<select style="border: 1px solid red;" data-row-id="'.$item->id.'" class="stock-customer-name select2" name="customer_name">';
                 $html_string .= ' <option value="" selected="" disabled="">Choose Customer</option>';
                 if ($customers->count() > 0) {
                     foreach ($customers as $customer) {
